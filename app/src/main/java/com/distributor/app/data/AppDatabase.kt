@@ -4,14 +4,18 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.distributor.app.data.dao.LedgerDao
 import com.distributor.app.data.dao.PaymentLogDao
 import com.distributor.app.data.dao.ProductDao
 import com.distributor.app.data.dao.ResellerDao
+import com.distributor.app.data.dao.ReturnDao
 import com.distributor.app.data.dao.StockLedgerDao
 import com.distributor.app.data.dao.TransactionDao
 import com.distributor.app.data.entity.PaymentLogEntity
 import com.distributor.app.data.entity.ProductEntity
 import com.distributor.app.data.entity.ResellerEntity
+import com.distributor.app.data.entity.ReturnDetailEntity
+import com.distributor.app.data.entity.ReturnEntity
 import com.distributor.app.data.entity.StockLedgerEntity
 import com.distributor.app.data.entity.TransactionDetailEntity
 import com.distributor.app.data.entity.TransactionEntity
@@ -23,9 +27,11 @@ import com.distributor.app.data.entity.TransactionEntity
         StockLedgerEntity::class,
         TransactionEntity::class,
         TransactionDetailEntity::class,
-        PaymentLogEntity::class
+        PaymentLogEntity::class,
+        ReturnEntity::class,
+        ReturnDetailEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -35,6 +41,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun stockLedgerDao(): StockLedgerDao
     abstract fun transactionDao(): TransactionDao
     abstract fun paymentLogDao(): PaymentLogDao
+    abstract fun ledgerDao(): LedgerDao
+    abstract fun returnDao(): ReturnDao
 
     companion object {
         private const val DATABASE_NAME: String = "distributor.db"
@@ -55,6 +63,7 @@ abstract class AppDatabase : RoomDatabase() {
                 DATABASE_NAME
             )
                 .setJournalMode(JournalMode.WRITE_AHEAD_LOGGING)
+                .fallbackToDestructiveMigration()
                 .build()
         }
     }

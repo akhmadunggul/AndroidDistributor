@@ -1,9 +1,11 @@
 package com.distributor.app.utils
 
 import android.content.Context
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.RectF
 import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
 import com.distributor.app.data.entity.TransactionEntity
@@ -12,6 +14,26 @@ import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+
+// ── Data classes ──────────────────────────────────────────────────────────
+
+data class PaymentReceiptData(
+    val resellerName: String,
+    val resellerPhone: String,
+    val resellerAddress: String,
+    val paymentAmount: Double,
+    val paymentMethod: String,
+    val notes: String,
+    val paymentDate: Long,
+    val allocations: List<PaymentAllocationLine>
+)
+
+data class PaymentAllocationLine(
+    val invoiceNumber: String,
+    val invoiceTotal: Double,
+    val amountApplied: Double,
+    val balanceAfter: Double
+)
 
 // ── Immutable receipt snapshot passed by the ViewModel ─────────────────────
 
@@ -61,6 +83,10 @@ class ReceiptPdfGenerator(private val context: Context) {
      * in a finally block to guarantee release even if writeTo() throws.
      */
     fun generate(data: ReceiptData): File {
+        val config = BusinessConfigStore.get(context)
+        val logoFile = BusinessConfigStore.getLogoFile(context)
+        val logoBitmap = if (logoFile.exists()) BitmapFactory.decodeFile(logoFile.absolutePath) else null
+
         val outputFile = prepareOutputFile(data.transaction.invoiceNumber)
         val pageHeight = computePageHeight(data.lineItems.size)
 
@@ -68,7 +94,7 @@ class ReceiptPdfGenerator(private val context: Context) {
         try {
             val pageInfo = PdfDocument.PageInfo.Builder(PAGE_WIDTH, pageHeight, 1).create()
             val page = document.startPage(pageInfo)
-            drawReceipt(page.canvas, data)
+            drawReceipt(page.canvas, data, config, logoBitmap)
             document.finishPage(page)
 
             FileOutputStream(outputFile).use { stream ->
@@ -83,7 +109,7 @@ class ReceiptPdfGenerator(private val context: Context) {
 
     // ── Layout ────────────────────────────────────────────────────────────────
 
-    private fun drawReceipt(canvas: Canvas, data: ReceiptData) {
+    private fun drawReceipt(canvas: Canvas, data: ReceiptData, config: BusinessConfig, logoBitmap: android.graphics.Bitmap?) {
         // Shared paint instances (reused; textAlign reset per section)
         val paintBoldLg  = makePaint(18f, Color.BLACK,  bold = true)
         val paintBoldMd  = makePaint(13f, Color.BLACK,  bold = true)
@@ -100,14 +126,49 @@ class ReceiptPdfGenerator(private val context: Context) {
         var y = MARGIN + 24f
 
         // ── 1. App Header ────────────────────────────────────────────────────
-        paintBoldLg.textAlign = Paint.Align.CENTER
-        canvas.drawText("DISTRIBUTOR", CENTER_X, y, paintBoldLg)
-        y += 2f
-        canvas.drawLine(MARGIN + 60f, y, RIGHT_EDGE - 60f, y, lineThick)
-        y += 14f
+        val businessName = config.businessName.ifBlank { "DISTRIBUTOR" }.uppercase()
+
+        if (logoBitmap != null) {
+            val logoSize = 60f
+            val logoTop  = y - 14f
+            val logoRect = RectF(MARGIN, logoTop, MARGIN + logoSize, logoTop + logoSize)
+            canvas.drawBitmap(logoBitmap, null, logoRect, null)
+
+            val textX = MARGIN + logoSize + 12f
+            paintBoldLg.textAlign = Paint.Align.LEFT
+            canvas.drawText(businessName, textX, y, paintBoldLg)
+            y += 16f
+
+            if (config.ownerPhone.isNotBlank()) {
+                paintBody.textAlign = Paint.Align.LEFT
+                canvas.drawText(config.ownerPhone, textX, y, paintBody)
+                y += 14f
+            }
+            if (config.address.isNotBlank()) {
+                paintGray.textAlign = Paint.Align.LEFT
+                canvas.drawText(config.address, textX, y, paintGray)
+                y += 14f
+            }
+            y = maxOf(y, logoTop + logoSize + 8f)
+        } else {
+            paintBoldLg.textAlign = Paint.Align.CENTER
+            canvas.drawText(businessName, CENTER_X, y, paintBoldLg)
+            y += 16f
+
+            if (config.ownerPhone.isNotBlank()) {
+                paintBody.textAlign = Paint.Align.CENTER
+                canvas.drawText(config.ownerPhone, CENTER_X, y, paintBody)
+                y += 14f
+            }
+            if (config.address.isNotBlank()) {
+                paintGray.textAlign = Paint.Align.CENTER
+                canvas.drawText(config.address, CENTER_X, y, paintGray)
+                y += 14f
+            }
+        }
 
         paintCaption.textAlign = Paint.Align.CENTER
-        canvas.drawText("OFFICIAL INVOICE RECEIPT", CENTER_X, y, paintCaption)
+        canvas.drawText("STRUK INVOICE", CENTER_X, y, paintCaption)
         y += 14f
 
         canvas.drawLine(MARGIN, y, RIGHT_EDGE, y, lineThick)
@@ -120,7 +181,7 @@ class ReceiptPdfGenerator(private val context: Context) {
             it.textAlign = Paint.Align.RIGHT
         }
 
-        canvas.drawText("Invoice No.", MARGIN, y, metaLabel)
+        canvas.drawText("No. Invoice", MARGIN, y, metaLabel)
         canvas.drawText(data.transaction.invoiceNumber, MARGIN + 72f, y, metaValue)
         canvas.drawText(formatDate(data.transaction.createdAt), RIGHT_EDGE, y, metaRight)
         y += 18f
@@ -131,8 +192,13 @@ class ReceiptPdfGenerator(private val context: Context) {
             TransactionEntity.STATUS_PARTIAL -> Color.parseColor("#E65100")
             else                             -> Color.parseColor("#C62828")
         }
+        val statusLabel = when (data.transaction.status) {
+            TransactionEntity.STATUS_PAID    -> "LUNAS"
+            TransactionEntity.STATUS_PARTIAL -> "CICILAN"
+            else                             -> "BELUM LUNAS"
+        }
         canvas.drawText(
-            data.transaction.status,
+            statusLabel,
             MARGIN + 72f, y,
             makePaint(11f, statusColor, bold = true)
         )
@@ -143,7 +209,7 @@ class ReceiptPdfGenerator(private val context: Context) {
 
         // ── 3. Bill To ───────────────────────────────────────────────────────
         paintCaption.textAlign = Paint.Align.LEFT
-        canvas.drawText("BILL TO", MARGIN, y, paintCaption)
+        canvas.drawText("TAGIHAN KEPADA", MARGIN, y, paintCaption)
         y += 15f
 
         canvas.drawText(data.resellerName, MARGIN, y, paintBoldMd)
@@ -170,10 +236,10 @@ class ReceiptPdfGenerator(private val context: Context) {
             it.textAlign = Paint.Align.RIGHT
         }
 
-        canvas.drawText("PRODUCT", MARGIN, y, colHdrPaint)
-        canvas.drawText("QTY",       COL_QTY_RIGHT,      y, colHdrRight)
-        canvas.drawText("UNIT PRICE", COL_PRICE_RIGHT,   y, colHdrRight)
-        canvas.drawText("SUBTOTAL",  COL_SUBTOTAL_RIGHT, y, colHdrRight)
+        canvas.drawText("PRODUK", MARGIN, y, colHdrPaint)
+        canvas.drawText("JML",          COL_QTY_RIGHT,      y, colHdrRight)
+        canvas.drawText("HARGA SATUAN", COL_PRICE_RIGHT,    y, colHdrRight)
+        canvas.drawText("SUBTOTAL",     COL_SUBTOTAL_RIGHT, y, colHdrRight)
         y += 7f
 
         canvas.drawLine(MARGIN, y, RIGHT_EDGE, y, lineThick)
@@ -214,13 +280,13 @@ class ReceiptPdfGenerator(private val context: Context) {
             it.textAlign = Paint.Align.RIGHT
         }
 
-        canvas.drawText("Total Amount", totLabelX, y, totLabel)
+        canvas.drawText("Total", totLabelX, y, totLabel)
         canvas.drawText(formatAmount(data.transaction.totalAmount), totValueX, y, totValue)
         y += 18f
 
         val paidColor = if (data.transaction.amountPaid > 0.0)
             Color.parseColor("#2E7D32") else Color.DKGRAY
-        canvas.drawText("Amount Paid", totLabelX, y, totLabel)
+        canvas.drawText("Terbayar", totLabelX, y, totLabel)
         canvas.drawText(
             formatAmount(data.transaction.amountPaid), totValueX, y,
             makePaint(11f, paidColor, bold = false).also { it.textAlign = Paint.Align.RIGHT }
@@ -232,7 +298,7 @@ class ReceiptPdfGenerator(private val context: Context) {
 
         val balanceColor = if (data.balanceDue > 0.001)
             Color.parseColor("#C62828") else Color.parseColor("#2E7D32")
-        canvas.drawText("Balance Due",
+        canvas.drawText("Sisa Tagihan",
             totLabelX, y,
             makePaint(13f, balanceColor, bold = true).also { it.textAlign = Paint.Align.RIGHT }
         )
@@ -248,14 +314,162 @@ class ReceiptPdfGenerator(private val context: Context) {
 
         paintCaption.textAlign = Paint.Align.CENTER
         canvas.drawText(
-            "Generated on ${formatDate(System.currentTimeMillis())}  ·  Distributor App",
+            "Dibuat ${formatDate(System.currentTimeMillis())}  ·  Distributor App",
             CENTER_X, y, paintCaption
         )
         y += 12f
         canvas.drawText(
-            "Computer-generated document — no signature required.",
+            "Dokumen elektronik — tidak memerlukan tanda tangan.",
             CENTER_X, y, paintCaption
         )
+    }
+
+    // ── Payment receipt ───────────────────────────────────────────────────────
+
+    fun generatePaymentReceipt(data: PaymentReceiptData): File {
+        val config = BusinessConfigStore.get(context)
+        val logoFile = BusinessConfigStore.getLogoFile(context)
+        val logoBitmap = if (logoFile.exists()) BitmapFactory.decodeFile(logoFile.absolutePath) else null
+
+        val ref = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault()).format(Date(data.paymentDate))
+        val outputFile = File(File(context.cacheDir, "receipts").also { it.mkdirs() }, "PAY-$ref.pdf")
+        val pageHeight = maxOf(PAGE_HEIGHT_MIN, 360 + data.allocations.size * 22 + 80)
+
+        val document = PdfDocument()
+        try {
+            val pageInfo = PdfDocument.PageInfo.Builder(PAGE_WIDTH, pageHeight, 1).create()
+            val page = document.startPage(pageInfo)
+            drawPaymentReceipt(page.canvas, data, config, logoBitmap, ref)
+            document.finishPage(page)
+            FileOutputStream(outputFile).use { document.writeTo(it) }
+        } finally {
+            document.close()
+        }
+        return outputFile
+    }
+
+    private fun drawPaymentReceipt(
+        canvas: Canvas,
+        data: PaymentReceiptData,
+        config: BusinessConfig,
+        logoBitmap: android.graphics.Bitmap?,
+        ref: String
+    ) {
+        val paintBoldLg  = makePaint(18f, Color.BLACK,  bold = true)
+        val paintBoldMd  = makePaint(13f, Color.BLACK,  bold = true)
+        val paintBody    = makePaint(11f, Color.BLACK,  bold = false)
+        val paintCaption = makePaint(9f,  Color.GRAY,   bold = false)
+        val paintGray    = makePaint(10f, Color.DKGRAY, bold = false)
+
+        val lineThin  = strokePaint(Color.LTGRAY, 0.8f)
+        val lineThick = strokePaint(Color.BLACK,  1.5f)
+        val fillLight = fillPaint(Color.parseColor("#F5F5F5"))
+        val fillRow   = fillPaint(Color.parseColor("#FAFAFA"))
+
+        // Column anchors for the allocation table
+        val colTotalRight   = 275f
+        val colAppliedRight = 405f
+        val colBalanceRight = RIGHT_EDGE
+
+        var y = MARGIN + 24f
+
+        // ── 1. Business header (reuse same logic as invoice) ──────────────────
+        val businessName = config.businessName.ifBlank { "DISTRIBUTOR" }.uppercase()
+        if (logoBitmap != null) {
+            val logoSize = 60f
+            val logoTop  = y - 14f
+            val logoRect = RectF(MARGIN, logoTop, MARGIN + logoSize, logoTop + logoSize)
+            canvas.drawBitmap(logoBitmap, null, logoRect, null)
+            val textX = MARGIN + logoSize + 12f
+            paintBoldLg.textAlign = Paint.Align.LEFT
+            canvas.drawText(businessName, textX, y, paintBoldLg); y += 16f
+            if (config.ownerPhone.isNotBlank()) { paintBody.textAlign = Paint.Align.LEFT; canvas.drawText(config.ownerPhone, textX, y, paintBody); y += 14f }
+            if (config.address.isNotBlank()) { paintGray.textAlign = Paint.Align.LEFT; canvas.drawText(config.address, textX, y, paintGray); y += 14f }
+            y = maxOf(y, logoTop + logoSize + 8f)
+        } else {
+            paintBoldLg.textAlign = Paint.Align.CENTER
+            canvas.drawText(businessName, CENTER_X, y, paintBoldLg); y += 16f
+            if (config.ownerPhone.isNotBlank()) { paintBody.textAlign = Paint.Align.CENTER; canvas.drawText(config.ownerPhone, CENTER_X, y, paintBody); y += 14f }
+            if (config.address.isNotBlank()) { paintGray.textAlign = Paint.Align.CENTER; canvas.drawText(config.address, CENTER_X, y, paintGray); y += 14f }
+        }
+
+        paintCaption.textAlign = Paint.Align.CENTER
+        canvas.drawText("KUITANSI PEMBAYARAN", CENTER_X, y, paintCaption); y += 14f
+        canvas.drawLine(MARGIN, y, RIGHT_EDGE, y, lineThick); y += 16f
+
+        // ── 2. Payment meta ──────────────────────────────────────────────────
+        val metaLabel = makePaint(10f, Color.DKGRAY, bold = true)
+        val metaValue = makePaint(11f, Color.BLACK,  bold = false)
+        val metaRight = makePaint(10f, Color.DKGRAY, bold = false).also { it.textAlign = Paint.Align.RIGHT }
+
+        canvas.drawText("Ref",    MARGIN, y, metaLabel)
+        canvas.drawText("PAY-$ref", MARGIN + 36f, y, metaValue)
+        canvas.drawText(formatDate(data.paymentDate), RIGHT_EDGE, y, metaRight); y += 18f
+
+        val methodLabel = when (data.paymentMethod) {
+            "CASH"     -> "Tunai"
+            "TRANSFER" -> "Transfer Bank"
+            else       -> "Lainnya"
+        }
+        canvas.drawText("Metode", MARGIN, y, metaLabel)
+        canvas.drawText(methodLabel, MARGIN + 52f, y, metaValue); y += 14f
+
+        if (data.notes.isNotBlank()) {
+            canvas.drawText("Catatan", MARGIN, y, metaLabel)
+            canvas.drawText(data.notes, MARGIN + 52f, y, metaValue); y += 14f
+        }
+        y += 4f
+        canvas.drawLine(MARGIN, y, RIGHT_EDGE, y, lineThin); y += 14f
+
+        // ── 3. Received from ─────────────────────────────────────────────────
+        paintCaption.textAlign = Paint.Align.LEFT
+        canvas.drawText("DITERIMA DARI", MARGIN, y, paintCaption); y += 14f
+        canvas.drawText(data.resellerName, MARGIN, y, paintBoldMd); y += 16f
+        if (data.resellerPhone.isNotBlank()) { canvas.drawText(data.resellerPhone, MARGIN, y, paintBody); y += 14f }
+        if (data.resellerAddress.isNotBlank()) { canvas.drawText(data.resellerAddress, MARGIN, y, paintGray); y += 14f }
+        y += 8f
+        canvas.drawLine(MARGIN, y, RIGHT_EDGE, y, lineThin); y += 14f
+
+        // ── 4. Allocation table header ───────────────────────────────────────
+        canvas.drawRect(MARGIN, y - 13f, RIGHT_EDGE, y + 5f, fillLight)
+        val colHdr = makePaint(9f, Color.DKGRAY, bold = true)
+        val colHdrR = makePaint(9f, Color.DKGRAY, bold = true).also { it.textAlign = Paint.Align.RIGHT }
+        canvas.drawText("INVOICE",   MARGIN,          y, colHdr)
+        canvas.drawText("JUMLAH",    colTotalRight,   y, colHdrR)
+        canvas.drawText("DIBAYAR",   colAppliedRight, y, colHdrR)
+        canvas.drawText("SISA",      colBalanceRight, y, colHdrR); y += 7f
+        canvas.drawLine(MARGIN, y, RIGHT_EDGE, y, lineThick); y += 15f
+
+        // ── 5. Allocation rows ───────────────────────────────────────────────
+        val rowRight = makePaint(11f, Color.BLACK, bold = false).also { it.textAlign = Paint.Align.RIGHT }
+        data.allocations.forEachIndexed { i, alloc ->
+            if (i % 2 == 1) canvas.drawRect(MARGIN, y - 13f, RIGHT_EDGE, y + 5f, fillRow)
+            val nameLabel = truncate(alloc.invoiceNumber, paintBody, colTotalRight - MARGIN - 12f)
+            canvas.drawText(nameLabel, MARGIN, y, paintBody)
+            canvas.drawText(formatAmount(alloc.invoiceTotal),  colTotalRight,   y, rowRight)
+            canvas.drawText(formatAmount(alloc.amountApplied), colAppliedRight, y, rowRight)
+            val balanceText = if (alloc.balanceAfter <= 0.001) "LUNAS"
+                              else formatAmount(alloc.balanceAfter)
+            val balancePaint = if (alloc.balanceAfter <= 0.001)
+                makePaint(11f, Color.parseColor("#2E7D32"), bold = true).also { it.textAlign = Paint.Align.RIGHT }
+                else rowRight
+            canvas.drawText(balanceText, colBalanceRight, y, balancePaint)
+            y += 20f
+        }
+        canvas.drawLine(MARGIN, y, RIGHT_EDGE, y, lineThick); y += 22f
+
+        // ── 6. Total paid ────────────────────────────────────────────────────
+        val totLabelX = colBalanceRight - 130f
+        val totLabel = makePaint(11f, Color.DKGRAY, bold = false).also { it.textAlign = Paint.Align.RIGHT }
+        val totValue = makePaint(14f, Color.BLACK,  bold = true).also { it.textAlign = Paint.Align.RIGHT }
+        canvas.drawText("TOTAL DIBAYAR", totLabelX, y, totLabel)
+        canvas.drawText(formatAmount(data.paymentAmount), colBalanceRight, y, totValue); y += 30f
+
+        // ── 7. Footer ────────────────────────────────────────────────────────
+        canvas.drawLine(MARGIN, y, RIGHT_EDGE, y, lineThin); y += 14f
+        paintCaption.textAlign = Paint.Align.CENTER
+        canvas.drawText("Dibuat ${formatDate(System.currentTimeMillis())}  ·  Distributor App", CENTER_X, y, paintCaption); y += 12f
+        canvas.drawText("Dokumen elektronik — tidak memerlukan tanda tangan.", CENTER_X, y, paintCaption)
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
@@ -307,10 +521,9 @@ class ReceiptPdfGenerator(private val context: Context) {
     }
 
     private fun formatDate(millis: Long): String =
-        SimpleDateFormat("dd MMMM yyyy", Locale.getDefault()).format(Date(millis))
+        SimpleDateFormat("dd MMMM yyyy", Locale("in", "ID")).format(Date(millis))
 
-    private fun formatAmount(amount: Double): String =
-        String.format(Locale.getDefault(), "%.2f", amount)
+    private fun formatAmount(amount: Double): String = formatRupiah(amount)
 
     private fun formatQty(qty: Double): String =
         if (qty == qty.toLong().toDouble()) qty.toLong().toString()

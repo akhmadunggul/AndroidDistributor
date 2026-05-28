@@ -1,6 +1,8 @@
 package com.distributor.app.ui.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,7 +16,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -28,6 +33,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
@@ -35,16 +42,19 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -54,7 +64,13 @@ import com.distributor.app.R
 import com.distributor.app.ui.components.LanguageMenuIcon
 import com.distributor.app.ui.model.CartItem
 import com.distributor.app.ui.viewmodel.TransactionViewModel
-import java.util.Locale
+import com.distributor.app.utils.ReceiptData
+import com.distributor.app.utils.ReceiptPdfGenerator
+import com.distributor.app.utils.ReceiptShareHandler
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import com.distributor.app.utils.formatRupiah
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,6 +87,14 @@ fun TransactionScreen(
             snackbarHostState.showSnackbar(it)
             viewModel.clearSnackbar()
         }
+    }
+
+    uiState.pendingReceiptData?.let { receiptData ->
+        ShareReceiptSheet(
+            receiptData = receiptData,
+            snackbarHostState = snackbarHostState,
+            onDismiss = { viewModel.clearPendingReceipt() }
+        )
     }
 
     Scaffold(
@@ -134,7 +158,6 @@ fun TransactionScreen(
                     ) {
                         Text(stringResource(R.string.sales_add_item_title), style = MaterialTheme.typography.titleSmall)
 
-                        // Product dropdown
                         ExposedDropdownMenuBox(
                             expanded = productExpanded,
                             onExpandedChange = { productExpanded = it }
@@ -231,7 +254,7 @@ fun TransactionScreen(
             if (uiState.cartItems.isNotEmpty()) {
                 item {
                     Text(
-                        text = pluralStringResource(
+                        text = androidx.compose.ui.res.pluralStringResource(
                             R.plurals.sales_cart_header,
                             uiState.cartItems.size,
                             uiState.cartItems.size
@@ -249,7 +272,6 @@ fun TransactionScreen(
                     HorizontalDivider()
                 }
 
-                // Total + submit
                 item {
                     Card(
                         colors = CardDefaults.cardColors(
@@ -270,7 +292,7 @@ fun TransactionScreen(
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = formatAmount(uiState.cartTotal),
+                                text = formatRupiah(uiState.cartTotal),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold
                             )
@@ -300,6 +322,123 @@ fun TransactionScreen(
     }
 }
 
+// ── Share receipt bottom sheet ─────────────────────────────────────────────
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ShareReceiptSheet(
+    receiptData: ReceiptData,
+    snackbarHostState: SnackbarHostState,
+    onDismiss: () -> Unit
+) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var isGenerating by remember { mutableStateOf(false) }
+
+    fun share(action: (java.io.File) -> Unit) {
+        isGenerating = true
+        scope.launch {
+            try {
+                val file = withContext(Dispatchers.IO) {
+                    ReceiptPdfGenerator(context).generate(receiptData)
+                }
+                action(file)
+            } catch (e: Exception) {
+                snackbarHostState.showSnackbar(context.getString(R.string.share_error))
+            } finally {
+                isGenerating = false
+                onDismiss()
+            }
+        }
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = { if (!isGenerating) onDismiss() },
+        sheetState = sheetState
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 32.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.share_receipt_title),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = receiptData.transaction.invoiceNumber,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            HorizontalDivider()
+            Spacer(modifier = Modifier.height(4.dp))
+
+            if (isGenerating) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 24.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                        Text(stringResource(R.string.share_generating))
+                    }
+                }
+            } else {
+                ShareOption(
+                    icon = Icons.AutoMirrored.Filled.Send,
+                    label = stringResource(R.string.share_whatsapp),
+                    onClick = { share { ReceiptShareHandler.shareToWhatsApp(context, it) } }
+                )
+                ShareOption(
+                    icon = Icons.Default.Business,
+                    label = stringResource(R.string.share_whatsapp_business),
+                    onClick = { share { ReceiptShareHandler.shareToWhatsAppBusiness(context, it) } }
+                )
+                ShareOption(
+                    icon = Icons.Default.Share,
+                    label = stringResource(R.string.share_other_apps),
+                    onClick = { share { ReceiptShareHandler.shareViaSystemSheet(context, it) } }
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedButton(
+                    onClick = onDismiss,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(stringResource(R.string.share_not_now))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ShareOption(icon: ImageVector, label: String, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+        Text(label, style = MaterialTheme.typography.bodyLarge)
+    }
+}
+
+// ── Cart item row ──────────────────────────────────────────────────────────
+
 @Composable
 private fun CartItemRow(item: CartItem, onRemove: () -> Unit) {
     Row(
@@ -311,14 +450,14 @@ private fun CartItemRow(item: CartItem, onRemove: () -> Unit) {
         Column(modifier = Modifier.weight(1f)) {
             Text(item.product.name, fontWeight = FontWeight.Medium)
             Text(
-                text = "${item.quantity} ${item.product.unit}  ×  ${formatAmount(item.unitPrice)}",
+                text = "${item.quantity} ${item.product.unit}  ×  ${formatRupiah(item.unitPrice)}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
         Spacer(modifier = Modifier.width(8.dp))
         Text(
-            text = formatAmount(item.subtotal),
+            text = formatRupiah(item.subtotal),
             fontWeight = FontWeight.SemiBold
         )
         IconButton(onClick = onRemove) {
@@ -327,5 +466,3 @@ private fun CartItemRow(item: CartItem, onRemove: () -> Unit) {
     }
 }
 
-private fun formatAmount(amount: Double): String =
-    String.format(Locale.getDefault(), "%.2f", amount)

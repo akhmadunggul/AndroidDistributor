@@ -1,5 +1,10 @@
 package com.distributor.app.ui.screens
 
+import android.app.Activity
+import android.content.Intent
+import android.provider.ContactsContract
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +23,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Contacts
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -43,6 +49,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -170,6 +177,35 @@ private fun ResellerCard(reseller: ResellerEntity, onDelete: () -> Unit) {
 @Composable
 private fun ResellerForm(viewModel: ResellerViewModel) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+
+    val contactLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.data?.let { uri ->
+                context.contentResolver.query(
+                    uri,
+                    arrayOf(
+                        ContactsContract.CommonDataKinds.Phone.NUMBER,
+                        ContactsContract.Contacts.DISPLAY_NAME
+                    ),
+                    null, null, null
+                )?.use { cursor ->
+                    if (cursor.moveToFirst()) {
+                        val phoneIdx = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
+                        val nameIdx  = cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)
+                        val phone = if (phoneIdx >= 0) cursor.getString(phoneIdx) ?: "" else ""
+                        val name  = if (nameIdx  >= 0) cursor.getString(nameIdx)  ?: "" else ""
+                        viewModel.onPhoneChanged(phone)
+                        if (uiState.nameInput.isBlank() && name.isNotBlank()) {
+                            viewModel.onNameChanged(name)
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -204,6 +240,18 @@ private fun ResellerForm(viewModel: ResellerViewModel) {
             isError = uiState.phoneError != null,
             supportingText = uiState.phoneError?.let { e -> { Text(e) } },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+            trailingIcon = {
+                IconButton(onClick = {
+                    contactLauncher.launch(
+                        Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Phone.CONTENT_URI)
+                    )
+                }) {
+                    Icon(
+                        Icons.Default.Contacts,
+                        contentDescription = stringResource(R.string.cd_pick_contact)
+                    )
+                }
+            },
             modifier = Modifier.fillMaxWidth()
         )
 

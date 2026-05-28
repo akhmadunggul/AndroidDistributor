@@ -5,9 +5,10 @@
     <!-- Navigation tabs -->
     <string name="tab_products">Produk</string>
     <string name="tab_stock">Stok</string>
-    <string name="tab_sales">Penjualan</string>
-    <string name="tab_payment">Pembayaran</string>
+    <string name="tab_sales">Jual</string>
+    <string name="tab_payment">Bayar</string>
     <string name="tab_resellers">Reseller</string>
+    <string name="tab_ledger">Buku Kas</string>
 
     <!-- Screen titles -->
     <string name="screen_products">Produk</string>
@@ -16,6 +17,7 @@
     <string name="screen_payment">Pelunasan Pembayaran</string>
     <string name="screen_resellers">Reseller</string>
     <string name="screen_stock_opname">Stok Opname</string>
+    <string name="screen_ledger">Buku Kas</string>
 
     <!-- Common actions / labels -->
     <string name="action_cancel">Batal</string>
@@ -88,7 +90,7 @@
     <string name="payment_method_other">Lainnya</string>
     <string name="payment_notes_label">Catatan (opsional)</string>
     <string name="payment_allocation_title">Pratinjau Alokasi Pembayaran</string>
-    <string name="payment_settle_button">Lunaskan Pembayaran</string>
+    <string name="payment_settle_button">Pembayaran</string>
     <string name="payment_due_format">Tagihan: %s</string>
     <string name="payment_of_format">dari %s</string>
     <string name="payment_applied_format">Diterapkan: %s</string>
@@ -105,6 +107,66 @@
     <string name="opname_col_diff">Selisih</string>
     <string name="opname_empty">Produk tidak ditemukan.\nTambahkan produk terlebih dahulu.</string>
     <string name="opname_save_button">Simpan Penyesuaian</string>
+
+    <!-- App overflow menu -->
+    <string name="menu_settings">Pengaturan</string>
+    <string name="menu_language">Bahasa</string>
+
+    <!-- Settings screen -->
+    <string name="settings_title">Pengaturan Bisnis</string>
+    <string name="settings_business_name">Nama Bisnis</string>
+    <string name="settings_owner_phone">Nomor HP Pemilik</string>
+    <string name="settings_address">Alamat Bisnis</string>
+    <string name="settings_logo_section">Logo Bisnis</string>
+    <string name="settings_upload_logo">Unggah Logo</string>
+    <string name="settings_change_logo">Ganti Logo</string>
+    <string name="settings_remove_logo">Hapus Logo</string>
+    <string name="settings_save_button">Simpan Pengaturan</string>
+    <string name="settings_saved">Pengaturan disimpan</string>
+    <string name="settings_logo_error">Gagal menyimpan logo</string>
+
+    <!-- Share receipt -->
+    <string name="share_receipt_title">Bagikan Struk</string>
+    <string name="payment_receipt_title">Bagikan Struk Pembayaran</string>
+    <string name="share_whatsapp">WhatsApp</string>
+    <string name="share_whatsapp_business">WhatsApp Business</string>
+    <string name="share_other_apps">Aplikasi Lainnya</string>
+    <string name="share_not_now">Nanti</string>
+    <string name="share_generating">Membuat PDF…</string>
+    <string name="share_error">Gagal membuat struk</string>
+
+    <!-- Reseller contact picker -->
+    <string name="cd_pick_contact">Pilih dari kontak</string>
+
+    <!-- Ledger screen -->
+    <string name="ledger_period_today">Hari Ini</string>
+    <string name="ledger_period_week">Minggu Ini</string>
+    <string name="ledger_period_month">Bulan Ini</string>
+    <string name="ledger_period_all">Semua</string>
+    <string name="ledger_revenue">Omzet</string>
+    <string name="ledger_collected">Diterima</string>
+    <string name="ledger_outstanding">Piutang</string>
+    <string name="ledger_gross_profit">Laba Kotor</string>
+    <string name="ledger_entries_title">Riwayat</string>
+    <string name="ledger_empty">Tidak ada entri untuk periode ini.</string>
+
+    <!-- Return screen -->
+    <string name="tab_return">Retur</string>
+    <string name="screen_return">Retur Produk</string>
+    <string name="return_add_item_title">Tambah Item Retur</string>
+    <string name="return_reason_label">Alasan Retur</string>
+    <string name="return_reason_unsold">Tidak Terjual</string>
+    <string name="return_reason_defect">Cacat / Rusak</string>
+    <string name="return_reason_other">Lainnya</string>
+    <string name="return_add_to_cart_button">Tambah ke Daftar Retur</string>
+    <string name="return_cart_header">Daftar Retur (%d item)</string>
+    <string name="return_total">Total Retur</string>
+    <string name="return_submit_button">Kirim Retur</string>
+
+    <!-- Settings — app navigation -->
+    <string name="settings_app_section">Aplikasi</string>
+    <string name="settings_products">Produk</string>
+    <string name="settings_ledger">Buku Kas</string>
 
     <!-- Language selection -->
     <string name="language_title">Bahasa</string>

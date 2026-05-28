@@ -8,8 +8,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.AssignmentReturn
 import androidx.compose.material.icons.filled.Group
-import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Warehouse
@@ -19,24 +19,37 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.distributor.app.ui.screens.LedgerScreen
 import com.distributor.app.ui.screens.PaymentSettlementScreen
 import com.distributor.app.ui.screens.ProductListScreen
 import com.distributor.app.ui.screens.ResellerListScreen
+import com.distributor.app.ui.screens.ReturnScreen
+import com.distributor.app.ui.screens.SettingsScreen
 import com.distributor.app.ui.screens.StockOpnameScreen
 import com.distributor.app.ui.screens.StockOperationScreen
 import com.distributor.app.ui.screens.TransactionScreen
 import com.distributor.app.utils.LocaleHelper
+
+// ── CompositionLocals ──────────────────────────────────────────────────────
+
+val LocalAppNavController = staticCompositionLocalOf<NavHostController> {
+    error("LocalAppNavController not provided")
+}
 
 // ── Routes ─────────────────────────────────────────────────────────────────
 
@@ -46,7 +59,10 @@ private object Routes {
     const val SALES           = "sales"
     const val PAYMENT         = "payment"
     const val RESELLERS       = "resellers"
+    const val LEDGER          = "ledger"
+    const val RETURN          = "return"
     const val STOCK_OPNAME    = "stock_opname"
+    const val SETTINGS        = "settings"
 }
 
 // ── Bottom-nav tab descriptors ──────────────────────────────────────────────
@@ -58,7 +74,7 @@ private data class NavTab(
 )
 
 private val NAV_TABS: List<NavTab> = listOf(
-    NavTab(Routes.PRODUCTS,  R.string.tab_products,  Icons.Default.Inventory2),
+    NavTab(Routes.RETURN,    R.string.tab_return,    Icons.AutoMirrored.Filled.AssignmentReturn),
     NavTab(Routes.STOCK,     R.string.tab_stock,     Icons.Default.Warehouse),
     NavTab(Routes.SALES,     R.string.tab_sales,     Icons.Default.ShoppingCart),
     NavTab(Routes.PAYMENT,   R.string.tab_payment,   Icons.Default.Payments),
@@ -91,8 +107,14 @@ private fun DistributorNavHost() {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
 
-    val showBottomBar: Boolean = currentRoute != Routes.STOCK_OPNAME
+    val showBottomBar: Boolean =
+        currentRoute != Routes.STOCK_OPNAME &&
+        currentRoute != Routes.SETTINGS &&
+        currentRoute != Routes.PRODUCTS &&
+        currentRoute != Routes.LEDGER
 
+
+    CompositionLocalProvider(LocalAppNavController provides navController) {
     Scaffold(
         bottomBar = {
             if (showBottomBar) {
@@ -104,7 +126,7 @@ private fun DistributorNavHost() {
 
                         NavigationBarItem(
                             icon     = { Icon(tab.icon, contentDescription = stringResource(tab.labelRes)) },
-                            label    = { Text(stringResource(tab.labelRes)) },
+                            label    = { Text(stringResource(tab.labelRes), maxLines = 1, softWrap = false, overflow = TextOverflow.Ellipsis) },
                             selected = selected,
                             onClick  = {
                                 navController.navigate(tab.route) {
@@ -123,11 +145,11 @@ private fun DistributorNavHost() {
     ) { innerPadding ->
         NavHost(
             navController    = navController,
-            startDestination = Routes.PRODUCTS,
+            startDestination = Routes.SALES,
             modifier         = Modifier.padding(innerPadding)
         ) {
-            composable(Routes.PRODUCTS) {
-                ProductListScreen()
+            composable(Routes.RETURN) {
+                ReturnScreen()
             }
             composable(Routes.STOCK) {
                 StockOperationScreen(
@@ -145,9 +167,23 @@ private fun DistributorNavHost() {
             composable(Routes.RESELLERS) {
                 ResellerListScreen()
             }
+            composable(Routes.PRODUCTS) {
+                ProductListScreen(onNavigateBack = { navController.popBackStack() })
+            }
+            composable(Routes.LEDGER) {
+                LedgerScreen(onNavigateBack = { navController.popBackStack() })
+            }
             composable(Routes.STOCK_OPNAME) {
                 StockOpnameScreen()
             }
+            composable(Routes.SETTINGS) {
+                SettingsScreen(
+                    onNavigateBack       = { navController.popBackStack() },
+                    onNavigateToProducts = { navController.navigate(Routes.PRODUCTS) },
+                    onNavigateToLedger   = { navController.navigate(Routes.LEDGER) }
+                )
+            }
         }
     }
+    } // CompositionLocalProvider
 }

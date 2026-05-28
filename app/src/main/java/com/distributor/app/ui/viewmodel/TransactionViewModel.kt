@@ -11,6 +11,8 @@ import com.distributor.app.data.entity.StockLedgerEntity
 import com.distributor.app.data.entity.TransactionDetailEntity
 import com.distributor.app.data.entity.TransactionEntity
 import com.distributor.app.ui.model.CartItem
+import com.distributor.app.utils.ReceiptData
+import com.distributor.app.utils.ReceiptLineItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -34,7 +36,8 @@ data class TransactionUiState(
     val overStockProductId: Long? = null,
     val isSubmitting: Boolean = false,
     val snackbarMessage: String? = null,
-    val lastCreatedInvoiceNumber: String? = null
+    val lastCreatedInvoiceNumber: String? = null,
+    val pendingReceiptData: ReceiptData? = null
 )
 
 class TransactionViewModel(application: Application) : AndroidViewModel(application) {
@@ -106,6 +109,10 @@ class TransactionViewModel(application: Application) : AndroidViewModel(applicat
 
     fun acknowledgeInvoice() {
         _uiState.update { it.copy(lastCreatedInvoiceNumber = null) }
+    }
+
+    fun clearPendingReceipt() {
+        _uiState.update { it.copy(pendingReceiptData = null) }
     }
 
     fun addToCart() {
@@ -234,12 +241,37 @@ class TransactionViewModel(application: Application) : AndroidViewModel(applicat
                     )
                 }
 
+                val receiptData = ReceiptData(
+                    transaction = TransactionEntity(
+                        resellerId = state.selectedReseller.id,
+                        invoiceNumber = invoiceNumber,
+                        status = TransactionEntity.STATUS_UNPAID,
+                        totalAmount = state.cartTotal,
+                        amountPaid = 0.0,
+                        createdAt = now,
+                        updatedAt = now
+                    ),
+                    resellerName = state.selectedReseller.name,
+                    resellerPhone = state.selectedReseller.phoneNumber,
+                    resellerAddress = state.selectedReseller.address,
+                    lineItems = state.cartItems.map { item ->
+                        ReceiptLineItem(
+                            productName = item.product.name,
+                            unit = item.product.unit,
+                            quantity = item.quantity,
+                            unitPrice = item.unitPrice,
+                            subtotal = item.subtotal
+                        )
+                    }
+                )
+
                 _uiState.update { it.copy(
                     isSubmitting = false,
                     cartItems = emptyList(),
                     cartTotal = 0.0,
                     selectedReseller = null,
                     lastCreatedInvoiceNumber = invoiceNumber,
+                    pendingReceiptData = receiptData,
                     snackbarMessage = "Invoice $invoiceNumber created"
                 )}
             } catch (e: Exception) {

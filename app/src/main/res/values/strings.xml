@@ -8,6 +8,7 @@
     <string name="tab_sales">Sales</string>
     <string name="tab_payment">Payment</string>
     <string name="tab_resellers">Resellers</string>
+    <string name="tab_ledger">Ledger</string>
 
     <!-- Screen titles -->
     <string name="screen_products">Products</string>
@@ -16,6 +17,7 @@
     <string name="screen_payment">Payment Settlement</string>
     <string name="screen_resellers">Resellers</string>
     <string name="screen_stock_opname">Stock Opname</string>
+    <string name="screen_ledger">Ledger</string>
 
     <!-- Common actions / labels -->
     <string name="action_cancel">Cancel</string>
@@ -89,7 +91,7 @@
     <string name="payment_method_other">Other</string>
     <string name="payment_notes_label">Notes (optional)</string>
     <string name="payment_allocation_title">Payment Allocation Preview</string>
-    <string name="payment_settle_button">Settle Payment</string>
+    <string name="payment_settle_button">Payment</string>
     <string name="payment_due_format">Due: %s</string>
     <string name="payment_of_format">of %s</string>
     <string name="payment_applied_format">Applied: %s</string>
@@ -107,6 +109,66 @@
     <string name="opname_col_diff">Diff</string>
     <string name="opname_empty">No products found.\nAdd products first.</string>
     <string name="opname_save_button">Save Adjustments</string>
+
+    <!-- App overflow menu -->
+    <string name="menu_settings">Settings</string>
+    <string name="menu_language">Language</string>
+
+    <!-- Settings screen -->
+    <string name="settings_title">Business Settings</string>
+    <string name="settings_business_name">Business Name</string>
+    <string name="settings_owner_phone">Owner Phone</string>
+    <string name="settings_address">Business Address</string>
+    <string name="settings_logo_section">Business Logo</string>
+    <string name="settings_upload_logo">Upload Logo</string>
+    <string name="settings_change_logo">Change Logo</string>
+    <string name="settings_remove_logo">Remove Logo</string>
+    <string name="settings_save_button">Save Settings</string>
+    <string name="settings_saved">Settings saved</string>
+    <string name="settings_logo_error">Failed to save logo</string>
+
+    <!-- Share receipt -->
+    <string name="share_receipt_title">Share Receipt</string>
+    <string name="payment_receipt_title">Share Payment Receipt</string>
+    <string name="share_whatsapp">WhatsApp</string>
+    <string name="share_whatsapp_business">WhatsApp Business</string>
+    <string name="share_other_apps">Other Apps</string>
+    <string name="share_not_now">Not Now</string>
+    <string name="share_generating">Generating PDF…</string>
+    <string name="share_error">Failed to generate receipt</string>
+
+    <!-- Reseller contact picker -->
+    <string name="cd_pick_contact">Pick from contacts</string>
+
+    <!-- Ledger screen -->
+    <string name="ledger_period_today">Today</string>
+    <string name="ledger_period_week">This Week</string>
+    <string name="ledger_period_month">This Month</string>
+    <string name="ledger_period_all">All Time</string>
+    <string name="ledger_revenue">Revenue</string>
+    <string name="ledger_collected">Collected</string>
+    <string name="ledger_outstanding">Outstanding</string>
+    <string name="ledger_gross_profit">Gross Profit</string>
+    <string name="ledger_entries_title">Entries</string>
+    <string name="ledger_empty">No entries for this period.</string>
+
+    <!-- Return screen -->
+    <string name="tab_return">Returns</string>
+    <string name="screen_return">Product Returns</string>
+    <string name="return_add_item_title">Add Return Item</string>
+    <string name="return_reason_label">Return Reason</string>
+    <string name="return_reason_unsold">Unsold</string>
+    <string name="return_reason_defect">Defect</string>
+    <string name="return_reason_other">Other</string>
+    <string name="return_add_to_cart_button">Add to Return List</string>
+    <string name="return_cart_header">Return List (%d items)</string>
+    <string name="return_total">Total Return</string>
+    <string name="return_submit_button">Submit Return</string>
+
+    <!-- Settings — app navigation -->
+    <string name="settings_app_section">App</string>
+    <string name="settings_products">Products</string>
+    <string name="settings_ledger">Ledger</string>
 
     <!-- Language selection -->
     <string name="language_title">Language</string>

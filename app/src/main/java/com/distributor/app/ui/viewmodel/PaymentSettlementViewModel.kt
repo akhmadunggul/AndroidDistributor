@@ -9,6 +9,9 @@ import com.distributor.app.data.entity.PaymentLogEntity
 import com.distributor.app.data.entity.ResellerEntity
 import com.distributor.app.data.entity.TransactionEntity
 import com.distributor.app.ui.model.AllocationPreview
+import com.distributor.app.utils.PaymentAllocationLine
+import com.distributor.app.utils.PaymentReceiptData
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,7 +21,6 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.Locale
 
 data class PaymentSettlementUiState(
     val resellers: List<ResellerEntity> = emptyList(),
@@ -30,7 +32,8 @@ data class PaymentSettlementUiState(
     val notesInput: String = "",
     val allocationPreview: List<AllocationPreview> = emptyList(),
     val isSubmitting: Boolean = false,
-    val snackbarMessage: String? = null
+    val snackbarMessage: String? = null,
+    val pendingPaymentReceipt: PaymentReceiptData? = null
 )
 
 class PaymentSettlementViewModel(application: Application) : AndroidViewModel(application) {
@@ -52,8 +55,14 @@ class PaymentSettlementViewModel(application: Application) : AndroidViewModel(ap
 
     private fun observeResellers() {
         viewModelScope.launch {
-            resellerDao.getAllResellers().collect { resellers ->
-                _uiState.update { it.copy(resellers = resellers) }
+            try {
+                resellerDao.getAllResellers().collect { resellers ->
+                    _uiState.update { it.copy(resellers = resellers) }
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _uiState.update { it.copy(snackbarMessage = "Failed to load resellers: ${e.message}") }
             }
         }
     }
@@ -61,28 +70,36 @@ class PaymentSettlementViewModel(application: Application) : AndroidViewModel(ap
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun observeOutstandingInvoices() {
         viewModelScope.launch {
-            _selectedResellerId
-                .flatMapLatest { resellerId ->
-                    if (resellerId == null) flowOf(emptyList())
-                    else transactionDao.getOutstandingTransactionsFlow(resellerId)
-                }
-                .collect { invoices ->
-                    val balance: Double = invoices.sumOf { it.totalAmount - it.amountPaid }
-                    _uiState.update { it.copy(
-                        outstandingInvoices = invoices,
-                        outstandingBalance = balance
-                    )}
-                    refreshAllocationPreview()
-                }
+            try {
+                _selectedResellerId
+                    .flatMapLatest { resellerId ->
+                        if (resellerId == null) flowOf(emptyList())
+                        else transactionDao.getOutstandingTransactionsFlow(resellerId)
+                    }
+                    .collect { invoices ->
+                        val balance: Double = invoices.sumOf { it.totalAmount - it.amountPaid }
+                        _uiState.update { it.copy(
+                            outstandingInvoices = invoices,
+                            outstandingBalance  = balance
+                        )}
+                        refreshAllocationPreview()
+                    }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _uiState.update { it.copy(snackbarMessage = "Failed to load invoices: ${e.message}") }
+            }
         }
     }
 
     fun onResellerSelected(reseller: ResellerEntity) {
         _selectedResellerId.value = reseller.id
         _uiState.update { it.copy(
-            selectedReseller = reseller,
-            paymentAmountInput = "",
-            allocationPreview = emptyList()
+            selectedReseller    = reseller,
+            paymentAmountInput  = "",
+            allocationPreview   = emptyList(),
+            outstandingInvoices = emptyList(),
+            outstandingBalance  = 0.0
         )}
     }
 
@@ -101,6 +118,10 @@ class PaymentSettlementViewModel(application: Application) : AndroidViewModel(ap
 
     fun clearSnackbar() {
         _uiState.update { it.copy(snackbarMessage = null) }
+    }
+
+    fun clearPendingPaymentReceipt() {
+        _uiState.update { it.copy(pendingPaymentReceipt = null) }
     }
 
     private fun refreshAllocationPreview() {
@@ -156,17 +177,20 @@ class PaymentSettlementViewModel(application: Application) : AndroidViewModel(ap
             return
         }
 
-        if (state.outstandingInvoices.isEmpty()) {
-            _uiState.update { it.copy(snackbarMessage = "No outstanding invoices for this reseller") }
-            return
-        }
-
         _uiState.update { it.copy(isSubmitting = true) }
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                // Re-read inside the transaction for a consistent snapshot under concurrent writes
                 val invoices: List<TransactionEntity> = transactionDao.getOutstandingTransactions(reseller.id)
+
+                if (invoices.isEmpty()) {
+                    _uiState.update { it.copy(
+                        isSubmitting    = false,
+                        snackbarMessage = "No outstanding invoices for this reseller"
+                    )}
+                    return@launch
+                }
+
                 val allocations: List<AllocationPreview> = buildAllocations(invoices, paymentAmount)
 
                 val paymentLogs = mutableListOf<PaymentLogEntity>()
@@ -198,26 +222,45 @@ class PaymentSettlementViewModel(application: Application) : AndroidViewModel(ap
 
                 database.withTransaction {
                     paymentLogDao.insertPaymentLogs(paymentLogs)
-                    updatedTransactions.forEach { transactionDao.updateTransaction(it) }
+                    for (tx in updatedTransactions) {
+                        transactionDao.updateTransaction(tx)
+                    }
                 }
 
-                val invoiceWord: String = if (paymentLogs.size == 1) "invoice" else "invoices"
+                val receiptData = PaymentReceiptData(
+                    resellerName    = reseller.name,
+                    resellerPhone   = reseller.phoneNumber,
+                    resellerAddress = reseller.address,
+                    paymentAmount   = paymentAmount,
+                    paymentMethod   = state.paymentMethod,
+                    notes           = state.notesInput,
+                    paymentDate     = System.currentTimeMillis(),
+                    allocations     = allocations.map { alloc ->
+                        PaymentAllocationLine(
+                            invoiceNumber = alloc.invoice.invoiceNumber,
+                            invoiceTotal  = alloc.invoice.totalAmount,
+                            amountApplied = alloc.amountApplied,
+                            balanceAfter  = alloc.balanceAfter
+                        )
+                    }
+                )
+
                 _uiState.update { it.copy(
-                    isSubmitting = false,
-                    paymentAmountInput = "",
-                    notesInput = "",
-                    allocationPreview = emptyList(),
-                    snackbarMessage = "${formatAmount(paymentAmount)} settled across ${paymentLogs.size} $invoiceWord"
+                    isSubmitting         = false,
+                    paymentAmountInput   = "",
+                    notesInput           = "",
+                    allocationPreview    = emptyList(),
+                    pendingPaymentReceipt = receiptData
                 )}
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 _uiState.update { it.copy(
-                    isSubmitting = false,
+                    isSubmitting    = false,
                     snackbarMessage = "Settlement failed: ${e.message}"
                 )}
             }
         }
     }
 
-    private fun formatAmount(amount: Double): String =
-        String.format(Locale.getDefault(), "%.2f", amount)
 }

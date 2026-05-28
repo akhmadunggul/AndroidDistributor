@@ -1,5 +1,6 @@
 package com.distributor.app.ui.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,6 +13,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Business
+import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -21,23 +26,29 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -49,6 +60,13 @@ import com.distributor.app.data.entity.PaymentLogEntity
 import com.distributor.app.ui.components.LanguageMenuIcon
 import com.distributor.app.ui.model.AllocationPreview
 import com.distributor.app.ui.viewmodel.PaymentSettlementViewModel
+import com.distributor.app.utils.PaymentReceiptData
+import com.distributor.app.utils.ReceiptPdfGenerator
+import com.distributor.app.utils.ReceiptShareHandler
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import com.distributor.app.utils.formatRupiah
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -74,6 +92,14 @@ fun PaymentSettlementScreen(
             snackbarHostState.showSnackbar(it)
             viewModel.clearSnackbar()
         }
+    }
+
+    uiState.pendingPaymentReceipt?.let { receiptData ->
+        SharePaymentReceiptSheet(
+            receiptData       = receiptData,
+            snackbarHostState = snackbarHostState,
+            onDismiss         = { viewModel.clearPendingPaymentReceipt() }
+        )
     }
 
     Scaffold(
@@ -150,7 +176,7 @@ fun PaymentSettlementScreen(
                             Column {
                                 Text(stringResource(R.string.payment_outstanding_balance), style = MaterialTheme.typography.labelMedium)
                                 Text(
-                                    text = formatAmount(uiState.outstandingBalance),
+                                    text = formatRupiah(uiState.outstandingBalance),
                                     style = MaterialTheme.typography.headlineSmall,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -175,7 +201,7 @@ fun PaymentSettlementScreen(
                             style = MaterialTheme.typography.titleSmall
                         )
                     }
-                    items(uiState.outstandingInvoices, key = { it.id }) { invoice ->
+                    items(uiState.outstandingInvoices, key = { "inv_${it.id}" }) { invoice ->
                         val due: Double = invoice.totalAmount - invoice.amountPaid
                         Row(
                             modifier = Modifier
@@ -193,12 +219,12 @@ fun PaymentSettlementScreen(
                             }
                             Column(horizontalAlignment = Alignment.End) {
                                 Text(
-                                    text = stringResource(R.string.payment_due_format, formatAmount(due)),
+                                    text = stringResource(R.string.payment_due_format, formatRupiah(due)),
                                     fontWeight = FontWeight.SemiBold,
                                     color = MaterialTheme.colorScheme.error
                                 )
                                 Text(
-                                    text = stringResource(R.string.payment_of_format, formatAmount(invoice.totalAmount)),
+                                    text = stringResource(R.string.payment_of_format, formatRupiah(invoice.totalAmount)),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -274,7 +300,7 @@ fun PaymentSettlementScreen(
                             style = MaterialTheme.typography.titleSmall
                         )
                     }
-                    items(uiState.allocationPreview, key = { it.invoice.id }) { alloc ->
+                    items(uiState.allocationPreview, key = { "alloc_${it.invoice.id}" }) { alloc ->
                         AllocationPreviewRow(alloc = alloc)
                         HorizontalDivider()
                     }
@@ -315,7 +341,7 @@ private fun AllocationPreviewRow(alloc: AllocationPreview) {
         Column(modifier = Modifier.weight(1f)) {
             Text(alloc.invoice.invoiceNumber, fontWeight = FontWeight.Medium)
             Text(
-                text = stringResource(R.string.payment_applied_format, formatAmount(alloc.amountApplied)),
+                text = stringResource(R.string.payment_applied_format, formatRupiah(alloc.amountApplied)),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -324,7 +350,7 @@ private fun AllocationPreviewRow(alloc: AllocationPreview) {
             text = if (alloc.balanceAfter <= 0.001)
                 stringResource(R.string.payment_paid)
             else
-                stringResource(R.string.payment_remaining_format, formatAmount(alloc.balanceAfter)),
+                stringResource(R.string.payment_remaining_format, formatRupiah(alloc.balanceAfter)),
             style = MaterialTheme.typography.bodySmall,
             fontWeight = FontWeight.SemiBold,
             color = if (alloc.balanceAfter <= 0.001)
@@ -335,8 +361,105 @@ private fun AllocationPreviewRow(alloc: AllocationPreview) {
     }
 }
 
-private fun formatAmount(amount: Double): String =
-    String.format(Locale.getDefault(), "%.2f", amount)
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SharePaymentReceiptSheet(
+    receiptData: PaymentReceiptData,
+    snackbarHostState: SnackbarHostState,
+    onDismiss: () -> Unit
+) {
+    val context = LocalContext.current
+    val scope   = rememberCoroutineScope()
+    var isGenerating by remember { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    fun share(action: (java.io.File) -> Unit) {
+        isGenerating = true
+        scope.launch {
+            try {
+                val file = withContext(Dispatchers.IO) {
+                    ReceiptPdfGenerator(context).generatePaymentReceipt(receiptData)
+                }
+                action(file)
+            } catch (e: Exception) {
+                snackbarHostState.showSnackbar(context.getString(R.string.share_error))
+            } finally {
+                isGenerating = false
+                onDismiss()
+            }
+        }
+    }
+
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                text  = stringResource(R.string.payment_receipt_title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            if (isGenerating) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 16.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    CircularProgressIndicator(modifier = Modifier.size(28.dp), strokeWidth = 2.dp)
+                    Spacer(modifier = Modifier.size(12.dp))
+                    Text(stringResource(R.string.share_generating))
+                }
+            } else {
+                PaymentShareOption(
+                    icon    = Icons.AutoMirrored.Filled.Send,
+                    label   = stringResource(R.string.share_whatsapp),
+                    onClick = { share { ReceiptShareHandler.shareToWhatsApp(context, it) } }
+                )
+                PaymentShareOption(
+                    icon    = Icons.Default.Business,
+                    label   = stringResource(R.string.share_whatsapp_business),
+                    onClick = { share { ReceiptShareHandler.shareToWhatsAppBusiness(context, it) } }
+                )
+                PaymentShareOption(
+                    icon    = Icons.Default.Share,
+                    label   = stringResource(R.string.share_other_apps),
+                    onClick = { share { ReceiptShareHandler.shareViaSystemSheet(context, it) } }
+                )
+                OutlinedButton(
+                    onClick  = onDismiss,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 4.dp, bottom = 16.dp)
+                ) { Text(stringResource(R.string.share_not_now)) }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PaymentShareOption(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+        Text(label, style = MaterialTheme.typography.bodyLarge)
+    }
+}
 
 private fun formatDate(millis: Long): String =
     SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(Date(millis))

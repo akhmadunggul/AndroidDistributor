@@ -19,7 +19,7 @@ interface StockLedgerDao {
 
     @Query("""
         SELECT COALESCE(
-            SUM(CASE WHEN type IN ('IN', 'ADJUST_IN') THEN quantity ELSE -quantity END),
+            SUM(CASE WHEN type IN ('IN', 'ADJUST_IN', 'RETURN_IN') THEN quantity ELSE -quantity END),
             0.0
         )
         FROM stock_ledger
@@ -29,7 +29,7 @@ interface StockLedgerDao {
 
     @Query("""
         SELECT COALESCE(
-            SUM(CASE WHEN type IN ('IN', 'ADJUST_IN') THEN quantity ELSE -quantity END),
+            SUM(CASE WHEN type IN ('IN', 'ADJUST_IN', 'RETURN_IN') THEN quantity ELSE -quantity END),
             0.0
         )
         FROM stock_ledger
@@ -42,8 +42,8 @@ interface StockLedgerDao {
             COALESCE(
                 SUM(
                     CASE
-                        WHEN sl.type IN ('IN', 'ADJUST_IN')  THEN  sl.quantity
-                        WHEN sl.type IN ('OUT', 'ADJUST_OUT') THEN -sl.quantity
+                        WHEN sl.type IN ('IN', 'ADJUST_IN', 'RETURN_IN') THEN  sl.quantity
+                        WHEN sl.type IN ('OUT', 'ADJUST_OUT')             THEN -sl.quantity
                         ELSE 0.0
                     END
                 ),

@@ -17,6 +17,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
@@ -52,11 +53,12 @@ import com.distributor.app.R
 import com.distributor.app.data.entity.ProductEntity
 import com.distributor.app.ui.components.LanguageMenuIcon
 import com.distributor.app.ui.viewmodel.ProductViewModel
-import java.util.Locale
+import com.distributor.app.utils.formatRupiah
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductListScreen(
+    onNavigateBack: () -> Unit = {},
     viewModel: ProductViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -83,6 +85,11 @@ fun ProductListScreen(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.screen_products)) },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                    }
+                },
                 actions = { LanguageMenuIcon() }
             )
         },
@@ -152,11 +159,11 @@ private fun ProductCard(product: ProductEntity, onDelete: () -> Unit) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                     Text(
-                        text = stringResource(R.string.product_cost_format, formatAmount(product.basePrice)),
+                        text = stringResource(R.string.product_cost_format, formatRupiah(product.basePrice)),
                         style = MaterialTheme.typography.bodySmall
                     )
                     Text(
-                        text = stringResource(R.string.product_price_format, formatAmount(product.sellingPrice)),
+                        text = stringResource(R.string.product_price_format, formatRupiah(product.sellingPrice)),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -279,5 +286,3 @@ private fun ProductForm(viewModel: ProductViewModel) {
     }
 }
 
-private fun formatAmount(amount: Double): String =
-    String.format(Locale.getDefault(), "%.2f", amount)

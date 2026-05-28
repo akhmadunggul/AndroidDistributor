@@ -56,8 +56,9 @@ data class StockLedgerEntity(
         const val TYPE_OUT: String = "OUT"
         const val TYPE_ADJUST_IN: String = "ADJUST_IN"
         const val TYPE_ADJUST_OUT: String = "ADJUST_OUT"
+        const val TYPE_RETURN_IN: String = "RETURN_IN"
 
-        val INBOUND_TYPES: Set<String> = setOf(TYPE_IN, TYPE_ADJUST_IN)
+        val INBOUND_TYPES: Set<String> = setOf(TYPE_IN, TYPE_ADJUST_IN, TYPE_RETURN_IN)
         val OUTBOUND_TYPES: Set<String> = setOf(TYPE_OUT, TYPE_ADJUST_OUT)
     }
 }
