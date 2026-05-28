@@ -1,0 +1,12 @@
+### 1. The Production-Grade Claude Prompt
+This prompt is explicitly optimized for advanced large language models. It steers clear of basic definitions and instructs the AI to generate actual, production-ready Kotlin source code. It includes details for:
+* **Relational Schema Design:** Maps out definitions for Product, Reseller, Stock Ledger, Transaction, Transaction Detail, and Payment Log tables using strict Room annotations.
+* **SQL Ledger Math:** Directs the model to write aggregate SQL queries that dynamically calculate real-time inventory from append-only inputs/outputs instead of hardcoding a volatile stock number.
+* **FIFO Payment Allocation Engine:** Requests the explicit algorithmic code required to intake a flat payment amount from a reseller and cleanly split it across the oldest unpaid invoices first.
+* **System Utilities:** Mandates structural definitions for Android's `PdfDocument` graphics canvas and `FileProvider` logic to assemble shareable receipts that bypass external servers entirely.
+
+### 2. Engineering Team Skills Matrix
+To construct this standalone app properly without falling into technical debt, whoever implements the blueprint must have verified experience in these areas:
+* **Jetpack Compose State Architecture:** Understanding how to build reactive forms with validation (e.g., dynamically disabling checkout buttons if the requested quantity exceeds the current stock ledger stream).
+* **SQLite Ledger Modeling:** Familiarity with write-ahead logging, database optimization views, and multi-table atomic transactions (`@Transaction`) to guarantee data safety if the phone loses battery mid-transaction.
+* **Android OS Inter-Process File Sharing:** Comfort with scoped sandboxed storage, generating content URIs securely, and setting up explicit runtime intents to pass documents straight to external channels like WhatsApp.

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    FileProvider path configuration.
+    <cache-path> maps to Context.getCacheDir() — the app's internal scoped cache.
+    The "receipts/" subdirectory is created at runtime by ReceiptPdfGenerator.
+    Declared authority: ${applicationId}.fileprovider
+-->
+<paths>
+    <cache-path
+        name="shared_receipts"
+        path="receipts/" />
+</paths>

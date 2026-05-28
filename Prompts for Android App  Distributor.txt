@@ -1,0 +1,51 @@
+Prompts for Android App : Distributor
+
+You are an expert Android developer. We are building the application outlined in the attached 'Project Context & Guidelines'. 
+
+Our immediate goal for Phase 1 is to set up the entire Data Layer structure. 
+
+Please generate the complete, production-ready Kotlin code for the following under the `data/` package:
+1. All Room Entities with proper relational mappings:
+   - ProductEntity
+   - ResellerEntity
+   - StockLedgerEntity (Restricted types: "IN", "OUT", "ADJUST_IN", "ADJUST_OUT")
+   - TransactionEntity (Restricted statuses: "UNPAID", "PARTIAL", "PAID")
+   - TransactionDetailEntity
+   - PaymentLogEntity
+2. The Database configuration file (`AppDatabase.kt`).
+
+Follow our coding conventions strictly: use 4-space indentation, explicit types, and do not use placeholders or 'TODO' comments. Ensure everything compiles cleanly.
+
+
+
+Phase 1 is complete. Now, let's implement Phase 2: The Advanced DAOs and Repository Layer.
+
+Please generate the complete code for `DistributorDao.kt` and its implementation mapping under the `repository/` package. I need the following exact database operations:
+
+1. Current Stock Stream: A query returning a Flow that calculates available stock per product on the fly: SUM(quantity) of IN/ADJUST_IN minus SUM(quantity) of OUT/ADJUST_OUT.
+2. Outstanding Balance Stream: A query that calculates a specific reseller's total unpaid balance (Sum of total_amount from TransactionEntity minus Sum of amount_paid from PaymentLogEntity).
+3. Safe Transaction Checkout: A Room `@Transaction` block that atomically creates a TransactionEntity, inserts its TransactionDetailEntity line items, and automatically inserts corresponding "OUT" records into the StockLedgerEntity.
+
+Remember our guardrails: everything must be robustly wrapped to prevent thread blocking, utilizing appropriate coroutine dispatchers (Dispatchers.IO). Do not leave functions empty.
+
+
+Phase 2 data infrastructure is completely built. Let's move to Phase 3: ViewModels and Jetpack Compose screens under `ui/screens/` and `ui/viewmodel/`.
+
+Please implement the following screens one by one with explicit state handling (StateFlow):
+
+1. Stock Operation Screen: Form with Material 3 DatePicker, Product dropdown selection, Quantity, and Cost input fields.
+2. Transaction (Sales Order) Screen: A cart interface. It MUST actively validate against the Current Stock Stream from Phase 2. If requested quantity > available stock, block the "Add" action, trigger an error border, and show a Snackbar warning.
+3. FIFO Payment Settlement Screen: A screen displaying a reseller's outstanding balance. Write the explicit algorithm in the ViewModel that distributes a lump-sum payment across their oldest unpaid invoices first (First-In, First-Out), creating PaymentLogEntity entries and updating transaction statuses accordingly.
+4. Stock Opname Screen: A grid showing Product | System Stock | Physical Input | Discrepancy. On save, write "ADJUST_IN" or "ADJUST_OUT" rows to resolve errors.
+
+Guardrail reminder: You must wrap all string-to-number parsing blocks to gracefully catch and handle `NumberFormatException` so the app never crashes on bad user input.
+
+
+We are in the final phase, Phase 4: System Utilities for Receipt Generation and OS Sharing under the `utils/` package.
+
+Please provide the complete implementation for:
+1. `ReceiptPdfGenerator.kt`: Uses native `android.graphics.pdf.PdfDocument` to manually draw a clean, itemized typographic layout of an invoice receipt, including reseller details and remaining balances. It must save safely to the app's scoped cache directory.
+2. `file_paths.xml`: The sharing path file provider configuration.
+3. WhatsApp Intent Handler: The explicit Activity/Context snippet that takes the generated file, securely creates a Content URI via `FileProvider.getUriForFile()`, sets the package target to "com.whatsapp", grants temporary read permissions, and launches the system share sheet.
+
+Ensure all file streams are closed safely using `.use {}` blocks to avoid local memory leaks.

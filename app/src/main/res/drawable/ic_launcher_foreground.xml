@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Warehouse roof -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,24 L20,48 L88,48 Z" />
+
+    <!-- Warehouse body -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M26,50 L26,84 L82,84 L82,50 Z" />
+
+    <!-- Door opening (punched out in body colour) -->
+    <path
+        android:fillColor="#1565C0"
+        android:pathData="M44,84 L44,64 L64,64 L64,84 Z" />
+
+    <!-- Left window -->
+    <path
+        android:fillColor="#1565C0"
+        android:pathData="M31,56 L40,56 L40,62 L31,62 Z" />
+
+    <!-- Right window -->
+    <path
+        android:fillColor="#1565C0"
+        android:pathData="M68,56 L77,56 L77,62 L68,62 Z" />
+
+</vector>

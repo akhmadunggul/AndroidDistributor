@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+        Minimal XML theme for a Compose-only app.
+        All Material3 theming is handled inside Compose; this just
+        suppresses the ActionBar and sets a transparent status bar
+        so enableEdgeToEdge() in MainActivity can own the insets.
+    -->
+    <style name="Theme.Distributor" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+</resources>
