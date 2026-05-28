@@ -38,21 +38,25 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.distributor.app.R
 import com.distributor.app.data.entity.PaymentLogEntity
+import com.distributor.app.ui.components.LanguageMenuIcon
 import com.distributor.app.ui.model.AllocationPreview
 import com.distributor.app.ui.viewmodel.PaymentSettlementViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-private val PAYMENT_METHODS: List<Pair<String, String>> = listOf(
-    PaymentLogEntity.METHOD_CASH     to "Cash",
-    PaymentLogEntity.METHOD_TRANSFER to "Bank Transfer",
-    PaymentLogEntity.METHOD_OTHER    to "Other"
+private val PAYMENT_METHODS: List<Pair<String, Int>> = listOf(
+    PaymentLogEntity.METHOD_CASH     to R.string.payment_method_cash,
+    PaymentLogEntity.METHOD_TRANSFER to R.string.payment_method_transfer,
+    PaymentLogEntity.METHOD_OTHER    to R.string.payment_method_other
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -73,7 +77,12 @@ fun PaymentSettlementScreen(
     }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Payment Settlement") }) },
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.screen_payment)) },
+                actions = { LanguageMenuIcon() }
+            )
+        },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
         LazyColumn(
@@ -95,8 +104,8 @@ fun PaymentSettlementScreen(
                         value = uiState.selectedReseller?.name ?: "",
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Reseller") },
-                        placeholder = { Text("Select reseller") },
+                        label = { Text(stringResource(R.string.label_reseller)) },
+                        placeholder = { Text(stringResource(R.string.label_select_reseller)) },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = resellerExpanded) },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -139,7 +148,7 @@ fun PaymentSettlementScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column {
-                                Text("Outstanding Balance", style = MaterialTheme.typography.labelMedium)
+                                Text(stringResource(R.string.payment_outstanding_balance), style = MaterialTheme.typography.labelMedium)
                                 Text(
                                     text = formatAmount(uiState.outstandingBalance),
                                     style = MaterialTheme.typography.headlineSmall,
@@ -147,7 +156,11 @@ fun PaymentSettlementScreen(
                                 )
                             }
                             Text(
-                                text = "${uiState.outstandingInvoices.size} invoice${if (uiState.outstandingInvoices.size != 1) "s" else ""}",
+                                text = pluralStringResource(
+                                    R.plurals.payment_invoice_count,
+                                    uiState.outstandingInvoices.size,
+                                    uiState.outstandingInvoices.size
+                                ),
                                 style = MaterialTheme.typography.bodyMedium
                             )
                         }
@@ -158,7 +171,7 @@ fun PaymentSettlementScreen(
                 if (uiState.outstandingInvoices.isNotEmpty()) {
                     item {
                         Text(
-                            text = "Outstanding Invoices (oldest first)",
+                            text = stringResource(R.string.payment_outstanding_invoices),
                             style = MaterialTheme.typography.titleSmall
                         )
                     }
@@ -180,12 +193,12 @@ fun PaymentSettlementScreen(
                             }
                             Column(horizontalAlignment = Alignment.End) {
                                 Text(
-                                    text = "Due: ${formatAmount(due)}",
+                                    text = stringResource(R.string.payment_due_format, formatAmount(due)),
                                     fontWeight = FontWeight.SemiBold,
                                     color = MaterialTheme.colorScheme.error
                                 )
                                 Text(
-                                    text = "of ${formatAmount(invoice.totalAmount)}",
+                                    text = stringResource(R.string.payment_of_format, formatAmount(invoice.totalAmount)),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -202,12 +215,12 @@ fun PaymentSettlementScreen(
                             modifier = Modifier.padding(12.dp),
                             verticalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
-                            Text("Record Payment", style = MaterialTheme.typography.titleSmall)
+                            Text(stringResource(R.string.payment_record_title), style = MaterialTheme.typography.titleSmall)
 
                             OutlinedTextField(
                                 value = uiState.paymentAmountInput,
                                 onValueChange = viewModel::onPaymentAmountChanged,
-                                label = { Text("Payment Amount") },
+                                label = { Text(stringResource(R.string.payment_amount_label)) },
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                                 modifier = Modifier.fillMaxWidth()
                             )
@@ -217,10 +230,11 @@ fun PaymentSettlementScreen(
                                 onExpandedChange = { methodExpanded = it }
                             ) {
                                 OutlinedTextField(
-                                    value = PAYMENT_METHODS.find { it.first == uiState.paymentMethod }?.second ?: "",
+                                    value = PAYMENT_METHODS.find { it.first == uiState.paymentMethod }
+                                        ?.second?.let { stringResource(it) } ?: "",
                                     onValueChange = {},
                                     readOnly = true,
-                                    label = { Text("Payment Method") },
+                                    label = { Text(stringResource(R.string.payment_method_label)) },
                                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = methodExpanded) },
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -230,9 +244,9 @@ fun PaymentSettlementScreen(
                                     expanded = methodExpanded,
                                     onDismissRequest = { methodExpanded = false }
                                 ) {
-                                    PAYMENT_METHODS.forEach { (method, label) ->
+                                    PAYMENT_METHODS.forEach { (method, labelRes) ->
                                         DropdownMenuItem(
-                                            text = { Text(label) },
+                                            text = { Text(stringResource(labelRes)) },
                                             onClick = {
                                                 viewModel.onPaymentMethodChanged(method)
                                                 methodExpanded = false
@@ -245,7 +259,7 @@ fun PaymentSettlementScreen(
                             OutlinedTextField(
                                 value = uiState.notesInput,
                                 onValueChange = viewModel::onNotesChanged,
-                                label = { Text("Notes (optional)") },
+                                label = { Text(stringResource(R.string.payment_notes_label)) },
                                 modifier = Modifier.fillMaxWidth()
                             )
                         }
@@ -256,7 +270,7 @@ fun PaymentSettlementScreen(
                 if (uiState.allocationPreview.isNotEmpty()) {
                     item {
                         Text(
-                            text = "Payment Allocation Preview",
+                            text = stringResource(R.string.payment_allocation_title),
                             style = MaterialTheme.typography.titleSmall
                         )
                     }
@@ -278,7 +292,7 @@ fun PaymentSettlementScreen(
                         if (uiState.isSubmitting) {
                             CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
                         } else {
-                            Text("Settle Payment")
+                            Text(stringResource(R.string.payment_settle_button))
                         }
                     }
                 }
@@ -301,13 +315,16 @@ private fun AllocationPreviewRow(alloc: AllocationPreview) {
         Column(modifier = Modifier.weight(1f)) {
             Text(alloc.invoice.invoiceNumber, fontWeight = FontWeight.Medium)
             Text(
-                text = "Applied: ${formatAmount(alloc.amountApplied)}",
+                text = stringResource(R.string.payment_applied_format, formatAmount(alloc.amountApplied)),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.primary
             )
         }
         Text(
-            text = if (alloc.balanceAfter <= 0.001) "PAID" else "Remaining: ${formatAmount(alloc.balanceAfter)}",
+            text = if (alloc.balanceAfter <= 0.001)
+                stringResource(R.string.payment_paid)
+            else
+                stringResource(R.string.payment_remaining_format, formatAmount(alloc.balanceAfter)),
             style = MaterialTheme.typography.bodySmall,
             fontWeight = FontWeight.SemiBold,
             color = if (alloc.balanceAfter <= 0.001)

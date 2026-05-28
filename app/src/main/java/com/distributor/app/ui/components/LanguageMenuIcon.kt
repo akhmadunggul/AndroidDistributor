@@ -1,0 +1,59 @@
+package com.distributor.app.ui.components
+
+import android.app.Activity
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Language
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import com.distributor.app.R
+import com.distributor.app.utils.LocaleHelper
+
+@Composable
+fun LanguageMenuIcon() {
+    val context = LocalContext.current
+    var expanded by remember { mutableStateOf(false) }
+    val currentLang = LocaleHelper.getLanguage(context)
+
+    IconButton(onClick = { expanded = true }) {
+        Icon(Icons.Default.Language, contentDescription = stringResource(R.string.language_title))
+    }
+    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.language_english)) },
+            onClick = {
+                expanded = false
+                if (currentLang != "en") {
+                    LocaleHelper.setLanguage(context, "en")
+                    (context as Activity).recreate()
+                }
+            },
+            leadingIcon = if (currentLang == "en") {
+                { Icon(Icons.Default.Check, contentDescription = null) }
+            } else null
+        )
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.language_indonesian)) },
+            onClick = {
+                expanded = false
+                if (currentLang != "id") {
+                    LocaleHelper.setLanguage(context, "id")
+                    (context as Activity).recreate()
+                }
+            },
+            leadingIcon = if (currentLang == "id") {
+                { Icon(Icons.Default.Check, contentDescription = null) }
+            } else null
+        )
+    }
+}

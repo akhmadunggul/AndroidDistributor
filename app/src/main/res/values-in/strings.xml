@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Distributor</string>
+
+    <!-- Navigation tabs -->
+    <string name="tab_products">Produk</string>
+    <string name="tab_stock">Stok</string>
+    <string name="tab_sales">Penjualan</string>
+    <string name="tab_payment">Pembayaran</string>
+    <string name="tab_resellers">Reseller</string>
+
+    <!-- Screen titles -->
+    <string name="screen_products">Produk</string>
+    <string name="screen_stock">Operasi Stok</string>
+    <string name="screen_sales">Pesanan Penjualan</string>
+    <string name="screen_payment">Pelunasan Pembayaran</string>
+    <string name="screen_resellers">Reseller</string>
+    <string name="screen_stock_opname">Stok Opname</string>
+
+    <!-- Common actions / labels -->
+    <string name="action_cancel">Batal</string>
+    <string name="label_reseller">Reseller</string>
+    <string name="label_select_reseller">Pilih reseller</string>
+    <string name="label_product">Produk</string>
+    <string name="label_select_product">Pilih produk</string>
+    <string name="label_quantity">Jumlah</string>
+    <string name="label_date">Tanggal</string>
+    <string name="label_notes_optional">Catatan (opsional)</string>
+
+    <!-- Products screen -->
+    <string name="products_empty_title">Belum ada produk</string>
+    <string name="products_empty_hint">Ketuk + untuk menambah produk pertama</string>
+    <string name="product_form_title">Produk Baru</string>
+    <string name="product_name_label">Nama Produk *</string>
+    <string name="product_sku_label">SKU *</string>
+    <string name="product_unit_label">Satuan  (default \'pcs\')</string>
+    <string name="product_unit_placeholder">pcs / kotak / kg / liter</string>
+    <string name="product_base_price_label">Harga Modal *</string>
+    <string name="product_selling_price_label">Harga Jual *</string>
+    <string name="product_description_label">Deskripsi (opsional)</string>
+    <string name="product_save_button">Simpan Produk</string>
+    <string name="product_sku_unit_format">SKU: %1$s  ·  Satuan: %2$s</string>
+    <string name="product_cost_format">Modal: %s</string>
+    <string name="product_price_format">Harga: %s</string>
+
+    <!-- Resellers screen -->
+    <string name="resellers_empty_title">Belum ada reseller</string>
+    <string name="resellers_empty_hint">Ketuk + untuk mendaftarkan reseller pertama</string>
+    <string name="reseller_form_title">Reseller Baru</string>
+    <string name="reseller_name_label">Nama Lengkap *</string>
+    <string name="reseller_phone_label">Nomor HP *</string>
+    <string name="reseller_phone_placeholder">mis. 08123456789</string>
+    <string name="reseller_address_label">Alamat (opsional)</string>
+    <string name="reseller_register_button">Daftarkan Reseller</string>
+
+    <!-- Stock operation screen -->
+    <string name="stock_op_type_label">Jenis Operasi</string>
+    <string name="stock_op_product_placeholder">Pilih produk</string>
+    <string name="stock_op_current_stock">Stok saat ini: %1$s %2$s</string>
+    <string name="stock_op_unit_cost_label">Harga Satuan</string>
+    <string name="stock_op_save_button">Simpan Entri</string>
+    <string name="stock_type_in">Stok Masuk</string>
+    <string name="stock_type_out">Stok Keluar</string>
+    <string name="stock_type_adjust_in">Penyesuaian Masuk</string>
+    <string name="stock_type_adjust_out">Penyesuaian Keluar</string>
+
+    <!-- Sales / Transaction screen -->
+    <string name="sales_add_item_title">Tambah Item</string>
+    <string name="sales_product_stock_format">Stok: %1$s %2$s</string>
+    <string name="sales_qty_label">Jml</string>
+    <string name="sales_unit_price_label">Harga Satuan</string>
+    <string name="sales_exceeds_stock">Melebihi stok</string>
+    <string name="sales_add_to_cart_button">Tambah ke Keranjang</string>
+    <string name="sales_total">Total</string>
+    <string name="sales_create_invoice_button">Buat Invoice</string>
+    <plurals name="sales_cart_header">
+        <item quantity="other">Keranjang (%d item)</item>
+    </plurals>
+
+    <!-- Payment settlement screen -->
+    <string name="payment_outstanding_balance">Saldo Tertunggak</string>
+    <string name="payment_outstanding_invoices">Invoice Tertunggak (terlama dulu)</string>
+    <string name="payment_record_title">Catat Pembayaran</string>
+    <string name="payment_amount_label">Jumlah Pembayaran</string>
+    <string name="payment_method_label">Metode Pembayaran</string>
+    <string name="payment_method_cash">Tunai</string>
+    <string name="payment_method_transfer">Transfer Bank</string>
+    <string name="payment_method_other">Lainnya</string>
+    <string name="payment_notes_label">Catatan (opsional)</string>
+    <string name="payment_allocation_title">Pratinjau Alokasi Pembayaran</string>
+    <string name="payment_settle_button">Lunaskan Pembayaran</string>
+    <string name="payment_due_format">Tagihan: %s</string>
+    <string name="payment_of_format">dari %s</string>
+    <string name="payment_applied_format">Diterapkan: %s</string>
+    <string name="payment_remaining_format">Sisa: %s</string>
+    <string name="payment_paid">LUNAS</string>
+    <plurals name="payment_invoice_count">
+        <item quantity="other">%d invoice</item>
+    </plurals>
+
+    <!-- Stock opname screen -->
+    <string name="opname_col_product">Produk</string>
+    <string name="opname_col_system">Sistem</string>
+    <string name="opname_col_physical">Fisik</string>
+    <string name="opname_col_diff">Selisih</string>
+    <string name="opname_empty">Produk tidak ditemukan.\nTambahkan produk terlebih dahulu.</string>
+    <string name="opname_save_button">Simpan Penyesuaian</string>
+
+    <!-- Language selection -->
+    <string name="language_title">Bahasa</string>
+    <string name="language_english">English</string>
+    <string name="language_indonesian">Bahasa Indonesia</string>
+</resources>

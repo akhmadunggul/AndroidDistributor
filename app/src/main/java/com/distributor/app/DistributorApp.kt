@@ -1,11 +1,11 @@
 package com.distributor.app
 
 import android.app.Application
+import android.content.Context
+import com.distributor.app.utils.LocaleHelper
 
-/**
- * Application subclass declared in AndroidManifest.xml.
- * Provides the Application context that AppDatabase.getInstance() requires
- * for its WAL-mode singleton. No explicit initialization is needed here —
- * the database is opened lazily on first DAO access.
- */
-class DistributorApp : Application()
+class DistributorApp : Application() {
+    override fun attachBaseContext(base: Context) {
+        super.attachBaseContext(LocaleHelper.wrap(base))
+    }
+}

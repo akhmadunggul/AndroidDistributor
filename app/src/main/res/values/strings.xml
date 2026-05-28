@@ -1,4 +1,115 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Distributor</string>
+
+    <!-- Navigation tabs -->
+    <string name="tab_products">Products</string>
+    <string name="tab_stock">Stock</string>
+    <string name="tab_sales">Sales</string>
+    <string name="tab_payment">Payment</string>
+    <string name="tab_resellers">Resellers</string>
+
+    <!-- Screen titles -->
+    <string name="screen_products">Products</string>
+    <string name="screen_stock">Stock Operation</string>
+    <string name="screen_sales">Sales Order</string>
+    <string name="screen_payment">Payment Settlement</string>
+    <string name="screen_resellers">Resellers</string>
+    <string name="screen_stock_opname">Stock Opname</string>
+
+    <!-- Common actions / labels -->
+    <string name="action_cancel">Cancel</string>
+    <string name="label_reseller">Reseller</string>
+    <string name="label_select_reseller">Select reseller</string>
+    <string name="label_product">Product</string>
+    <string name="label_select_product">Select a product</string>
+    <string name="label_quantity">Quantity</string>
+    <string name="label_date">Date</string>
+    <string name="label_notes_optional">Notes (optional)</string>
+
+    <!-- Products screen -->
+    <string name="products_empty_title">No products yet</string>
+    <string name="products_empty_hint">Tap + to add your first product</string>
+    <string name="product_form_title">New Product</string>
+    <string name="product_name_label">Product Name *</string>
+    <string name="product_sku_label">SKU *</string>
+    <string name="product_unit_label">Unit  (defaults to \'pcs\')</string>
+    <string name="product_unit_placeholder">pcs / box / kg / liter</string>
+    <string name="product_base_price_label">Base / Cost *</string>
+    <string name="product_selling_price_label">Selling Price *</string>
+    <string name="product_description_label">Description (optional)</string>
+    <string name="product_save_button">Save Product</string>
+    <string name="product_sku_unit_format">SKU: %1$s  ·  Unit: %2$s</string>
+    <string name="product_cost_format">Cost: %s</string>
+    <string name="product_price_format">Price: %s</string>
+
+    <!-- Resellers screen -->
+    <string name="resellers_empty_title">No resellers yet</string>
+    <string name="resellers_empty_hint">Tap + to register your first reseller</string>
+    <string name="reseller_form_title">New Reseller</string>
+    <string name="reseller_name_label">Full Name *</string>
+    <string name="reseller_phone_label">Phone Number *</string>
+    <string name="reseller_phone_placeholder">e.g. 08123456789</string>
+    <string name="reseller_address_label">Address (optional)</string>
+    <string name="reseller_register_button">Register Reseller</string>
+
+    <!-- Stock operation screen -->
+    <string name="stock_op_type_label">Operation Type</string>
+    <string name="stock_op_product_placeholder">Select a product</string>
+    <string name="stock_op_current_stock">Current stock: %1$s %2$s</string>
+    <string name="stock_op_unit_cost_label">Unit Cost</string>
+    <string name="stock_op_save_button">Save Entry</string>
+    <string name="stock_type_in">Stock In</string>
+    <string name="stock_type_out">Stock Out</string>
+    <string name="stock_type_adjust_in">Adjustment In</string>
+    <string name="stock_type_adjust_out">Adjustment Out</string>
+
+    <!-- Sales / Transaction screen -->
+    <string name="sales_add_item_title">Add Item</string>
+    <string name="sales_product_stock_format">Stock: %1$s %2$s</string>
+    <string name="sales_qty_label">Qty</string>
+    <string name="sales_unit_price_label">Unit Price</string>
+    <string name="sales_exceeds_stock">Exceeds stock</string>
+    <string name="sales_add_to_cart_button">Add to Cart</string>
+    <string name="sales_total">Total</string>
+    <string name="sales_create_invoice_button">Create Invoice</string>
+    <plurals name="sales_cart_header">
+        <item quantity="one">Cart (%d item)</item>
+        <item quantity="other">Cart (%d items)</item>
+    </plurals>
+
+    <!-- Payment settlement screen -->
+    <string name="payment_outstanding_balance">Outstanding Balance</string>
+    <string name="payment_outstanding_invoices">Outstanding Invoices (oldest first)</string>
+    <string name="payment_record_title">Record Payment</string>
+    <string name="payment_amount_label">Payment Amount</string>
+    <string name="payment_method_label">Payment Method</string>
+    <string name="payment_method_cash">Cash</string>
+    <string name="payment_method_transfer">Bank Transfer</string>
+    <string name="payment_method_other">Other</string>
+    <string name="payment_notes_label">Notes (optional)</string>
+    <string name="payment_allocation_title">Payment Allocation Preview</string>
+    <string name="payment_settle_button">Settle Payment</string>
+    <string name="payment_due_format">Due: %s</string>
+    <string name="payment_of_format">of %s</string>
+    <string name="payment_applied_format">Applied: %s</string>
+    <string name="payment_remaining_format">Remaining: %s</string>
+    <string name="payment_paid">PAID</string>
+    <plurals name="payment_invoice_count">
+        <item quantity="one">%d invoice</item>
+        <item quantity="other">%d invoices</item>
+    </plurals>
+
+    <!-- Stock opname screen -->
+    <string name="opname_col_product">Product</string>
+    <string name="opname_col_system">System</string>
+    <string name="opname_col_physical">Physical</string>
+    <string name="opname_col_diff">Diff</string>
+    <string name="opname_empty">No products found.\nAdd products first.</string>
+    <string name="opname_save_button">Save Adjustments</string>
+
+    <!-- Language selection -->
+    <string name="language_title">Language</string>
+    <string name="language_english">English</string>
+    <string name="language_indonesian">Bahasa Indonesia</string>
 </resources>

@@ -44,20 +44,23 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.distributor.app.R
 import com.distributor.app.data.entity.StockLedgerEntity
+import com.distributor.app.ui.components.LanguageMenuIcon
 import com.distributor.app.ui.viewmodel.StockOperationViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-private val OPERATION_TYPES: List<Pair<String, String>> = listOf(
-    StockLedgerEntity.TYPE_IN        to "Stock In",
-    StockLedgerEntity.TYPE_OUT       to "Stock Out",
-    StockLedgerEntity.TYPE_ADJUST_IN  to "Adjustment In",
-    StockLedgerEntity.TYPE_ADJUST_OUT to "Adjustment Out"
+private val OPERATION_TYPES: List<Pair<String, Int>> = listOf(
+    StockLedgerEntity.TYPE_IN         to R.string.stock_type_in,
+    StockLedgerEntity.TYPE_OUT        to R.string.stock_type_out,
+    StockLedgerEntity.TYPE_ADJUST_IN  to R.string.stock_type_adjust_in,
+    StockLedgerEntity.TYPE_ADJUST_OUT to R.string.stock_type_adjust_out
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -90,7 +93,7 @@ fun StockOperationScreen(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { viewModel.closeDatePicker() }) { Text("Cancel") }
+                TextButton(onClick = { viewModel.closeDatePicker() }) { Text(stringResource(R.string.action_cancel)) }
             }
         ) {
             DatePicker(state = datePickerState)
@@ -100,11 +103,12 @@ fun StockOperationScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Stock Operation") },
+                title = { Text(stringResource(R.string.screen_stock)) },
                 actions = {
                     IconButton(onClick = onNavigateToOpname) {
                         Icon(Icons.Default.Checklist, contentDescription = "Stock Opname")
                     }
+                    LanguageMenuIcon()
                 }
             )
         },
@@ -125,10 +129,11 @@ fun StockOperationScreen(
                 onExpandedChange = { typeDropdownExpanded = it }
             ) {
                 OutlinedTextField(
-                    value = OPERATION_TYPES.find { it.first == uiState.typeSelection }?.second ?: "",
+                    value = OPERATION_TYPES.find { it.first == uiState.typeSelection }
+                        ?.second?.let { stringResource(it) } ?: "",
                     onValueChange = {},
                     readOnly = true,
-                    label = { Text("Operation Type") },
+                    label = { Text(stringResource(R.string.stock_op_type_label)) },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = typeDropdownExpanded) },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -138,9 +143,9 @@ fun StockOperationScreen(
                     expanded = typeDropdownExpanded,
                     onDismissRequest = { typeDropdownExpanded = false }
                 ) {
-                    OPERATION_TYPES.forEach { (type, label) ->
+                    OPERATION_TYPES.forEach { (type, labelRes) ->
                         DropdownMenuItem(
-                            text = { Text(label) },
+                            text = { Text(stringResource(labelRes)) },
                             onClick = {
                                 viewModel.onTypeSelected(type)
                                 typeDropdownExpanded = false
@@ -159,8 +164,8 @@ fun StockOperationScreen(
                     value = uiState.selectedProduct?.name ?: "",
                     onValueChange = {},
                     readOnly = true,
-                    label = { Text("Product") },
-                    placeholder = { Text("Select a product") },
+                    label = { Text(stringResource(R.string.label_product)) },
+                    placeholder = { Text(stringResource(R.string.stock_op_product_placeholder)) },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = productDropdownExpanded) },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -190,7 +195,11 @@ fun StockOperationScreen(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = "Current stock: ${uiState.currentStock} ${uiState.selectedProduct!!.unit}",
+                        text = stringResource(
+                            R.string.stock_op_current_stock,
+                            uiState.currentStock.toString(),
+                            uiState.selectedProduct!!.unit
+                        ),
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
                         style = MaterialTheme.typography.bodyMedium
                     )
@@ -201,7 +210,7 @@ fun StockOperationScreen(
             OutlinedTextField(
                 value = uiState.quantityInput,
                 onValueChange = viewModel::onQuantityChanged,
-                label = { Text("Quantity") },
+                label = { Text(stringResource(R.string.label_quantity)) },
                 isError = uiState.quantityError != null,
                 supportingText = uiState.quantityError?.let { error -> { Text(error) } },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -213,7 +222,7 @@ fun StockOperationScreen(
                 OutlinedTextField(
                     value = uiState.unitCostInput,
                     onValueChange = viewModel::onUnitCostChanged,
-                    label = { Text("Unit Cost") },
+                    label = { Text(stringResource(R.string.stock_op_unit_cost_label)) },
                     isError = uiState.unitCostError != null,
                     supportingText = uiState.unitCostError?.let { error -> { Text(error) } },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -226,7 +235,7 @@ fun StockOperationScreen(
                 value = formatDate(uiState.selectedDateMillis),
                 onValueChange = {},
                 readOnly = true,
-                label = { Text("Date") },
+                label = { Text(stringResource(R.string.label_date)) },
                 trailingIcon = {
                     IconButton(onClick = viewModel::openDatePicker) {
                         Icon(Icons.Default.DateRange, contentDescription = "Select date")
@@ -239,7 +248,7 @@ fun StockOperationScreen(
             OutlinedTextField(
                 value = uiState.notesInput,
                 onValueChange = viewModel::onNotesChanged,
-                label = { Text("Notes (optional)") },
+                label = { Text(stringResource(R.string.label_notes_optional)) },
                 minLines = 2,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -254,7 +263,7 @@ fun StockOperationScreen(
                 if (uiState.isSubmitting) {
                     CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
                 } else {
-                    Text("Save Entry")
+                    Text(stringResource(R.string.stock_op_save_button))
                 }
             }
 

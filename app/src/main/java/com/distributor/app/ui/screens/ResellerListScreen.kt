@@ -10,9 +10,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -41,13 +43,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.distributor.app.R
 import com.distributor.app.data.entity.ResellerEntity
+import com.distributor.app.ui.components.LanguageMenuIcon
 import com.distributor.app.ui.viewmodel.ResellerViewModel
-import androidx.compose.foundation.text.KeyboardOptions
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -75,7 +79,12 @@ fun ResellerListScreen(
     }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Resellers") }) },
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.screen_resellers)) },
+                actions = { LanguageMenuIcon() }
+            )
+        },
         snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
             FloatingActionButton(onClick = { viewModel.openForm() }) {
@@ -91,10 +100,10 @@ fun ResellerListScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("No resellers yet", style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.resellers_empty_title), style = MaterialTheme.typography.titleMedium)
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Tap + to register your first reseller",
+                        text = stringResource(R.string.resellers_empty_hint),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -171,7 +180,7 @@ private fun ResellerForm(viewModel: ResellerViewModel) {
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Text(
-            text = "New Reseller",
+            text = stringResource(R.string.reseller_form_title),
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold
         )
@@ -181,7 +190,7 @@ private fun ResellerForm(viewModel: ResellerViewModel) {
         OutlinedTextField(
             value = uiState.nameInput,
             onValueChange = viewModel::onNameChanged,
-            label = { Text("Full Name *") },
+            label = { Text(stringResource(R.string.reseller_name_label)) },
             isError = uiState.nameError != null,
             supportingText = uiState.nameError?.let { e -> { Text(e) } },
             modifier = Modifier.fillMaxWidth()
@@ -190,8 +199,8 @@ private fun ResellerForm(viewModel: ResellerViewModel) {
         OutlinedTextField(
             value = uiState.phoneInput,
             onValueChange = viewModel::onPhoneChanged,
-            label = { Text("Phone Number *") },
-            placeholder = { Text("e.g. 08123456789") },
+            label = { Text(stringResource(R.string.reseller_phone_label)) },
+            placeholder = { Text(stringResource(R.string.reseller_phone_placeholder)) },
             isError = uiState.phoneError != null,
             supportingText = uiState.phoneError?.let { e -> { Text(e) } },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
@@ -201,7 +210,7 @@ private fun ResellerForm(viewModel: ResellerViewModel) {
         OutlinedTextField(
             value = uiState.addressInput,
             onValueChange = viewModel::onAddressChanged,
-            label = { Text("Address (optional)") },
+            label = { Text(stringResource(R.string.reseller_address_label)) },
             minLines = 2,
             modifier = Modifier.fillMaxWidth()
         )
@@ -209,7 +218,7 @@ private fun ResellerForm(viewModel: ResellerViewModel) {
         OutlinedButton(
             onClick = { viewModel.closeForm() },
             modifier = Modifier.fillMaxWidth()
-        ) { Text("Cancel") }
+        ) { Text(stringResource(R.string.action_cancel)) }
 
         androidx.compose.material3.Button(
             onClick = { viewModel.saveReseller() },
@@ -219,7 +228,7 @@ private fun ResellerForm(viewModel: ResellerViewModel) {
             if (uiState.isSubmitting) {
                 CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
             } else {
-                Text("Register Reseller")
+                Text(stringResource(R.string.reseller_register_button))
             }
         }
 

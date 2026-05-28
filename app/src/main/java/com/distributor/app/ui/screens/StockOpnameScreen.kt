@@ -35,12 +35,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.distributor.app.R
+import com.distributor.app.ui.components.LanguageMenuIcon
 import com.distributor.app.ui.model.OpnameRow
 import com.distributor.app.ui.viewmodel.StockOpnameViewModel
 import java.util.Locale
@@ -61,7 +64,12 @@ fun StockOpnameScreen(
     }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Stock Opname") }) },
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.screen_stock_opname)) },
+                actions = { LanguageMenuIcon() }
+            )
+        },
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
@@ -73,7 +81,7 @@ fun StockOpnameScreen(
                     if (uiState.isSubmitting) {
                         CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
                     } else {
-                        Text("Save Adjustments")
+                        Text(stringResource(R.string.opname_save_button))
                     }
                 }
             }
@@ -96,7 +104,6 @@ fun StockOpnameScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            // Sticky column header
             stickyHeader {
                 OpnameTableHeader()
             }
@@ -110,7 +117,7 @@ fun StockOpnameScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "No products found.\nAdd products first.",
+                            text = stringResource(R.string.opname_empty),
                             textAlign = TextAlign.Center,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -143,13 +150,13 @@ private fun OpnameTableHeader() {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "Product",
+            text = stringResource(R.string.opname_col_product),
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.weight(2.5f),
             style = MaterialTheme.typography.labelMedium
         )
         Text(
-            text = "System",
+            text = stringResource(R.string.opname_col_system),
             fontWeight = FontWeight.SemiBold,
             textAlign = TextAlign.End,
             modifier = Modifier.weight(1f),
@@ -157,7 +164,7 @@ private fun OpnameTableHeader() {
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
-            text = "Physical",
+            text = stringResource(R.string.opname_col_physical),
             fontWeight = FontWeight.SemiBold,
             textAlign = TextAlign.Center,
             modifier = Modifier.weight(1.5f),
@@ -165,7 +172,7 @@ private fun OpnameTableHeader() {
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
-            text = "Diff",
+            text = stringResource(R.string.opname_col_diff),
             fontWeight = FontWeight.SemiBold,
             textAlign = TextAlign.End,
             modifier = Modifier.weight(1f),
@@ -181,9 +188,9 @@ private fun OpnameRowItem(
 ) {
     val discrepancyColor: Color = when {
         row.physicalInput.isBlank() -> Color.Unspecified
-        row.discrepancy > 0.001     -> Color(0xFF2E7D32)  // green — surplus → ADJUST_IN
-        row.discrepancy < -0.001    -> MaterialTheme.colorScheme.error // shortage → ADJUST_OUT
-        else                        -> Color(0xFF1B5E20)  // exact match
+        row.discrepancy > 0.001     -> Color(0xFF2E7D32)
+        row.discrepancy < -0.001    -> MaterialTheme.colorScheme.error
+        else                        -> Color(0xFF1B5E20)
     }
 
     Row(
@@ -192,7 +199,6 @@ private fun OpnameRowItem(
             .padding(horizontal = 16.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Product name + unit
         Column(modifier = Modifier.weight(2.5f)) {
             Text(
                 text = row.product.name,
@@ -207,7 +213,6 @@ private fun OpnameRowItem(
             )
         }
 
-        // System stock
         Text(
             text = formatQty(row.systemStock),
             modifier = Modifier.weight(1f),
@@ -217,7 +222,6 @@ private fun OpnameRowItem(
 
         Spacer(modifier = Modifier.width(8.dp))
 
-        // Physical count input
         OutlinedTextField(
             value = row.physicalInput,
             onValueChange = onPhysicalInputChanged,
@@ -229,7 +233,6 @@ private fun OpnameRowItem(
 
         Spacer(modifier = Modifier.width(8.dp))
 
-        // Discrepancy
         val discrepancyLabel: String = when {
             row.physicalInput.isBlank() -> "—"
             row.discrepancy > 0.001 -> "+${formatQty(row.discrepancy)}"

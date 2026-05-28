@@ -28,7 +28,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
@@ -45,10 +44,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.distributor.app.R
+import com.distributor.app.ui.components.LanguageMenuIcon
 import com.distributor.app.ui.model.CartItem
 import com.distributor.app.ui.viewmodel.TransactionViewModel
 import java.util.Locale
@@ -71,7 +74,12 @@ fun TransactionScreen(
     }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Sales Order") }) },
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.screen_sales)) },
+                actions = { LanguageMenuIcon() }
+            )
+        },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
         LazyColumn(
@@ -93,8 +101,8 @@ fun TransactionScreen(
                         value = uiState.selectedReseller?.name ?: "",
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Reseller") },
-                        placeholder = { Text("Select reseller") },
+                        label = { Text(stringResource(R.string.label_reseller)) },
+                        placeholder = { Text(stringResource(R.string.label_select_reseller)) },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = resellerExpanded) },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -124,7 +132,7 @@ fun TransactionScreen(
                         modifier = Modifier.padding(12.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        Text("Add Item", style = MaterialTheme.typography.titleSmall)
+                        Text(stringResource(R.string.sales_add_item_title), style = MaterialTheme.typography.titleSmall)
 
                         // Product dropdown
                         ExposedDropdownMenuBox(
@@ -137,8 +145,8 @@ fun TransactionScreen(
                                 value = uiState.selectedProduct?.name ?: "",
                                 onValueChange = {},
                                 readOnly = true,
-                                label = { Text("Product") },
-                                placeholder = { Text("Select product") },
+                                label = { Text(stringResource(R.string.label_product)) },
+                                placeholder = { Text(stringResource(R.string.label_select_product)) },
                                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = productExpanded) },
                                 isError = isOverStock,
                                 modifier = Modifier
@@ -156,7 +164,11 @@ fun TransactionScreen(
                                             Column {
                                                 Text(product.name)
                                                 Text(
-                                                    text = "Stock: $available ${product.unit}",
+                                                    text = stringResource(
+                                                        R.string.sales_product_stock_format,
+                                                        available.toString(),
+                                                        product.unit
+                                                    ),
                                                     style = MaterialTheme.typography.bodySmall,
                                                     color = if (available <= 0.0)
                                                         MaterialTheme.colorScheme.error
@@ -183,10 +195,10 @@ fun TransactionScreen(
                             OutlinedTextField(
                                 value = uiState.quantityInput,
                                 onValueChange = viewModel::onQuantityChanged,
-                                label = { Text("Qty") },
+                                label = { Text(stringResource(R.string.sales_qty_label)) },
                                 isError = isOverStock,
                                 supportingText = if (isOverStock) {
-                                    { Text("Exceeds stock", color = MaterialTheme.colorScheme.error) }
+                                    { Text(stringResource(R.string.sales_exceeds_stock), color = MaterialTheme.colorScheme.error) }
                                 } else null,
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                                 colors = if (isOverStock) OutlinedTextFieldDefaults.colors(
@@ -199,7 +211,7 @@ fun TransactionScreen(
                             OutlinedTextField(
                                 value = uiState.unitPriceInput,
                                 onValueChange = viewModel::onUnitPriceChanged,
-                                label = { Text("Unit Price") },
+                                label = { Text(stringResource(R.string.sales_unit_price_label)) },
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                                 modifier = Modifier.weight(1f)
                             )
@@ -209,7 +221,7 @@ fun TransactionScreen(
                             onClick = viewModel::addToCart,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text("Add to Cart")
+                            Text(stringResource(R.string.sales_add_to_cart_button))
                         }
                     }
                 }
@@ -219,7 +231,11 @@ fun TransactionScreen(
             if (uiState.cartItems.isNotEmpty()) {
                 item {
                     Text(
-                        text = "Cart (${uiState.cartItems.size} item${if (uiState.cartItems.size > 1) "s" else ""})",
+                        text = pluralStringResource(
+                            R.plurals.sales_cart_header,
+                            uiState.cartItems.size,
+                            uiState.cartItems.size
+                        ),
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.padding(top = 4.dp)
                     )
@@ -249,7 +265,7 @@ fun TransactionScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Total",
+                                text = stringResource(R.string.sales_total),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold
                             )
@@ -273,7 +289,7 @@ fun TransactionScreen(
                         if (uiState.isSubmitting) {
                             CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
                         } else {
-                            Text("Create Invoice")
+                            Text(stringResource(R.string.sales_create_invoice_button))
                         }
                     }
                 }

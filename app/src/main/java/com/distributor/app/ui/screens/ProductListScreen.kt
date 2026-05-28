@@ -43,11 +43,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.distributor.app.R
 import com.distributor.app.data.entity.ProductEntity
+import com.distributor.app.ui.components.LanguageMenuIcon
 import com.distributor.app.ui.viewmodel.ProductViewModel
 import java.util.Locale
 
@@ -77,7 +80,12 @@ fun ProductListScreen(
     }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Products") }) },
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.screen_products)) },
+                actions = { LanguageMenuIcon() }
+            )
+        },
         snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
             FloatingActionButton(onClick = { viewModel.openForm() }) {
@@ -93,10 +101,10 @@ fun ProductListScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("No products yet", style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.products_empty_title), style = MaterialTheme.typography.titleMedium)
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Tap + to add your first product",
+                        text = stringResource(R.string.products_empty_hint),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -119,7 +127,7 @@ fun ProductListScreen(
                     )
                 }
 
-                item { Spacer(modifier = Modifier.height(88.dp)) } // FAB clearance
+                item { Spacer(modifier = Modifier.height(88.dp)) }
             }
         }
     }
@@ -137,18 +145,18 @@ private fun ProductCard(product: ProductEntity, onDelete: () -> Unit) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(product.name, fontWeight = FontWeight.SemiBold)
                 Text(
-                    text = "SKU: ${product.sku}  ·  Unit: ${product.unit}",
+                    text = stringResource(R.string.product_sku_unit_format, product.sku, product.unit),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                     Text(
-                        text = "Cost: ${formatAmount(product.basePrice)}",
+                        text = stringResource(R.string.product_cost_format, formatAmount(product.basePrice)),
                         style = MaterialTheme.typography.bodySmall
                     )
                     Text(
-                        text = "Price: ${formatAmount(product.sellingPrice)}",
+                        text = stringResource(R.string.product_price_format, formatAmount(product.sellingPrice)),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -178,7 +186,7 @@ private fun ProductForm(viewModel: ProductViewModel) {
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Text(
-            text = "New Product",
+            text = stringResource(R.string.product_form_title),
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold
         )
@@ -188,7 +196,7 @@ private fun ProductForm(viewModel: ProductViewModel) {
         OutlinedTextField(
             value = uiState.nameInput,
             onValueChange = viewModel::onNameChanged,
-            label = { Text("Product Name *") },
+            label = { Text(stringResource(R.string.product_name_label)) },
             isError = uiState.nameError != null,
             supportingText = uiState.nameError?.let { e -> { Text(e) } },
             modifier = Modifier.fillMaxWidth()
@@ -197,7 +205,7 @@ private fun ProductForm(viewModel: ProductViewModel) {
         OutlinedTextField(
             value = uiState.skuInput,
             onValueChange = viewModel::onSkuChanged,
-            label = { Text("SKU *") },
+            label = { Text(stringResource(R.string.product_sku_label)) },
             placeholder = { Text("e.g. PRD-001") },
             isError = uiState.skuError != null,
             supportingText = uiState.skuError?.let { e -> { Text(e) } },
@@ -207,8 +215,8 @@ private fun ProductForm(viewModel: ProductViewModel) {
         OutlinedTextField(
             value = uiState.unitInput,
             onValueChange = viewModel::onUnitChanged,
-            label = { Text("Unit  (defaults to 'pcs')") },
-            placeholder = { Text("pcs / box / kg / liter") },
+            label = { Text(stringResource(R.string.product_unit_label)) },
+            placeholder = { Text(stringResource(R.string.product_unit_placeholder)) },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -219,7 +227,7 @@ private fun ProductForm(viewModel: ProductViewModel) {
             OutlinedTextField(
                 value = uiState.basePriceInput,
                 onValueChange = viewModel::onBasePriceChanged,
-                label = { Text("Base / Cost *") },
+                label = { Text(stringResource(R.string.product_base_price_label)) },
                 isError = uiState.priceError != null,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 modifier = Modifier.weight(1f)
@@ -227,7 +235,7 @@ private fun ProductForm(viewModel: ProductViewModel) {
             OutlinedTextField(
                 value = uiState.sellingPriceInput,
                 onValueChange = viewModel::onSellingPriceChanged,
-                label = { Text("Selling Price *") },
+                label = { Text(stringResource(R.string.product_selling_price_label)) },
                 isError = uiState.priceError != null,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 modifier = Modifier.weight(1f)
@@ -245,7 +253,7 @@ private fun ProductForm(viewModel: ProductViewModel) {
         OutlinedTextField(
             value = uiState.descriptionInput,
             onValueChange = viewModel::onDescriptionChanged,
-            label = { Text("Description (optional)") },
+            label = { Text(stringResource(R.string.product_description_label)) },
             minLines = 2,
             modifier = Modifier.fillMaxWidth()
         )
@@ -253,7 +261,7 @@ private fun ProductForm(viewModel: ProductViewModel) {
         OutlinedButton(
             onClick = { viewModel.closeForm() },
             modifier = Modifier.fillMaxWidth()
-        ) { Text("Cancel") }
+        ) { Text(stringResource(R.string.action_cancel)) }
 
         androidx.compose.material3.Button(
             onClick = { viewModel.saveProduct() },
@@ -263,7 +271,7 @@ private fun ProductForm(viewModel: ProductViewModel) {
             if (uiState.isSubmitting) {
                 CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
             } else {
-                Text("Save Product")
+                Text(stringResource(R.string.product_save_button))
             }
         }
 
