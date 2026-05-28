@@ -12,6 +12,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -62,6 +63,7 @@ private val OPERATION_TYPES: List<Pair<String, String>> = listOf(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StockOperationScreen(
+    onNavigateToOpname: () -> Unit = {},
     viewModel: StockOperationViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -96,7 +98,16 @@ fun StockOperationScreen(
     }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Stock Operation") }) },
+        topBar = {
+            TopAppBar(
+                title = { Text("Stock Operation") },
+                actions = {
+                    IconButton(onClick = onNavigateToOpname) {
+                        Icon(Icons.Default.Checklist, contentDescription = "Stock Opname")
+                    }
+                }
+            )
+        },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
         Column(
