@@ -43,7 +43,9 @@
     <string name="product_threshold_label">Batas Peringatan Restock (opsional)</string>
     <string name="product_threshold_placeholder">stok minimal sebelum peringatan, mis. 10</string>
     <string name="product_threshold_format">Batas peringatan: %1$s %2$s</string>
+    <string name="product_edit_form_title">Ubah Produk</string>
     <string name="product_save_button">Simpan Produk</string>
+    <string name="product_save_changes_button">Simpan Perubahan</string>
     <string name="product_sku_unit_format">SKU: %1$s  ·  Satuan: %2$s</string>
     <string name="product_cost_format">Modal: %s</string>
     <string name="product_price_format">Harga: %s</string>

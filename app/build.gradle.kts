@@ -13,8 +13,8 @@ android {
         applicationId = "com.distributor.app"
         minSdk        = 26
         targetSdk     = 35
-        versionCode   = 5
-        versionName   = "1.4"
+        versionCode   = 6
+        versionName   = "1.5"
 
         buildConfigField("String", "RELEASE_DATE", "\"2026-06-01\"")
     }
@@ -49,6 +49,7 @@ android {
 
 dependencies {
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.splashscreen)
     implementation(libs.androidx.activity.compose)
 
     // Compose BOM pins all Compose library versions together

@@ -34,8 +34,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.distributor.app.ui.screens.AboutScreen
 import com.distributor.app.ui.screens.LedgerScreen
+import com.distributor.app.ui.screens.SplashScreen
 import com.distributor.app.ui.screens.PaymentSettlementScreen
 import com.distributor.app.ui.screens.ProductListScreen
 import com.distributor.app.ui.screens.ResellerListScreen
@@ -65,6 +67,7 @@ private object Routes {
     const val STOCK_OPNAME    = "stock_opname"
     const val SETTINGS        = "settings"
     const val ABOUT           = "about"
+    const val SPLASH          = "splash"
 }
 
 // ── Bottom-nav tab descriptors ──────────────────────────────────────────────
@@ -91,6 +94,7 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
@@ -114,7 +118,8 @@ private fun DistributorNavHost() {
         currentRoute != Routes.SETTINGS &&
         currentRoute != Routes.PRODUCTS &&
         currentRoute != Routes.LEDGER &&
-        currentRoute != Routes.ABOUT
+        currentRoute != Routes.ABOUT &&
+        currentRoute != Routes.SPLASH
 
 
     CompositionLocalProvider(LocalAppNavController provides navController) {
@@ -148,9 +153,16 @@ private fun DistributorNavHost() {
     ) { innerPadding ->
         NavHost(
             navController    = navController,
-            startDestination = Routes.SALES,
+            startDestination = Routes.SPLASH,
             modifier         = Modifier.padding(innerPadding)
         ) {
+            composable(Routes.SPLASH) {
+                SplashScreen(onComplete = {
+                    navController.navigate(Routes.SALES) {
+                        popUpTo(Routes.SPLASH) { inclusive = true }
+                    }
+                })
+            }
             composable(Routes.RETURN) {
                 ReturnScreen()
             }

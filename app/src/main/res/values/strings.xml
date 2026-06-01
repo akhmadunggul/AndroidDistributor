@@ -43,7 +43,9 @@
     <string name="product_threshold_label">Restock Alert Threshold (optional)</string>
     <string name="product_threshold_placeholder">min. stock before alert, e.g. 10</string>
     <string name="product_threshold_format">Alert threshold: %1$s %2$s</string>
+    <string name="product_edit_form_title">Edit Product</string>
     <string name="product_save_button">Save Product</string>
+    <string name="product_save_changes_button">Save Changes</string>
     <string name="product_sku_unit_format">SKU: %1$s  ·  Unit: %2$s</string>
     <string name="product_cost_format">Cost: %s</string>
     <string name="product_price_format">Price: %s</string>

@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.5] – 2026-06-01 (versionCode 6)
+
+### Added
+- **Splash screen** — eliminates the blank white flash on cold start using the AndroidX SplashScreen API. A branded splash (Design 2: blue background, DISTRO-KU logo, "Partner Distribusi Anda") displays for 2 seconds before the main screen appears.
+- **Product edit** — each product card now has an edit (pencil) button. Tapping it opens the product form pre-filled with existing values for price adjustment, SKU, unit, threshold, or any other field. Saves via `UPDATE` rather than `INSERT`, preserving the product's history.
+
+### Changed
+- Design mockup files moved from `res/drawable/` to `design-assets/` at the project root to keep them out of the resource pipeline.
+
+---
+
 ## [1.4] – 2026-06-01 (versionCode 5)
 
 ### Added

@@ -17,6 +17,7 @@ data class ProductListUiState(
     val products: List<ProductEntity> = emptyList(),
     val lowStockAlerts: List<LowStockAlert> = emptyList(),
     val isFormOpen: Boolean = false,
+    val editingProduct: ProductEntity? = null,
     val nameInput: String = "",
     val skuInput: String = "",
     val descriptionInput: String = "",
@@ -54,13 +55,31 @@ class ProductViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun openForm() {
-        _uiState.update { it.copy(isFormOpen = true) }
+        _uiState.update { it.copy(isFormOpen = true, editingProduct = null) }
+    }
+
+    fun openEditForm(product: ProductEntity) {
+        _uiState.update {
+            it.copy(
+                isFormOpen        = true,
+                editingProduct    = product,
+                nameInput         = product.name,
+                skuInput          = product.sku,
+                descriptionInput  = product.description,
+                basePriceInput    = product.basePrice.toBigDecimal().stripTrailingZeros().toPlainString(),
+                sellingPriceInput = product.sellingPrice.toBigDecimal().stripTrailingZeros().toPlainString(),
+                unitInput         = product.unit,
+                thresholdInput    = product.stockThreshold
+                    ?.toBigDecimal()?.stripTrailingZeros()?.toPlainString() ?: "",
+                nameError = null, skuError = null, priceError = null, thresholdError = null
+            )
+        }
     }
 
     fun closeForm() {
         _uiState.update {
             it.copy(
-                isFormOpen = false,
+                isFormOpen = false, editingProduct = null,
                 nameInput = "", skuInput = "", descriptionInput = "",
                 basePriceInput = "", sellingPriceInput = "", unitInput = "",
                 thresholdInput = "",
@@ -125,26 +144,47 @@ class ProductViewModel(application: Application) : AndroidViewModel(application)
 
         _uiState.update { it.copy(isSubmitting = true) }
 
+        val editing    = state.editingProduct
+        val savedName  = state.nameInput.trim()
+        val newSku     = state.skuInput.trim().uppercase()
+
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                productDao.insertProduct(
-                    ProductEntity(
-                        name           = state.nameInput.trim(),
-                        sku            = state.skuInput.trim().uppercase(),
-                        description    = state.descriptionInput.trim(),
-                        basePrice      = basePrice,
-                        sellingPrice   = sellingPrice,
-                        unit           = unit,
-                        stockThreshold = threshold
+                if (editing != null) {
+                    productDao.updateProduct(
+                        editing.copy(
+                            name           = savedName,
+                            sku            = newSku,
+                            description    = state.descriptionInput.trim(),
+                            basePrice      = basePrice,
+                            sellingPrice   = sellingPrice,
+                            unit           = unit,
+                            stockThreshold = threshold,
+                            updatedAt      = System.currentTimeMillis()
+                        )
                     )
-                )
-                val savedName = state.nameInput.trim()
-                _uiState.update { it.copy(isSubmitting = false) }
-                closeForm()
-                _uiState.update { it.copy(snackbarMessage = "\"$savedName\" added") }
+                    _uiState.update { it.copy(isSubmitting = false) }
+                    closeForm()
+                    _uiState.update { it.copy(snackbarMessage = "\"$savedName\" updated") }
+                } else {
+                    productDao.insertProduct(
+                        ProductEntity(
+                            name           = savedName,
+                            sku            = newSku,
+                            description    = state.descriptionInput.trim(),
+                            basePrice      = basePrice,
+                            sellingPrice   = sellingPrice,
+                            unit           = unit,
+                            stockThreshold = threshold
+                        )
+                    )
+                    _uiState.update { it.copy(isSubmitting = false) }
+                    closeForm()
+                    _uiState.update { it.copy(snackbarMessage = "\"$savedName\" added") }
+                }
             } catch (e: Exception) {
                 val msg = if (e.message?.contains("UNIQUE", ignoreCase = true) == true)
-                    "SKU \"${state.skuInput.trim().uppercase()}\" already exists"
+                    "SKU \"$newSku\" already exists"
                 else
                     "Failed to save: ${e.message}"
                 _uiState.update { it.copy(isSubmitting = false, snackbarMessage = msg) }

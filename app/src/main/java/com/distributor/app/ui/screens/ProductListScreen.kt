@@ -20,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -140,6 +141,7 @@ fun ProductListScreen(
                     ProductCard(
                         product    = product,
                         isLowStock = product.id in alertIds,
+                        onEdit     = { viewModel.openEditForm(product) },
                         onDelete   = { viewModel.deleteProduct(product) }
                     )
                 }
@@ -151,7 +153,7 @@ fun ProductListScreen(
 }
 
 @Composable
-private fun ProductCard(product: ProductEntity, isLowStock: Boolean, onDelete: () -> Unit) {
+private fun ProductCard(product: ProductEntity, isLowStock: Boolean, onEdit: () -> Unit, onDelete: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors   = CardDefaults.cardColors(
@@ -210,6 +212,13 @@ private fun ProductCard(product: ProductEntity, isLowStock: Boolean, onDelete: (
                     )
                 }
             }
+            IconButton(onClick = onEdit) {
+                Icon(
+                    Icons.Default.Edit,
+                    contentDescription = "Edit ${product.name}",
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
             IconButton(onClick = onDelete) {
                 Icon(
                     Icons.Default.Delete,
@@ -234,7 +243,10 @@ private fun ProductForm(viewModel: ProductViewModel) {
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Text(
-            text = stringResource(R.string.product_form_title),
+            text = stringResource(
+                if (uiState.editingProduct != null) R.string.product_edit_form_title
+                else R.string.product_form_title
+            ),
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold
         )
@@ -330,7 +342,12 @@ private fun ProductForm(viewModel: ProductViewModel) {
             if (uiState.isSubmitting) {
                 CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
             } else {
-                Text(stringResource(R.string.product_save_button))
+                Text(
+                    stringResource(
+                        if (uiState.editingProduct != null) R.string.product_save_changes_button
+                        else R.string.product_save_button
+                    )
+                )
             }
         }
 
