@@ -54,6 +54,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.distributor.app.BuildConfig
 import com.distributor.app.R
 import com.distributor.app.ui.viewmodel.SettingsViewModel
 import kotlinx.coroutines.Dispatchers
@@ -66,6 +67,7 @@ fun SettingsScreen(
     onNavigateBack: () -> Unit = {},
     onNavigateToProducts: () -> Unit = {},
     onNavigateToLedger: () -> Unit = {},
+    onNavigateToAbout: () -> Unit = {},
     viewModel: SettingsViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -131,6 +133,13 @@ fun SettingsScreen(
                 Text(stringResource(R.string.settings_ledger))
             }
 
+            OutlinedButton(
+                onClick  = onNavigateToAbout,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(stringResource(R.string.settings_about))
+            }
+
             HorizontalDivider()
 
             // ── Logo ──────────────────────────────────────────────────────────
@@ -186,6 +195,47 @@ fun SettingsScreen(
                 } else {
                     Text(stringResource(R.string.settings_save_button))
                 }
+            }
+
+            HorizontalDivider()
+
+            // ── About ─────────────────────────────────────────────────────────
+            Row(
+                modifier              = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment     = Alignment.CenterVertically
+            ) {
+                Text(
+                    text  = stringResource(R.string.settings_version),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text  = stringResource(
+                        R.string.settings_version_format,
+                        BuildConfig.VERSION_NAME,
+                        BuildConfig.VERSION_CODE
+                    ),
+                    style      = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+
+            Row(
+                modifier              = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment     = Alignment.CenterVertically
+            ) {
+                Text(
+                    text  = stringResource(R.string.settings_release_date),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text  = BuildConfig.RELEASE_DATE,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))

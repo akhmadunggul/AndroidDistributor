@@ -13,8 +13,10 @@ android {
         applicationId = "com.distributor.app"
         minSdk        = 26
         targetSdk     = 35
-        versionCode   = 2
-        versionName   = "1.1"
+        versionCode   = 5
+        versionName   = "1.4"
+
+        buildConfigField("String", "RELEASE_DATE", "\"2026-06-01\"")
     }
 
     buildTypes {
@@ -35,7 +37,8 @@ android {
         jvmTarget = "17"
     }
     buildFeatures {
-        compose = true
+        compose       = true
+        buildConfig   = true
     }
 
     // Exports Room schema JSON for migration auditing

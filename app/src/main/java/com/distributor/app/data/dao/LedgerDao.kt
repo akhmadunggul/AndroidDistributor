@@ -20,6 +20,18 @@ data class PaymentLedgerEntry(
     val timestampMillis: Long
 )
 
+data class TopResellerEntry(
+    val resellerName: String,
+    val totalPurchase: Double
+)
+
+data class ProductResellerSales(
+    val productId: Long,
+    val productName: String,
+    val resellerName: String,
+    val totalPurchase: Double
+)
+
 @Dao
 interface LedgerDao {
 
@@ -68,4 +80,32 @@ interface LedgerDao {
         LIMIT 200
     """)
     fun getPaymentEntriesFlow(from: Long, to: Long): Flow<List<PaymentLedgerEntry>>
+
+    @Query("""
+        SELECT r.name AS resellerName,
+               COALESCE(SUM(td.quantity * td.unit_price), 0.0) AS totalPurchase
+        FROM transaction_details td
+        JOIN transactions t ON td.transaction_id = t.id
+        JOIN resellers r ON t.reseller_id = r.id
+        WHERE t.created_at BETWEEN :from AND :to
+        GROUP BY t.reseller_id
+        ORDER BY SUM(td.quantity * td.unit_price) DESC
+        LIMIT 1
+    """)
+    suspend fun getTopResellerOverall(from: Long, to: Long): TopResellerEntry?
+
+    @Query("""
+        SELECT p.id   AS productId,
+               p.name AS productName,
+               r.name AS resellerName,
+               COALESCE(SUM(td.quantity * td.unit_price), 0.0) AS totalPurchase
+        FROM transaction_details td
+        JOIN transactions t ON td.transaction_id = t.id
+        JOIN resellers r ON t.reseller_id = r.id
+        JOIN products p ON td.product_id = p.id
+        WHERE t.created_at BETWEEN :from AND :to
+        GROUP BY td.product_id, t.reseller_id
+        ORDER BY td.product_id ASC, SUM(td.quantity * td.unit_price) DESC
+    """)
+    suspend fun getTopResellersPerProductRaw(from: Long, to: Long): List<ProductResellerSales>
 }

@@ -34,6 +34,9 @@ data class ProductEntity(
     @ColumnInfo(name = "unit")
     val unit: String,
 
+    @ColumnInfo(name = "stock_threshold", defaultValue = "NULL")
+    val stockThreshold: Double? = null,
+
     @ColumnInfo(name = "created_at")
     val createdAt: Long = System.currentTimeMillis(),
 

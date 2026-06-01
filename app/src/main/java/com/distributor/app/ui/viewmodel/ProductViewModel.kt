@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.distributor.app.data.AppDatabase
+import com.distributor.app.data.dao.LowStockAlert
 import com.distributor.app.data.entity.ProductEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,6 +15,7 @@ import kotlinx.coroutines.launch
 
 data class ProductListUiState(
     val products: List<ProductEntity> = emptyList(),
+    val lowStockAlerts: List<LowStockAlert> = emptyList(),
     val isFormOpen: Boolean = false,
     val nameInput: String = "",
     val skuInput: String = "",
@@ -21,16 +23,19 @@ data class ProductListUiState(
     val basePriceInput: String = "",
     val sellingPriceInput: String = "",
     val unitInput: String = "",
+    val thresholdInput: String = "",
     val nameError: String? = null,
     val skuError: String? = null,
     val priceError: String? = null,
+    val thresholdError: String? = null,
     val isSubmitting: Boolean = false,
     val snackbarMessage: String? = null
 )
 
 class ProductViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val productDao = AppDatabase.getInstance(application).productDao()
+    private val productDao     = AppDatabase.getInstance(application).productDao()
+    private val stockLedgerDao = AppDatabase.getInstance(application).stockLedgerDao()
 
     private val _uiState = MutableStateFlow(ProductListUiState())
     val uiState: StateFlow<ProductListUiState> = _uiState.asStateFlow()
@@ -39,6 +44,11 @@ class ProductViewModel(application: Application) : AndroidViewModel(application)
         viewModelScope.launch {
             productDao.getAllProducts().collect { products ->
                 _uiState.update { it.copy(products = products) }
+            }
+        }
+        viewModelScope.launch {
+            stockLedgerDao.getLowStockAlertsFlow().collect { alerts ->
+                _uiState.update { it.copy(lowStockAlerts = alerts) }
             }
         }
     }
@@ -53,17 +63,19 @@ class ProductViewModel(application: Application) : AndroidViewModel(application)
                 isFormOpen = false,
                 nameInput = "", skuInput = "", descriptionInput = "",
                 basePriceInput = "", sellingPriceInput = "", unitInput = "",
-                nameError = null, skuError = null, priceError = null
+                thresholdInput = "",
+                nameError = null, skuError = null, priceError = null, thresholdError = null
             )
         }
     }
 
-    fun onNameChanged(v: String)        = _uiState.update { it.copy(nameInput = v,         nameError  = null) }
-    fun onSkuChanged(v: String)         = _uiState.update { it.copy(skuInput = v,          skuError   = null) }
+    fun onNameChanged(v: String)        = _uiState.update { it.copy(nameInput = v,         nameError      = null) }
+    fun onSkuChanged(v: String)         = _uiState.update { it.copy(skuInput = v,          skuError       = null) }
     fun onDescriptionChanged(v: String) = _uiState.update { it.copy(descriptionInput = v) }
-    fun onBasePriceChanged(v: String)   = _uiState.update { it.copy(basePriceInput = v,    priceError = null) }
-    fun onSellingPriceChanged(v: String)= _uiState.update { it.copy(sellingPriceInput = v, priceError = null) }
+    fun onBasePriceChanged(v: String)   = _uiState.update { it.copy(basePriceInput = v,    priceError     = null) }
+    fun onSellingPriceChanged(v: String)= _uiState.update { it.copy(sellingPriceInput = v, priceError     = null) }
     fun onUnitChanged(v: String)        = _uiState.update { it.copy(unitInput = v) }
+    fun onThresholdChanged(v: String)   = _uiState.update { it.copy(thresholdInput = v,    thresholdError = null) }
     fun clearSnackbar()                 = _uiState.update { it.copy(snackbarMessage = null) }
 
     fun saveProduct() {
@@ -98,18 +110,32 @@ class ProductViewModel(application: Application) : AndroidViewModel(application)
 
         val unit: String = state.unitInput.trim().ifBlank { "pcs" }
 
+        val threshold: Double? = if (state.thresholdInput.isBlank()) {
+            null
+        } else {
+            try {
+                val t = state.thresholdInput.toDouble()
+                if (t < 0.0) throw NumberFormatException("negative")
+                t
+            } catch (e: NumberFormatException) {
+                _uiState.update { it.copy(thresholdError = "Enter a valid number or leave blank") }
+                return
+            }
+        }
+
         _uiState.update { it.copy(isSubmitting = true) }
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 productDao.insertProduct(
                     ProductEntity(
-                        name         = state.nameInput.trim(),
-                        sku          = state.skuInput.trim().uppercase(),
-                        description  = state.descriptionInput.trim(),
-                        basePrice    = basePrice,
-                        sellingPrice = sellingPrice,
-                        unit         = unit
+                        name           = state.nameInput.trim(),
+                        sku            = state.skuInput.trim().uppercase(),
+                        description    = state.descriptionInput.trim(),
+                        basePrice      = basePrice,
+                        sellingPrice   = sellingPrice,
+                        unit           = unit,
+                        stockThreshold = threshold
                     )
                 )
                 val savedName = state.nameInput.trim()

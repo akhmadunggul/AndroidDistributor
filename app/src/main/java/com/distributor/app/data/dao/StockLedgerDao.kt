@@ -8,6 +8,14 @@ import com.distributor.app.data.entity.StockLedgerEntity
 import com.distributor.app.data.model.ProductStockSummary
 import kotlinx.coroutines.flow.Flow
 
+data class LowStockAlert(
+    val productId: Long,
+    val productName: String,
+    val unit: String,
+    val threshold: Double,
+    val currentStock: Double
+)
+
 @Dao
 interface StockLedgerDao {
 
@@ -57,4 +65,23 @@ interface StockLedgerDao {
 
     @Query("SELECT * FROM stock_ledger WHERE product_id = :productId ORDER BY created_at DESC")
     fun getEntriesForProduct(productId: Long): Flow<List<StockLedgerEntity>>
+
+    @Query("""
+        SELECT * FROM (
+            SELECT p.id              AS productId,
+                   p.name            AS productName,
+                   p.unit            AS unit,
+                   p.stock_threshold AS threshold,
+                   COALESCE(SUM(CASE
+                       WHEN sl.type IN ('IN', 'ADJUST_IN', 'RETURN_IN') THEN  sl.quantity
+                       WHEN sl.type IN ('OUT', 'ADJUST_OUT')             THEN -sl.quantity
+                       ELSE 0.0 END), 0.0) AS currentStock
+            FROM products p
+            LEFT JOIN stock_ledger sl ON p.id = sl.product_id
+            WHERE p.stock_threshold IS NOT NULL
+            GROUP BY p.id
+        ) WHERE currentStock <= threshold
+        ORDER BY (currentStock - threshold) ASC
+    """)
+    fun getLowStockAlertsFlow(): Flow<List<LowStockAlert>>
 }

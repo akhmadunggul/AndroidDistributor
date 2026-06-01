@@ -20,7 +20,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -50,6 +52,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.distributor.app.R
+import com.distributor.app.data.dao.LowStockAlert
 import com.distributor.app.data.entity.ProductEntity
 import com.distributor.app.ui.components.LanguageMenuIcon
 import com.distributor.app.ui.viewmodel.ProductViewModel
@@ -118,6 +121,8 @@ fun ProductListScreen(
                 }
             }
         } else {
+            val alertIds = uiState.lowStockAlerts.map { it.productId }.toSet()
+
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -127,10 +132,15 @@ fun ProductListScreen(
             ) {
                 item { Spacer(modifier = Modifier.height(4.dp)) }
 
+                if (uiState.lowStockAlerts.isNotEmpty()) {
+                    item { LowStockBanner(uiState.lowStockAlerts) }
+                }
+
                 items(uiState.products, key = { it.id }) { product ->
                     ProductCard(
-                        product = product,
-                        onDelete = { viewModel.deleteProduct(product) }
+                        product    = product,
+                        isLowStock = product.id in alertIds,
+                        onDelete   = { viewModel.deleteProduct(product) }
                     )
                 }
 
@@ -141,8 +151,16 @@ fun ProductListScreen(
 }
 
 @Composable
-private fun ProductCard(product: ProductEntity, onDelete: () -> Unit) {
-    Card(modifier = Modifier.fillMaxWidth()) {
+private fun ProductCard(product: ProductEntity, isLowStock: Boolean, onDelete: () -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors   = CardDefaults.cardColors(
+            containerColor = if (isLowStock)
+                MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.35f)
+            else
+                MaterialTheme.colorScheme.surface
+        )
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -150,22 +168,45 @@ private fun ProductCard(product: ProductEntity, onDelete: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(product.name, fontWeight = FontWeight.SemiBold)
+                Row(
+                    verticalAlignment     = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Text(product.name, fontWeight = FontWeight.SemiBold)
+                    if (isLowStock) {
+                        Icon(
+                            imageVector        = Icons.Default.Warning,
+                            contentDescription = null,
+                            tint               = MaterialTheme.colorScheme.error,
+                            modifier           = Modifier.size(14.dp)
+                        )
+                    }
+                }
                 Text(
-                    text = stringResource(R.string.product_sku_unit_format, product.sku, product.unit),
+                    text  = stringResource(R.string.product_sku_unit_format, product.sku, product.unit),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                     Text(
-                        text = stringResource(R.string.product_cost_format, formatRupiah(product.basePrice)),
+                        text  = stringResource(R.string.product_cost_format, formatRupiah(product.basePrice)),
                         style = MaterialTheme.typography.bodySmall
                     )
                     Text(
-                        text = stringResource(R.string.product_price_format, formatRupiah(product.sellingPrice)),
+                        text  = stringResource(R.string.product_price_format, formatRupiah(product.sellingPrice)),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary
+                    )
+                }
+                product.stockThreshold?.let { threshold ->
+                    Text(
+                        text  = stringResource(R.string.product_threshold_format, formatStockQty(threshold), product.unit),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (isLowStock)
+                            MaterialTheme.colorScheme.error
+                        else
+                            MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -265,6 +306,17 @@ private fun ProductForm(viewModel: ProductViewModel) {
             modifier = Modifier.fillMaxWidth()
         )
 
+        OutlinedTextField(
+            value         = uiState.thresholdInput,
+            onValueChange = viewModel::onThresholdChanged,
+            label         = { Text(stringResource(R.string.product_threshold_label)) },
+            placeholder   = { Text(stringResource(R.string.product_threshold_placeholder)) },
+            isError       = uiState.thresholdError != null,
+            supportingText = uiState.thresholdError?.let { e -> { Text(e) } },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            modifier = Modifier.fillMaxWidth()
+        )
+
         OutlinedButton(
             onClick = { viewModel.closeForm() },
             modifier = Modifier.fillMaxWidth()
@@ -285,4 +337,59 @@ private fun ProductForm(viewModel: ProductViewModel) {
         Spacer(modifier = Modifier.height(16.dp))
     }
 }
+
+@Composable
+private fun LowStockBanner(alerts: List<LowStockAlert>) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors   = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)
+    ) {
+        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Row(
+                verticalAlignment     = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Icon(
+                    imageVector        = Icons.Default.Warning,
+                    contentDescription = null,
+                    tint               = MaterialTheme.colorScheme.error,
+                    modifier           = Modifier.size(16.dp)
+                )
+                Text(
+                    text       = stringResource(R.string.stock_low_alert_title, alerts.size),
+                    style      = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color      = MaterialTheme.colorScheme.onErrorContainer
+                )
+            }
+            alerts.forEach { alert ->
+                Row(
+                    modifier              = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text  = alert.productName,
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onErrorContainer
+                    )
+                    Text(
+                        text  = stringResource(
+                            R.string.stock_low_alert_stock_format,
+                            formatStockQty(alert.currentStock),
+                            alert.unit,
+                            formatStockQty(alert.threshold)
+                        ),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onErrorContainer
+                    )
+                }
+            }
+        }
+    }
+}
+
+private fun formatStockQty(qty: Double): String =
+    if (qty == qty.toLong().toDouble()) qty.toLong().toString()
+    else "%.2f".format(qty)
 

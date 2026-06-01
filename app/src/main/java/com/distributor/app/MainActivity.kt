@@ -34,6 +34,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.distributor.app.ui.screens.AboutScreen
 import com.distributor.app.ui.screens.LedgerScreen
 import com.distributor.app.ui.screens.PaymentSettlementScreen
 import com.distributor.app.ui.screens.ProductListScreen
@@ -63,6 +64,7 @@ private object Routes {
     const val RETURN          = "return"
     const val STOCK_OPNAME    = "stock_opname"
     const val SETTINGS        = "settings"
+    const val ABOUT           = "about"
 }
 
 // ── Bottom-nav tab descriptors ──────────────────────────────────────────────
@@ -111,7 +113,8 @@ private fun DistributorNavHost() {
         currentRoute != Routes.STOCK_OPNAME &&
         currentRoute != Routes.SETTINGS &&
         currentRoute != Routes.PRODUCTS &&
-        currentRoute != Routes.LEDGER
+        currentRoute != Routes.LEDGER &&
+        currentRoute != Routes.ABOUT
 
 
     CompositionLocalProvider(LocalAppNavController provides navController) {
@@ -180,8 +183,12 @@ private fun DistributorNavHost() {
                 SettingsScreen(
                     onNavigateBack       = { navController.popBackStack() },
                     onNavigateToProducts = { navController.navigate(Routes.PRODUCTS) },
-                    onNavigateToLedger   = { navController.navigate(Routes.LEDGER) }
+                    onNavigateToLedger   = { navController.navigate(Routes.LEDGER) },
+                    onNavigateToAbout    = { navController.navigate(Routes.ABOUT) }
                 )
+            }
+            composable(Routes.ABOUT) {
+                AboutScreen(onNavigateBack = { navController.popBackStack() })
             }
         }
     }

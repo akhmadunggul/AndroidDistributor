@@ -40,6 +40,9 @@
     <string name="product_base_price_label">Base / Cost *</string>
     <string name="product_selling_price_label">Selling Price *</string>
     <string name="product_description_label">Description (optional)</string>
+    <string name="product_threshold_label">Restock Alert Threshold (optional)</string>
+    <string name="product_threshold_placeholder">min. stock before alert, e.g. 10</string>
+    <string name="product_threshold_format">Alert threshold: %1$s %2$s</string>
     <string name="product_save_button">Save Product</string>
     <string name="product_sku_unit_format">SKU: %1$s  ·  Unit: %2$s</string>
     <string name="product_cost_format">Cost: %s</string>
@@ -126,6 +129,9 @@
     <string name="settings_save_button">Save Settings</string>
     <string name="settings_saved">Settings saved</string>
     <string name="settings_logo_error">Failed to save logo</string>
+    <string name="settings_version">Version</string>
+    <string name="settings_version_format">%1$s (%2$d)</string>
+    <string name="settings_release_date">Release Date</string>
 
     <!-- Share receipt -->
     <string name="share_receipt_title">Share Receipt</string>
@@ -151,6 +157,11 @@
     <string name="ledger_gross_profit">Gross Profit</string>
     <string name="ledger_entries_title">Entries</string>
     <string name="ledger_empty">No entries for this period.</string>
+    <string name="stock_low_alert_title">Low Stock Alert (%d products)</string>
+    <string name="stock_low_alert_stock_format">%1$s / %2$s (min %3$s)</string>
+    <string name="ledger_top_buyers_title">Top Buyers</string>
+    <string name="ledger_top_buyer_overall">Overall Top Buyer</string>
+    <string name="ledger_top_buyer_by_product">Top Buyer Per Product</string>
 
     <!-- Return screen -->
     <string name="tab_return">Returns</string>
@@ -169,6 +180,26 @@
     <string name="settings_app_section">App</string>
     <string name="settings_products">Products</string>
     <string name="settings_ledger">Ledger</string>
+    <string name="settings_about">About</string>
+
+    <!-- About screen -->
+    <string name="screen_about">About</string>
+    <string name="about_app_description">A local-first, fully offline tool for small distributors to manage inventory, invoicing, payments, and resellers — no internet or server required.</string>
+    <string name="about_features_title">Features</string>
+    <string name="about_feature_products_title">Products</string>
+    <string name="about_feature_products_desc">• Add, edit, and delete products with name, SKU, unit, base cost, and selling price.\n• Set an optional restock alert threshold — products at or below the threshold are flagged in the Products screen automatically.</string>
+    <string name="about_feature_stock_title">Stock Management</string>
+    <string name="about_feature_stock_desc">• Record Stock In, Stock Out, and Adjustment entries per product.\n• The system maintains a real-time running balance for each product.\n• Stock Opname: compare system stock vs. physical count side-by-side and save all adjustments in one tap.</string>
+    <string name="about_feature_sales_title">Sales &amp; Invoicing</string>
+    <string name="about_feature_sales_desc">• Build a cart by selecting a reseller and adding products with quantity and unit price.\n• Create a numbered invoice with a single tap.\n• Invoice status is tracked automatically: Unpaid, Partial, or Paid.\n• Stock is reduced immediately when an invoice is created.</string>
+    <string name="about_feature_payment_title">Payment Settlement</string>
+    <string name="about_feature_payment_desc">• Select a reseller and record a payment against their outstanding invoices.\n• Payments are allocated using FIFO — oldest invoices are settled first.\n• Preview exactly how the payment will be distributed before confirming.\n• Generate a PDF receipt and share it directly via WhatsApp or any app.</string>
+    <string name="about_feature_resellers_title">Resellers</string>
+    <string name="about_feature_resellers_desc">• Register resellers with name, phone number, and address.\n• Import contact details directly from your phone\'s contacts with one tap.\n• Every invoice, payment, and return is linked to a reseller for full traceability.</string>
+    <string name="about_feature_returns_title">Product Returns</string>
+    <string name="about_feature_returns_desc">• Submit return orders per reseller with item-level quantities and unit prices.\n• Specify a return reason: Unsold, Defect, or Other.\n• Returned amounts are automatically deducted from revenue and gross profit in the Ledger.</string>
+    <string name="about_feature_ledger_title">Ledger &amp; Analytics</string>
+    <string name="about_feature_ledger_desc">• Period-filtered financial summary: Revenue, Collected, Outstanding Balance, and Gross Profit — across Today, This Week, This Month, or All Time.\n• Chronological transaction history combining sales invoices, payments, and returns.\n• Top Buyers: instantly see the highest-spending reseller overall and the top buyer for each individual product in any period.</string>
 
     <!-- Language selection -->
     <string name="language_title">Language</string>

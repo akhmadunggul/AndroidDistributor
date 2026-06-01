@@ -40,6 +40,9 @@
     <string name="product_base_price_label">Harga Modal *</string>
     <string name="product_selling_price_label">Harga Jual *</string>
     <string name="product_description_label">Deskripsi (opsional)</string>
+    <string name="product_threshold_label">Batas Peringatan Restock (opsional)</string>
+    <string name="product_threshold_placeholder">stok minimal sebelum peringatan, mis. 10</string>
+    <string name="product_threshold_format">Batas peringatan: %1$s %2$s</string>
     <string name="product_save_button">Simpan Produk</string>
     <string name="product_sku_unit_format">SKU: %1$s  ·  Satuan: %2$s</string>
     <string name="product_cost_format">Modal: %s</string>
@@ -124,6 +127,9 @@
     <string name="settings_save_button">Simpan Pengaturan</string>
     <string name="settings_saved">Pengaturan disimpan</string>
     <string name="settings_logo_error">Gagal menyimpan logo</string>
+    <string name="settings_version">Versi</string>
+    <string name="settings_version_format">%1$s (%2$d)</string>
+    <string name="settings_release_date">Tanggal Rilis</string>
 
     <!-- Share receipt -->
     <string name="share_receipt_title">Bagikan Struk</string>
@@ -149,6 +155,11 @@
     <string name="ledger_gross_profit">Laba Kotor</string>
     <string name="ledger_entries_title">Riwayat</string>
     <string name="ledger_empty">Tidak ada entri untuk periode ini.</string>
+    <string name="stock_low_alert_title">Peringatan Stok Menipis (%d produk)</string>
+    <string name="stock_low_alert_stock_format">%1$s / %2$s (min %3$s)</string>
+    <string name="ledger_top_buyers_title">Pembeli Terbanyak</string>
+    <string name="ledger_top_buyer_overall">Pembeli Terbanyak Keseluruhan</string>
+    <string name="ledger_top_buyer_by_product">Pembeli Terbanyak Per Produk</string>
 
     <!-- Return screen -->
     <string name="tab_return">Retur</string>
@@ -167,6 +178,26 @@
     <string name="settings_app_section">Aplikasi</string>
     <string name="settings_products">Produk</string>
     <string name="settings_ledger">Buku Kas</string>
+    <string name="settings_about">Tentang Aplikasi</string>
+
+    <!-- About screen -->
+    <string name="screen_about">Tentang Aplikasi</string>
+    <string name="about_app_description">Aplikasi lokal dan offline untuk distributor kecil — kelola stok, faktur penjualan, pembayaran, dan reseller tanpa memerlukan internet atau server.</string>
+    <string name="about_features_title">Fitur Aplikasi</string>
+    <string name="about_feature_products_title">Produk</string>
+    <string name="about_feature_products_desc">• Tambah, ubah, dan hapus produk dengan nama, SKU, satuan, harga modal, dan harga jual.\n• Atur batas peringatan restock opsional — produk yang stoknya mencapai atau di bawah batas akan langsung ditandai di layar Produk.</string>
+    <string name="about_feature_stock_title">Manajemen Stok</string>
+    <string name="about_feature_stock_desc">• Catat entri Stok Masuk, Stok Keluar, dan Penyesuaian per produk.\n• Sistem mempertahankan saldo stok real-time untuk setiap produk.\n• Stok Opname: bandingkan stok sistem dengan stok fisik secara berdampingan dan simpan semua penyesuaian dalam satu ketukan.</string>
+    <string name="about_feature_sales_title">Penjualan &amp; Faktur</string>
+    <string name="about_feature_sales_desc">• Buat keranjang dengan memilih reseller dan menambahkan produk beserta jumlah dan harga satuan.\n• Buat faktur bernomor dengan satu ketukan.\n• Status faktur dilacak otomatis: Belum Bayar, Sebagian, atau Lunas.\n• Stok langsung berkurang saat faktur dibuat.</string>
+    <string name="about_feature_payment_title">Pelunasan Pembayaran</string>
+    <string name="about_feature_payment_desc">• Pilih reseller dan catat pembayaran terhadap faktur yang masih tertunggak.\n• Pembayaran dialokasikan secara FIFO — faktur terlama dilunasi terlebih dahulu.\n• Pratinjau distribusi pembayaran sebelum dikonfirmasi.\n• Buat struk PDF dan bagikan langsung via WhatsApp atau aplikasi lainnya.</string>
+    <string name="about_feature_resellers_title">Reseller</string>
+    <string name="about_feature_resellers_desc">• Daftarkan reseller dengan nama, nomor HP, dan alamat.\n• Impor data kontak langsung dari daftar kontak HP dengan satu ketukan.\n• Setiap faktur, pembayaran, dan retur terhubung ke reseller untuk keterlacakan penuh.</string>
+    <string name="about_feature_returns_title">Retur Produk</string>
+    <string name="about_feature_returns_desc">• Ajukan retur per reseller dengan jumlah dan harga satuan per item.\n• Tentukan alasan retur: Tidak Terjual, Cacat/Rusak, atau Lainnya.\n• Nilai retur otomatis dikurangi dari omzet dan laba kotor di Buku Kas.</string>
+    <string name="about_feature_ledger_title">Buku Kas &amp; Analitik</string>
+    <string name="about_feature_ledger_desc">• Ringkasan keuangan berdasarkan periode: Omzet, Diterima, Piutang, dan Laba Kotor — untuk Hari Ini, Minggu Ini, Bulan Ini, atau Semua Waktu.\n• Riwayat transaksi kronologis yang menggabungkan faktur penjualan, pembayaran, dan retur.\n• Pembeli Terbanyak: lihat reseller dengan total pembelian tertinggi secara keseluruhan dan per produk untuk periode mana pun.</string>
 
     <!-- Language selection -->
     <string name="language_title">Bahasa</string>

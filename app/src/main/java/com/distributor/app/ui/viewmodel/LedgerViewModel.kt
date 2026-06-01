@@ -5,8 +5,10 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.distributor.app.data.AppDatabase
 import com.distributor.app.data.dao.PaymentLedgerEntry
+import com.distributor.app.data.dao.ProductResellerSales
 import com.distributor.app.data.dao.ReturnLedgerEntry
 import com.distributor.app.data.dao.SaleLedgerEntry
+import com.distributor.app.data.dao.TopResellerEntry
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -54,6 +56,8 @@ data class LedgerUiState(
     val totalCollected: Double = 0.0,
     val outstandingBalance: Double = 0.0,
     val grossProfit: Double = 0.0,
+    val topResellerOverall: TopResellerEntry? = null,
+    val topPerProduct: List<ProductResellerSales> = emptyList(),
     val entries: List<LedgerEntry> = emptyList(),
     val isLoading: Boolean = true
 )
@@ -99,6 +103,12 @@ class LedgerViewModel(application: Application) : AndroidViewModel(application) 
                     val returnMargin = returnDao.getReturnGrossMargin(from, to)
                     val profit       = grossProfit - returnMargin
 
+                    val topResellerOverall = ledgerDao.getTopResellerOverall(from, to)
+                    // Raw rows are ordered by product_id ASC, totalPurchase DESC —
+                    // distinctBy keeps the first (highest) per product.
+                    val topPerProduct = ledgerDao.getTopResellersPerProductRaw(from, to)
+                        .distinctBy { it.productId }
+
                     val entries: List<LedgerEntry> = buildList {
                         sales.mapTo(this)    { s -> s.toLedgerEntry() }
                         payments.mapTo(this) { p -> p.toLedgerEntry() }
@@ -111,6 +121,8 @@ class LedgerViewModel(application: Application) : AndroidViewModel(application) 
                         totalCollected     = collected,
                         outstandingBalance = outstanding,
                         grossProfit        = profit,
+                        topResellerOverall = topResellerOverall,
+                        topPerProduct      = topPerProduct,
                         entries            = entries,
                         isLoading          = false
                     )}

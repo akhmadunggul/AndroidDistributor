@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.AssignmentReturn
+import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.automirrored.filled.ReceiptLong
 import androidx.compose.material3.Card
@@ -39,6 +40,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.distributor.app.R
+import com.distributor.app.data.dao.ProductResellerSales
+import com.distributor.app.data.dao.TopResellerEntry
 import com.distributor.app.data.entity.TransactionEntity
 import com.distributor.app.ui.components.LanguageMenuIcon
 import com.distributor.app.ui.viewmodel.LedgerEntry
@@ -139,6 +142,23 @@ fun LedgerScreen(
                         containerColor = MaterialTheme.colorScheme.secondaryContainer,
                         modifier = Modifier.weight(1f)
                     )
+                }
+            }
+
+            // Top buyers section
+            if (uiState.topResellerOverall != null || uiState.topPerProduct.isNotEmpty()) {
+                item {
+                    Text(
+                        text     = stringResource(R.string.ledger_top_buyers_title),
+                        style    = MaterialTheme.typography.titleSmall,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+                uiState.topResellerOverall?.let { top ->
+                    item { TopResellerCard(top) }
+                }
+                if (uiState.topPerProduct.isNotEmpty()) {
+                    item { TopPerProductCard(uiState.topPerProduct) }
                 }
             }
 
@@ -346,6 +366,93 @@ private fun ReturnEntryRow(entry: LedgerEntry.Return) {
             fontWeight = FontWeight.SemiBold,
             color      = MaterialTheme.colorScheme.error
         )
+    }
+}
+
+@Composable
+private fun TopResellerCard(entry: TopResellerEntry) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors   = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+    ) {
+        Row(
+            modifier              = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment     = Alignment.CenterVertically
+        ) {
+            Row(
+                verticalAlignment     = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Icon(
+                    imageVector        = Icons.Default.EmojiEvents,
+                    contentDescription = null,
+                    tint               = MaterialTheme.colorScheme.primary,
+                    modifier           = Modifier.size(24.dp)
+                )
+                Column {
+                    Text(
+                        text  = stringResource(R.string.ledger_top_buyer_overall),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text       = entry.resellerName,
+                        style      = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+            Text(
+                text       = formatRupiah(entry.totalPurchase),
+                style      = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                color      = MaterialTheme.colorScheme.primary
+            )
+        }
+    }
+}
+
+@Composable
+private fun TopPerProductCard(entries: List<ProductResellerSales>) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            Text(
+                text       = stringResource(R.string.ledger_top_buyer_by_product),
+                style      = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.SemiBold,
+                color      = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(Modifier.height(8.dp))
+            entries.forEachIndexed { idx, entry ->
+                if (idx > 0) HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+                Row(
+                    modifier              = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment     = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text       = entry.productName,
+                            style      = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Medium
+                        )
+                        Text(
+                            text  = entry.resellerName,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Text(
+                        text       = formatRupiah(entry.totalPurchase),
+                        style      = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
+        }
     }
 }
 
