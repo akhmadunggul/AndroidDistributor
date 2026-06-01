@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Auto Backup rules for API 26–30 (android:fullBackupContent).
+    Backs up all user-generated data; excludes transient cache files.
+-->
+<full-backup-content>
+    <!-- Room database (WAL journal files are captured automatically) -->
+    <include domain="database" path="distributor.db" />
+
+    <!-- Business settings: name, phone, address -->
+    <include domain="sharedpref" path="distributor_prefs.xml" />
+
+    <!-- Business logo stored in filesDir -->
+    <include domain="file" path="business_logo.jpg" />
+
+    <!-- Exclude generated PDF receipts and all other cache -->
+    <exclude domain="cache" path="." />
+</full-backup-content>

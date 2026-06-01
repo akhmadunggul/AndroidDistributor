@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Auto Backup rules for API 31+ (android:dataExtractionRules).
+    cloud-backup  → Google Drive backup (triggered by Android on schedule).
+    device-transfer → device-to-device migration (e.g. phone swap).
+-->
+<data-extraction-rules>
+
+    <cloud-backup>
+        <include domain="database"   path="distributor.db" />
+        <include domain="sharedpref" path="distributor_prefs.xml" />
+        <include domain="file"       path="business_logo.jpg" />
+        <exclude domain="cache"      path="." />
+    </cloud-backup>
+
+    <device-transfer>
+        <include domain="database"   path="distributor.db" />
+        <include domain="sharedpref" path="distributor_prefs.xml" />
+        <include domain="file"       path="business_logo.jpg" />
+        <exclude domain="cache"      path="." />
+    </device-transfer>
+
+</data-extraction-rules>
