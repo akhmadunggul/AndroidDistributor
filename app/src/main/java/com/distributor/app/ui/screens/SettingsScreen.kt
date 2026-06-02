@@ -65,8 +65,6 @@ import java.io.File
 @Composable
 fun SettingsScreen(
     onNavigateBack: () -> Unit = {},
-    onNavigateToProducts: () -> Unit = {},
-    onNavigateToLedger: () -> Unit = {},
     onNavigateToAbout: () -> Unit = {},
     viewModel: SettingsViewModel = viewModel()
 ) {
@@ -112,27 +110,7 @@ fun SettingsScreen(
         ) {
             Spacer(modifier = Modifier.height(4.dp))
 
-            // ── App navigation ─────────────────────────────────────────────────
-            Text(
-                text  = stringResource(R.string.settings_app_section),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            OutlinedButton(
-                onClick  = onNavigateToProducts,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(stringResource(R.string.settings_products))
-            }
-
-            OutlinedButton(
-                onClick  = onNavigateToLedger,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(stringResource(R.string.settings_ledger))
-            }
-
+            // ── App ───────────────────────────────────────────────────────────
             OutlinedButton(
                 onClick  = onNavigateToAbout,
                 modifier = Modifier.fillMaxWidth()

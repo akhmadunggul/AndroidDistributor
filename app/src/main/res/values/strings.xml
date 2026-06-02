@@ -3,6 +3,7 @@
     <string name="app_name">Distributor</string>
 
     <!-- Navigation tabs -->
+    <string name="tab_home">Home</string>
     <string name="tab_products">Products</string>
     <string name="tab_stock">Stock</string>
     <string name="tab_sales">Sales</string>
@@ -11,6 +12,7 @@
     <string name="tab_ledger">Ledger</string>
 
     <!-- Screen titles -->
+    <string name="screen_home">Main Menu</string>
     <string name="screen_products">Products</string>
     <string name="screen_stock">Stock Operation</string>
     <string name="screen_sales">Sales Order</string>
@@ -18,6 +20,16 @@
     <string name="screen_resellers">Resellers</string>
     <string name="screen_stock_opname">Stock Opname</string>
     <string name="screen_ledger">Ledger</string>
+
+    <!-- Home screen menu card descriptions -->
+    <string name="home_desc_products">Product catalog &amp; thresholds</string>
+    <string name="home_desc_stock">Stock in, out &amp; opname</string>
+    <string name="home_desc_sales">Create sales invoices</string>
+    <string name="home_desc_payment">Settle reseller payments</string>
+    <string name="home_desc_resellers">Manage reseller contacts</string>
+    <string name="home_desc_return">Process product returns</string>
+    <string name="home_desc_ledger">Financial reports &amp; analytics</string>
+    <string name="home_desc_settings">Business info &amp; preferences</string>
 
     <!-- Common actions / labels -->
     <string name="action_cancel">Cancel</string>

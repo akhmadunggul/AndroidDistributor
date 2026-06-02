@@ -3,6 +3,7 @@
     <string name="app_name">Distributor</string>
 
     <!-- Navigation tabs -->
+    <string name="tab_home">Utama</string>
     <string name="tab_products">Produk</string>
     <string name="tab_stock">Stok</string>
     <string name="tab_sales">Jual</string>
@@ -11,6 +12,7 @@
     <string name="tab_ledger">Buku Kas</string>
 
     <!-- Screen titles -->
+    <string name="screen_home">Menu Utama</string>
     <string name="screen_products">Produk</string>
     <string name="screen_stock">Operasi Stok</string>
     <string name="screen_sales">Pesanan Penjualan</string>
@@ -18,6 +20,16 @@
     <string name="screen_resellers">Reseller</string>
     <string name="screen_stock_opname">Stok Opname</string>
     <string name="screen_ledger">Buku Kas</string>
+
+    <!-- Home screen menu card descriptions -->
+    <string name="home_desc_products">Katalog produk &amp; batas stok</string>
+    <string name="home_desc_stock">Stok masuk, keluar &amp; opname</string>
+    <string name="home_desc_sales">Buat faktur penjualan</string>
+    <string name="home_desc_payment">Catat pelunasan reseller</string>
+    <string name="home_desc_resellers">Kelola data reseller</string>
+    <string name="home_desc_return">Proses retur produk</string>
+    <string name="home_desc_ledger">Laporan keuangan &amp; analitik</string>
+    <string name="home_desc_settings">Info bisnis &amp; preferensi</string>
 
     <!-- Common actions / labels -->
     <string name="action_cancel">Batal</string>

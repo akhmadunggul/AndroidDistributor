@@ -8,8 +8,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.AssignmentReturn
 import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Warehouse
@@ -36,6 +36,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.distributor.app.ui.screens.AboutScreen
+import com.distributor.app.ui.screens.HomeScreen
 import com.distributor.app.ui.screens.LedgerScreen
 import com.distributor.app.ui.screens.SplashScreen
 import com.distributor.app.ui.screens.PaymentSettlementScreen
@@ -68,6 +69,7 @@ private object Routes {
     const val SETTINGS        = "settings"
     const val ABOUT           = "about"
     const val SPLASH          = "splash"
+    const val HOME            = "home"
 }
 
 // ── Bottom-nav tab descriptors ──────────────────────────────────────────────
@@ -79,7 +81,7 @@ private data class NavTab(
 )
 
 private val NAV_TABS: List<NavTab> = listOf(
-    NavTab(Routes.RETURN,    R.string.tab_return,    Icons.AutoMirrored.Filled.AssignmentReturn),
+    NavTab(Routes.HOME,      R.string.tab_home,      Icons.Default.Home),
     NavTab(Routes.STOCK,     R.string.tab_stock,     Icons.Default.Warehouse),
     NavTab(Routes.SALES,     R.string.tab_sales,     Icons.Default.ShoppingCart),
     NavTab(Routes.PAYMENT,   R.string.tab_payment,   Icons.Default.Payments),
@@ -119,7 +121,8 @@ private fun DistributorNavHost() {
         currentRoute != Routes.PRODUCTS &&
         currentRoute != Routes.LEDGER &&
         currentRoute != Routes.ABOUT &&
-        currentRoute != Routes.SPLASH
+        currentRoute != Routes.SPLASH &&
+        currentRoute != Routes.RETURN
 
 
     CompositionLocalProvider(LocalAppNavController provides navController) {
@@ -158,10 +161,22 @@ private fun DistributorNavHost() {
         ) {
             composable(Routes.SPLASH) {
                 SplashScreen(onComplete = {
-                    navController.navigate(Routes.SALES) {
+                    navController.navigate(Routes.HOME) {
                         popUpTo(Routes.SPLASH) { inclusive = true }
                     }
                 })
+            }
+            composable(Routes.HOME) {
+                HomeScreen(
+                    onNavigateToProducts  = { navController.navigate(Routes.PRODUCTS) },
+                    onNavigateToStock     = { navController.navigate(Routes.STOCK) },
+                    onNavigateToSales     = { navController.navigate(Routes.SALES) },
+                    onNavigateToPayment   = { navController.navigate(Routes.PAYMENT) },
+                    onNavigateToResellers = { navController.navigate(Routes.RESELLERS) },
+                    onNavigateToReturn    = { navController.navigate(Routes.RETURN) },
+                    onNavigateToLedger    = { navController.navigate(Routes.LEDGER) },
+                    onNavigateToSettings  = { navController.navigate(Routes.SETTINGS) }
+                )
             }
             composable(Routes.RETURN) {
                 ReturnScreen()
@@ -193,10 +208,8 @@ private fun DistributorNavHost() {
             }
             composable(Routes.SETTINGS) {
                 SettingsScreen(
-                    onNavigateBack       = { navController.popBackStack() },
-                    onNavigateToProducts = { navController.navigate(Routes.PRODUCTS) },
-                    onNavigateToLedger   = { navController.navigate(Routes.LEDGER) },
-                    onNavigateToAbout    = { navController.navigate(Routes.ABOUT) }
+                    onNavigateBack    = { navController.popBackStack() },
+                    onNavigateToAbout = { navController.navigate(Routes.ABOUT) }
                 )
             }
             composable(Routes.ABOUT) {

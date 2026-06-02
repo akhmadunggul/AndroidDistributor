@@ -1,5 +1,35 @@
 # Changelog
 
+## [1.8] – 2026-06-02 (versionCode 9)
+
+### Added
+- **Main Menu (Menu Utama)** — a new home screen displayed after the splash screen, showing all app modules as a 2-column grid of tappable cards: Products, Stock, Sales, Payment, Resellers, Returns, Ledger, and Settings. Each card has a coloured icon and a short description.
+- **Home tab** added to the bottom navigation bar (replaces the Returns tab).
+
+### Changed
+- **Returns (Retur)** removed from the bottom navigation bar — now accessible exclusively from the Main Menu card. The screen still operates as a full-screen flow with a back button.
+- **Products and Buku Kas** removed from the Settings menu — both are now reached directly from the Main Menu. Settings retains only the About link alongside business configuration fields.
+- Splash screen now lands on the Main Menu instead of going directly to Sales.
+
+---
+
+## [1.7] – 2026-06-02 (versionCode 8)
+
+### Fixed
+- **Release build lint errors** — removed invalid `domain="cache"` exclusions from `backup_rules.xml` and `data_extraction_rules.xml`. The `cache` domain is not recognised by the Auto Backup schema; the cache directory is excluded by Android automatically and requires no explicit rule. Release assembly now passes lint clean.
+
+---
+
+## [1.6] – 2026-06-02 (versionCode 7)
+
+### Added
+- **Google Drive Auto Backup** — app data is automatically backed up to the user's Google account on Android's backup schedule (typically daily when charging on Wi-Fi). Restored automatically on reinstall or device migration with no user action required.
+  - Backed up: Room database (all inventory, sales, payments, resellers, returns), business settings (name, phone, address), and business logo.
+  - Excluded: cache directory (generated PDF receipts are transient and regenerable).
+  - Configured via `backup_rules.xml` (API 26–30) and `data_extraction_rules.xml` (API 31+).
+
+---
+
 ## [1.5] – 2026-06-01 (versionCode 6)
 
 ### Added
