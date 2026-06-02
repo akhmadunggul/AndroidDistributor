@@ -13,6 +13,5 @@
     <!-- Business logo stored in filesDir -->
     <include domain="file" path="business_logo.jpg" />
 
-    <!-- Exclude generated PDF receipts and all other cache -->
-    <exclude domain="cache" path="." />
+    <!-- cache/ is excluded by Android Auto Backup by default; no explicit rule needed -->
 </full-backup-content>
