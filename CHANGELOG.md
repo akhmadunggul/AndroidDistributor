@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9] – 2026-06-02 (versionCode 10)
+
+### Changed
+- Version bump — no new features. Promotes 1.8 changes to the next release increment.
+
+---
+
 ## [1.8] – 2026-06-02 (versionCode 9)
 
 ### Added
