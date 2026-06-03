@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.0] – 2026-06-03 (versionCode 11)
+
+### Fixed
+- **Transaction logic hardening** — five bugs corrected across all transaction modules:
+  - Payment: overpayment now blocked with a live inline field error and a hard DB-side guard on commit
+  - Sales: stock re-validated from the database at invoice submit time to prevent negative stock
+  - Returns: duplicate product in return cart no longer silently replaces the unit price; each add creates a separate line with the correct subtotal
+  - Returns: unallocated return credit (when return exceeds total outstanding) is now reported in the success message
+  - Stock: OUT/ADJUST_OUT entries re-read actual stock from the DB immediately before writing to close a race condition
+- **Duplicate SKU error** — entering an already-used SKU now highlights the SKU field in red with a persistent inline message instead of showing a silent auto-dismissing snackbar
+- **Navigation fix** — bottom nav `popUpTo` corrected to target `HOME` (was incorrectly targeting the splash destination, causing the back stack to grow unboundedly)
+- **APK naming** — release and debug APKs are now stamped with version name, code, and build type
+
+---
+
 ## [1.9] – 2026-06-02 (versionCode 10)
 
 ### Changed
