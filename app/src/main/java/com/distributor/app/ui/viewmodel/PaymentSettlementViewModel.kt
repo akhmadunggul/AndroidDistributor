@@ -11,6 +11,7 @@ import com.distributor.app.data.entity.TransactionEntity
 import com.distributor.app.ui.model.AllocationPreview
 import com.distributor.app.utils.PaymentAllocationLine
 import com.distributor.app.utils.PaymentReceiptData
+import com.distributor.app.utils.formatRupiah
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -28,6 +29,7 @@ data class PaymentSettlementUiState(
     val outstandingInvoices: List<TransactionEntity> = emptyList(),
     val outstandingBalance: Double = 0.0,
     val paymentAmountInput: String = "",
+    val amountError: String? = null,
     val paymentMethod: String = PaymentLogEntity.METHOD_CASH,
     val notesInput: String = "",
     val allocationPreview: List<AllocationPreview> = emptyList(),
@@ -127,14 +129,24 @@ class PaymentSettlementViewModel(application: Application) : AndroidViewModel(ap
     private fun refreshAllocationPreview() {
         val state = _uiState.value
         val paymentAmount: Double = state.paymentAmountInput.toDoubleOrNull() ?: run {
-            _uiState.update { it.copy(allocationPreview = emptyList()) }
+            _uiState.update { it.copy(allocationPreview = emptyList(), amountError = null) }
             return
         }
         if (paymentAmount <= 0.0) {
-            _uiState.update { it.copy(allocationPreview = emptyList()) }
+            _uiState.update { it.copy(allocationPreview = emptyList(), amountError = null) }
             return
         }
-        _uiState.update { it.copy(allocationPreview = buildAllocations(state.outstandingInvoices, paymentAmount)) }
+        val amountError: String? = if (
+            state.outstandingBalance > 0.0 &&
+            paymentAmount > state.outstandingBalance + 0.001
+        ) {
+            "Exceeds outstanding balance of ${formatRupiah(state.outstandingBalance)}"
+        } else null
+
+        _uiState.update { it.copy(
+            allocationPreview = buildAllocations(state.outstandingInvoices, paymentAmount),
+            amountError       = amountError
+        )}
     }
 
     // Pure function — no side effects. Used for both preview and the commit step.
@@ -187,6 +199,16 @@ class PaymentSettlementViewModel(application: Application) : AndroidViewModel(ap
                     _uiState.update { it.copy(
                         isSubmitting    = false,
                         snackbarMessage = "No outstanding invoices for this reseller"
+                    )}
+                    return@launch
+                }
+
+                // Guard: re-compute balance from fresh DB snapshot to prevent overpayment
+                val freshBalance = invoices.sumOf { it.totalAmount - it.amountPaid }
+                if (paymentAmount > freshBalance + 0.001) {
+                    _uiState.update { it.copy(
+                        isSubmitting    = false,
+                        snackbarMessage = "Payment ${formatRupiah(paymentAmount)} exceeds outstanding balance ${formatRupiah(freshBalance)}"
                     )}
                     return@launch
                 }

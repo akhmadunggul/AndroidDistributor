@@ -29,6 +29,16 @@ android {
         }
     }
 
+    // Stamp each APK filename with the version name and build number
+    applicationVariants.configureEach {
+        val variant = this
+        outputs.all {
+            (this as com.android.build.gradle.internal.api.BaseVariantOutputImpl)
+                .outputFileName =
+                    "Distributor-v${variant.versionName}-${variant.versionCode}-${variant.buildType.name}.apk"
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17

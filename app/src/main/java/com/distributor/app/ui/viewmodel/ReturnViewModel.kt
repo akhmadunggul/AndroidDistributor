@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.distributor.app.utils.formatRupiah
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -139,17 +140,9 @@ class ReturnViewModel(application: Application) : AndroidViewModel(application) 
             return
         }
         val newItem = ReturnCartItem(product = product, quantity = qty, unitPrice = price)
-        val existing = state.cartItems.indexOfFirst { it.product.id == product.id }
-        val updatedCart = if (existing >= 0) {
-            state.cartItems.toMutableList().also { list ->
-                list[existing] = list[existing].copy(
-                    quantity  = list[existing].quantity + qty,
-                    unitPrice = price
-                )
-            }
-        } else {
-            state.cartItems + newItem
-        }
+        // Always add as a new line — merging silently changes the unit price of existing
+        // quantity, producing a wrong subtotal. Multiple lines per product are fine.
+        val updatedCart = state.cartItems + newItem
         val total = updatedCart.sumOf { it.subtotal }
         _uiState.update { it.copy(
             cartItems       = updatedCart,
@@ -203,10 +196,13 @@ class ReturnViewModel(application: Application) : AndroidViewModel(application) 
                 val outstandingInvoices: List<TransactionEntity> =
                     transactionDao.getOutstandingTransactions(reseller.id)
 
+                // Declare outside the transaction so the remaining credit is readable after commit
+                var remainingCredit = totalAmount
+
                 database.withTransaction {
                     val returnId = returnDao.insertReturn(returnEntity)
 
-                    val details = state.cartItems.map { item ->
+                    returnDao.insertReturnDetails(state.cartItems.map { item ->
                         ReturnDetailEntity(
                             returnId  = returnId,
                             productId = item.product.id,
@@ -214,10 +210,9 @@ class ReturnViewModel(application: Application) : AndroidViewModel(application) 
                             unitPrice = item.unitPrice,
                             subtotal  = item.subtotal
                         )
-                    }
-                    returnDao.insertReturnDetails(details)
+                    })
 
-                    val stockEntries = state.cartItems.map { item ->
+                    stockLedgerDao.insertEntries(state.cartItems.map { item ->
                         StockLedgerEntity(
                             productId  = item.product.id,
                             type       = StockLedgerEntity.TYPE_RETURN_IN,
@@ -226,14 +221,13 @@ class ReturnViewModel(application: Application) : AndroidViewModel(application) 
                             notes      = "Retur $returnNumber",
                             createdAt  = now
                         )
-                    }
-                    stockLedgerDao.insertEntries(stockEntries)
+                    })
 
-                    var credit = totalAmount
+                    // Apply return credit to oldest outstanding invoices (FIFO)
                     for (invoice in outstandingInvoices) {
-                        if (credit <= 0.0) break
+                        if (remainingCredit <= 0.0) break
                         val balanceDue = invoice.totalAmount - invoice.amountPaid
-                        val applied = minOf(credit, balanceDue)
+                        val applied = minOf(remainingCredit, balanceDue)
                         val newPaid = invoice.amountPaid + applied
                         val newStatus = if (newPaid >= invoice.totalAmount - 0.001)
                             TransactionEntity.STATUS_PAID
@@ -244,7 +238,14 @@ class ReturnViewModel(application: Application) : AndroidViewModel(application) 
                             status     = newStatus,
                             updatedAt  = now
                         ))
-                        credit -= applied
+                        remainingCredit -= applied
+                    }
+                }
+
+                val successMsg = buildString {
+                    append("Retur $returnNumber berhasil dicatat")
+                    if (remainingCredit > 0.001) {
+                        append(" — sisa ${formatRupiah(remainingCredit)} tidak dapat dialokasikan (tidak ada faktur tertunggak)")
                     }
                 }
 
@@ -258,7 +259,7 @@ class ReturnViewModel(application: Application) : AndroidViewModel(application) 
                     unitPriceInput  = "",
                     reason          = ReturnEntity.REASON_UNSOLD,
                     notes           = "",
-                    snackbarMessage = "Retur $returnNumber berhasil dicatat"
+                    snackbarMessage = successMsg
                 )}
             } catch (e: CancellationException) {
                 throw e

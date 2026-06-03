@@ -141,7 +141,7 @@ private fun DistributorNavHost() {
                             selected = selected,
                             onClick  = {
                                 navController.navigate(tab.route) {
-                                    popUpTo(navController.graph.findStartDestination().id) {
+                                    popUpTo(Routes.HOME) {
                                         saveState = true
                                     }
                                     launchSingleTop = true
@@ -168,14 +168,14 @@ private fun DistributorNavHost() {
             }
             composable(Routes.HOME) {
                 HomeScreen(
-                    onNavigateToProducts  = { navController.navigate(Routes.PRODUCTS) },
-                    onNavigateToStock     = { navController.navigate(Routes.STOCK) },
-                    onNavigateToSales     = { navController.navigate(Routes.SALES) },
-                    onNavigateToPayment   = { navController.navigate(Routes.PAYMENT) },
-                    onNavigateToResellers = { navController.navigate(Routes.RESELLERS) },
-                    onNavigateToReturn    = { navController.navigate(Routes.RETURN) },
-                    onNavigateToLedger    = { navController.navigate(Routes.LEDGER) },
-                    onNavigateToSettings  = { navController.navigate(Routes.SETTINGS) }
+                    onNavigateToProducts  = { navController.navigate(Routes.PRODUCTS)  { launchSingleTop = true } },
+                    onNavigateToStock     = { navController.navigate(Routes.STOCK)     { launchSingleTop = true } },
+                    onNavigateToSales     = { navController.navigate(Routes.SALES)     { launchSingleTop = true } },
+                    onNavigateToPayment   = { navController.navigate(Routes.PAYMENT)   { launchSingleTop = true } },
+                    onNavigateToResellers = { navController.navigate(Routes.RESELLERS) { launchSingleTop = true } },
+                    onNavigateToReturn    = { navController.navigate(Routes.RETURN)    { launchSingleTop = true } },
+                    onNavigateToLedger    = { navController.navigate(Routes.LEDGER)    { launchSingleTop = true } },
+                    onNavigateToSettings  = { navController.navigate(Routes.SETTINGS)  { launchSingleTop = true } }
                 )
             }
             composable(Routes.RETURN) {

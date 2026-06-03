@@ -244,10 +244,14 @@ fun PaymentSettlementScreen(
                             Text(stringResource(R.string.payment_record_title), style = MaterialTheme.typography.titleSmall)
 
                             OutlinedTextField(
-                                value = uiState.paymentAmountInput,
-                                onValueChange = viewModel::onPaymentAmountChanged,
-                                label = { Text(stringResource(R.string.payment_amount_label)) },
+                                value          = uiState.paymentAmountInput,
+                                onValueChange  = viewModel::onPaymentAmountChanged,
+                                label          = { Text(stringResource(R.string.payment_amount_label)) },
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                                isError        = uiState.amountError != null,
+                                supportingText = uiState.amountError?.let { err ->
+                                    { Text(err, color = MaterialTheme.colorScheme.error) }
+                                },
                                 modifier = Modifier.fillMaxWidth()
                             )
 
@@ -310,7 +314,9 @@ fun PaymentSettlementScreen(
                 item {
                     Button(
                         onClick = viewModel::settlePayment,
-                        enabled = !uiState.isSubmitting && uiState.paymentAmountInput.isNotBlank(),
+                        enabled = !uiState.isSubmitting &&
+                                  uiState.paymentAmountInput.isNotBlank() &&
+                                  uiState.amountError == null,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp)

@@ -154,6 +154,19 @@ class StockOperationViewModel(application: Application) : AndroidViewModel(appli
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
+                // Re-read stock from DB at write time to guard against race conditions
+                if (!isInbound) {
+                    val latestStock = stockLedgerDao.getCurrentStock(product.id)
+                    if (quantity > latestStock) {
+                        _uiState.update { it.copy(
+                            isSubmitting  = false,
+                            quantityError = "Exceeds current stock (${latestStock} ${product.unit})",
+                            snackbarMessage = "Stock has changed — current balance is ${latestStock} ${product.unit}"
+                        )}
+                        return@launch
+                    }
+                }
+
                 stockLedgerDao.insertEntry(
                     StockLedgerEntity(
                         productId = product.id,

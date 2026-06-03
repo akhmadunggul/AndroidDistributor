@@ -198,6 +198,24 @@ class TransactionViewModel(application: Application) : AndroidViewModel(applicat
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
+                // Re-validate stock from DB at commit time — UI state may be stale
+                val cartByProduct = state.cartItems
+                    .groupBy { it.product.id }
+                    .mapValues { (_, items) -> items.first().product to items.sumOf { it.quantity } }
+
+                for ((_, pair) in cartByProduct) {
+                    val (product, totalQty) = pair
+                    val actualStock = stockLedgerDao.getCurrentStock(product.id)
+                    if (totalQty > actualStock) {
+                        _uiState.update { it.copy(
+                            isSubmitting    = false,
+                            snackbarMessage = "Insufficient stock for ${product.name}: " +
+                                             "${actualStock} ${product.unit} available"
+                        )}
+                        return@launch
+                    }
+                }
+
                 val now: Long = System.currentTimeMillis()
                 val invoiceNumber: String = buildInvoiceNumber(now)
 
