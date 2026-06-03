@@ -183,11 +183,19 @@ class ProductViewModel(application: Application) : AndroidViewModel(application)
                     _uiState.update { it.copy(snackbarMessage = "\"$savedName\" added") }
                 }
             } catch (e: Exception) {
-                val msg = if (e.message?.contains("UNIQUE", ignoreCase = true) == true)
-                    "SKU \"$newSku\" already exists"
-                else
-                    "Failed to save: ${e.message}"
-                _uiState.update { it.copy(isSubmitting = false, snackbarMessage = msg) }
+                if (e.message?.contains("UNIQUE", ignoreCase = true) == true) {
+                    // Surface the collision directly on the SKU field so it stays
+                    // visible and the user knows exactly what to correct.
+                    _uiState.update { it.copy(
+                        isSubmitting = false,
+                        skuError     = "\"$newSku\" is already used by another product — choose a unique SKU"
+                    )}
+                } else {
+                    _uiState.update { it.copy(
+                        isSubmitting    = false,
+                        snackbarMessage = "Failed to save: ${e.message}"
+                    )}
+                }
             }
         }
     }
