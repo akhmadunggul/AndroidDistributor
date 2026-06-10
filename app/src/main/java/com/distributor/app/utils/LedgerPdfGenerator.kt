@@ -155,7 +155,7 @@ class LedgerPdfGenerator(private val context: Context) {
         canvas.drawLine(MARGIN, y, RIGHT_EDGE, y, lineThin); y += 14f
 
         // ── 4. Entries section ────────────────────────────────────────────────
-        canvas.drawText("RIWAYAT TRANSAKSI  (${data.entries.size} entri)", MARGIN, y, secHdr); y += 10f
+        canvas.drawText("RIWAYAT TRANSAKSI  (${data.entries.size} entri)", MARGIN, y, secHdr); y += 18f
 
         // Column headers
         canvas.drawRect(MARGIN, y - 12f, RIGHT_EDGE, y + 6f, fillLight)

@@ -48,6 +48,23 @@ import com.distributor.app.ui.screens.StockOpnameScreen
 import com.distributor.app.ui.screens.StockOperationScreen
 import com.distributor.app.ui.screens.TransactionScreen
 import com.distributor.app.utils.LocaleHelper
+import com.distributor.app.utils.UpdateCheckState
+import com.distributor.app.utils.VERSION_CHECK_URL
+import com.distributor.app.utils.VersionCheckService
+import android.content.Intent
+import android.net.Uri
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 
 // ── CompositionLocals ──────────────────────────────────────────────────────
 
@@ -124,6 +141,64 @@ private fun DistributorNavHost() {
         currentRoute != Routes.SPLASH &&
         currentRoute != Routes.RETURN
 
+    // ── Version check ──────────────────────────────────────────────────────
+    val context = LocalContext.current
+    var updateState by remember { mutableStateOf<UpdateCheckState>(UpdateCheckState.Idle) }
+
+    LaunchedEffect(Unit) {
+        val info = VersionCheckService.fetch(VERSION_CHECK_URL) ?: return@LaunchedEffect
+        val current = BuildConfig.VERSION_CODE
+        updateState = when {
+            current < info.minimumVersionCode -> UpdateCheckState.MustUpdate(info)
+            current < info.latestVersionCode  -> UpdateCheckState.UpdateAvailable(info)
+            else                              -> UpdateCheckState.Idle
+        }
+    }
+
+    // Blokir tombol Back saat wajib update agar pengguna tidak bisa bypass
+    BackHandler(enabled = updateState is UpdateCheckState.MustUpdate) {}
+
+    when (val state = updateState) {
+        is UpdateCheckState.MustUpdate -> AlertDialog(
+            onDismissRequest = {},
+            title = { Text("Pembaruan Wajib") },
+            text  = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Versi ini tidak lagi didukung. Unduh versi terbaru untuk melanjutkan menggunakan aplikasi.")
+                    if (state.info.releaseNotes.isNotBlank())
+                        Text(state.info.releaseNotes, style = MaterialTheme.typography.bodySmall)
+                }
+            },
+            confirmButton = {
+                Button(onClick = {
+                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(state.info.downloadUrl)))
+                }) { Text("Unduh Sekarang") }
+            }
+        )
+        is UpdateCheckState.UpdateAvailable -> AlertDialog(
+            onDismissRequest = { updateState = UpdateCheckState.Idle },
+            title = { Text("Pembaruan Tersedia") },
+            text  = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Versi baru aplikasi tersedia.")
+                    if (state.info.releaseNotes.isNotBlank())
+                        Text(state.info.releaseNotes, style = MaterialTheme.typography.bodySmall)
+                }
+            },
+            confirmButton = {
+                Button(onClick = {
+                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(state.info.downloadUrl)))
+                    updateState = UpdateCheckState.Idle
+                }) { Text("Unduh Sekarang") }
+            },
+            dismissButton = {
+                TextButton(onClick = { updateState = UpdateCheckState.Idle }) {
+                    Text("Nanti")
+                }
+            }
+        )
+        else -> {}
+    }
 
     CompositionLocalProvider(LocalAppNavController provides navController) {
     Scaffold(
