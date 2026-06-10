@@ -38,22 +38,33 @@ sealed class UpdateCheckState {
 }
 
 object VersionCheckService {
+    var debugLastError: String = ""
+
     suspend fun fetch(url: String): VersionInfo? = withContext(Dispatchers.IO) {
         try {
             val conn = URL(url).openConnection() as HttpURLConnection
-            conn.connectTimeout = 5_000
-            conn.readTimeout    = 5_000
+            conn.connectTimeout          = 8_000
+            conn.readTimeout             = 8_000
+            conn.instanceFollowRedirects = true
+            conn.setRequestProperty("User-Agent",  "DistributorApp/1.0")
+            conn.setRequestProperty("Cache-Control", "no-cache")
+            val code = conn.responseCode
+            if (code != HttpURLConnection.HTTP_OK) {
+                debugLastError = "HTTP $code"
+                conn.disconnect()
+                return@withContext null
+            }
             val body = conn.inputStream.bufferedReader().use { it.readText() }
             conn.disconnect()
             val j = JSONObject(body)
             VersionInfo(
                 latestVersionCode  = j.getInt("latest_version_code"),
                 minimumVersionCode = j.getInt("minimum_version_code"),
-                downloadUrl        = j.getString("download_url"),
+                downloadUrl        = j.optString("download_url", ""),
                 releaseNotes       = j.optString("release_notes", "")
             )
-        } catch (_: Exception) {
-            // Gagal fetch (offline / URL salah) → app tetap bisa dibuka
+        } catch (e: Exception) {
+            debugLastError = "${e.javaClass.simpleName}: ${e.message}"
             null
         }
     }
