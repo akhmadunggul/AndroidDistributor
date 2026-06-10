@@ -1,5 +1,7 @@
 package com.distributor.app.utils
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
@@ -36,8 +38,8 @@ sealed class UpdateCheckState {
 }
 
 object VersionCheckService {
-    suspend fun fetch(url: String): VersionInfo? {
-        return try {
+    suspend fun fetch(url: String): VersionInfo? = withContext(Dispatchers.IO) {
+        try {
             val conn = URL(url).openConnection() as HttpURLConnection
             conn.connectTimeout = 5_000
             conn.readTimeout    = 5_000
@@ -56,3 +58,4 @@ object VersionCheckService {
         }
     }
 }
+
