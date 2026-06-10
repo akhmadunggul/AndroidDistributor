@@ -220,6 +220,28 @@
     <string name="language_english">English</string>
     <string name="language_indonesian">Bahasa Indonesia</string>
 
+    <!-- Activation & Licensing -->
+    <string name="activation_title">Licence Activation</string>
+    <string name="activation_subtitle">Enter the licence key provided by your distributor to activate this app.</string>
+    <string name="activation_key_label">Licence Key</string>
+    <string name="activation_button">Activate</string>
+    <string name="activation_error_empty">Please enter a licence key.</string>
+    <string name="activation_error_network">Unable to reach server. Check your internet connection and try again.</string>
+    <string name="activation_error_not_found">Licence key not found.</string>
+    <string name="activation_error_revoked">This licence has been revoked.</string>
+    <string name="activation_error_other_device">This key is already activated on another device.</string>
+    <string name="activation_error_generic">Activation failed. Please try again.</string>
+    <string name="license_expired_title">Trial Expired</string>
+    <string name="license_expired_body">Your trial period has ended. Contact your distributor to renew your licence.</string>
+    <string name="license_revoked_title">Licence Revoked</string>
+    <string name="license_revoked_body">Your licence has been revoked by the administrator. Contact your distributor.</string>
+    <string name="license_trial_warning_title">Trial Expiring Soon</string>
+    <string name="license_trial_warning_body">%d day(s) remaining in your trial. Contact your distributor to renew.</string>
+    <string name="license_offline_title">Verification Required</string>
+    <string name="license_offline_body">Licence could not be verified. Please connect to the internet soon to continue using the app.</string>
+    <string name="license_contact_distributor">Contact Distributor</string>
+    <string name="license_dismiss">Later</string>
+
     <!-- Ledger PDF export -->
     <string name="ledger_period_year">This Year</string>
     <string name="ledger_period_custom">Custom Range</string>

@@ -218,6 +218,28 @@
     <string name="language_english">English</string>
     <string name="language_indonesian">Bahasa Indonesia</string>
 
+    <!-- Aktivasi & Lisensi -->
+    <string name="activation_title">Aktivasi Lisensi</string>
+    <string name="activation_subtitle">Masukkan kode lisensi yang diberikan distributor Anda untuk mengaktifkan aplikasi ini.</string>
+    <string name="activation_key_label">Kode Lisensi</string>
+    <string name="activation_button">Aktifkan</string>
+    <string name="activation_error_empty">Masukkan kode lisensi terlebih dahulu.</string>
+    <string name="activation_error_network">Tidak dapat terhubung ke server. Periksa koneksi internet Anda.</string>
+    <string name="activation_error_not_found">Kode lisensi tidak ditemukan.</string>
+    <string name="activation_error_revoked">Lisensi ini telah dicabut.</string>
+    <string name="activation_error_other_device">Kode sudah diaktifkan di perangkat lain.</string>
+    <string name="activation_error_generic">Aktivasi gagal. Coba lagi.</string>
+    <string name="license_expired_title">Masa Trial Habis</string>
+    <string name="license_expired_body">Masa trial Anda telah berakhir. Hubungi distributor untuk memperpanjang lisensi.</string>
+    <string name="license_revoked_title">Lisensi Dicabut</string>
+    <string name="license_revoked_body">Lisensi Anda telah dicabut oleh administrator. Hubungi distributor Anda.</string>
+    <string name="license_trial_warning_title">Trial Hampir Habis</string>
+    <string name="license_trial_warning_body">Tersisa %d hari masa trial Anda. Segera hubungi distributor untuk perpanjangan.</string>
+    <string name="license_offline_title">Verifikasi Diperlukan</string>
+    <string name="license_offline_body">Lisensi belum dapat diverifikasi. Pastikan terhubung ke internet dalam waktu dekat.</string>
+    <string name="license_contact_distributor">Hubungi Distributor</string>
+    <string name="license_dismiss">Nanti</string>
+
     <!-- Ekspor PDF Buku Kas -->
     <string name="ledger_period_year">Tahun Ini</string>
     <string name="ledger_period_custom">Rentang Kustom</string>

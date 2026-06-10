@@ -48,6 +48,11 @@ import com.distributor.app.ui.screens.StockOpnameScreen
 import com.distributor.app.ui.screens.StockOperationScreen
 import com.distributor.app.ui.screens.TransactionScreen
 import com.distributor.app.utils.LocaleHelper
+import com.distributor.app.ui.screens.ActivationScreen
+import com.distributor.app.utils.LicenseService
+import com.distributor.app.utils.LicenseState
+import com.distributor.app.utils.LicenseStore
+import com.distributor.app.utils.OFFLINE_GRACE_DAYS
 import com.distributor.app.utils.UpdateCheckState
 import com.distributor.app.utils.VERSION_CHECK_URL
 import com.distributor.app.utils.VersionCheckService
@@ -87,6 +92,7 @@ private object Routes {
     const val ABOUT           = "about"
     const val SPLASH          = "splash"
     const val HOME            = "home"
+    const val ACTIVATION      = "activation"
 }
 
 // ── Bottom-nav tab descriptors ──────────────────────────────────────────────
@@ -139,7 +145,8 @@ private fun DistributorNavHost() {
         currentRoute != Routes.LEDGER &&
         currentRoute != Routes.ABOUT &&
         currentRoute != Routes.SPLASH &&
-        currentRoute != Routes.RETURN
+        currentRoute != Routes.RETURN &&
+        currentRoute != Routes.ACTIVATION
 
     // ── Version check ──────────────────────────────────────────────────────
     val context = LocalContext.current
@@ -153,6 +160,79 @@ private fun DistributorNavHost() {
             current < info.latestVersionCode  -> UpdateCheckState.UpdateAvailable(info)
             else                              -> UpdateCheckState.Idle
         }
+    }
+
+    // ── License check ──────────────────────────────────────────────────────
+    var licenseState by remember { mutableStateOf<LicenseState>(LicenseState.Idle) }
+
+    LaunchedEffect(Unit) {
+        if (!LicenseStore.isActivated(context)) return@LaunchedEffect
+        val response = LicenseService.check(
+            LicenseStore.getLicenseKey(context),
+            LicenseStore.getDeviceId(context)
+        )
+        if (response == null) {
+            val elapsedMs  = System.currentTimeMillis() - LicenseStore.getLastCheckMs(context)
+            val graceMs    = OFFLINE_GRACE_DAYS.toLong() * 24 * 60 * 60 * 1000
+            if (elapsedMs > graceMs) licenseState = LicenseState.OfflineWarning
+            return@LaunchedEffect
+        }
+        if (!response.success) {
+            licenseState = when (response.error) {
+                "EXPIRED" -> LicenseState.Expired
+                "REVOKED" -> LicenseState.Revoked
+                else      -> LicenseState.Idle
+            }
+            return@LaunchedEffect
+        }
+        LicenseStore.updateCheck(
+            context, response.status,
+            LicenseService.parseExpiryDate(response.expiryDate),
+            response.daysRemaining
+        )
+        if (response.status == "TRIAL" && response.daysRemaining in 1..3) {
+            licenseState = LicenseState.TrialWarning(response.daysRemaining)
+        }
+    }
+
+    BackHandler(enabled = licenseState is LicenseState.Expired || licenseState is LicenseState.Revoked) {}
+
+    when (val ls = licenseState) {
+        is LicenseState.Expired -> AlertDialog(
+            onDismissRequest = {},
+            title = { Text(stringResource(R.string.license_expired_title)) },
+            text  = { Text(stringResource(R.string.license_expired_body)) },
+            confirmButton = {}
+        )
+        is LicenseState.Revoked -> AlertDialog(
+            onDismissRequest = {},
+            title = { Text(stringResource(R.string.license_revoked_title)) },
+            text  = { Text(stringResource(R.string.license_revoked_body)) },
+            confirmButton = {}
+        )
+        is LicenseState.TrialWarning -> AlertDialog(
+            onDismissRequest = { licenseState = LicenseState.Idle },
+            title = { Text(stringResource(R.string.license_trial_warning_title)) },
+            text  = { Text(stringResource(R.string.license_trial_warning_body, ls.days)) },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { licenseState = LicenseState.Idle }) {
+                    Text(stringResource(R.string.license_dismiss))
+                }
+            }
+        )
+        is LicenseState.OfflineWarning -> AlertDialog(
+            onDismissRequest = { licenseState = LicenseState.Idle },
+            title = { Text(stringResource(R.string.license_offline_title)) },
+            text  = { Text(stringResource(R.string.license_offline_body)) },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { licenseState = LicenseState.Idle }) {
+                    Text(stringResource(R.string.license_dismiss))
+                }
+            }
+        )
+        else -> {}
     }
 
     // Blokir tombol Back saat wajib update agar pengguna tidak bisa bypass
@@ -236,8 +316,16 @@ private fun DistributorNavHost() {
         ) {
             composable(Routes.SPLASH) {
                 SplashScreen(onComplete = {
-                    navController.navigate(Routes.HOME) {
+                    val dest = if (LicenseStore.isActivated(context)) Routes.HOME else Routes.ACTIVATION
+                    navController.navigate(dest) {
                         popUpTo(Routes.SPLASH) { inclusive = true }
+                    }
+                })
+            }
+            composable(Routes.ACTIVATION) {
+                ActivationScreen(onActivated = {
+                    navController.navigate(Routes.HOME) {
+                        popUpTo(0) { inclusive = true }
                     }
                 })
             }
