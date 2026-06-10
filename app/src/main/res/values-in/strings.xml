@@ -217,4 +217,12 @@
     <string name="language_title">Bahasa</string>
     <string name="language_english">English</string>
     <string name="language_indonesian">Bahasa Indonesia</string>
+
+    <!-- Ekspor PDF Buku Kas -->
+    <string name="ledger_period_year">Tahun Ini</string>
+    <string name="ledger_period_custom">Rentang Kustom</string>
+    <string name="ledger_pdf_dialog_title">Pilih Periode Laporan</string>
+    <string name="ledger_print_report">Cetak Laporan</string>
+    <string name="ledger_pdf_share_title">Bagikan Laporan</string>
+
 </resources>

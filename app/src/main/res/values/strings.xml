@@ -219,4 +219,12 @@
     <string name="language_title">Language</string>
     <string name="language_english">English</string>
     <string name="language_indonesian">Bahasa Indonesia</string>
+
+    <!-- Ledger PDF export -->
+    <string name="ledger_period_year">This Year</string>
+    <string name="ledger_period_custom">Custom Range</string>
+    <string name="ledger_pdf_dialog_title">Select Report Period</string>
+    <string name="ledger_print_report">Print Report</string>
+    <string name="ledger_pdf_share_title">Share Report</string>
+
 </resources>

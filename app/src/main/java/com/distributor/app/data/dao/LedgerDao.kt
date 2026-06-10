@@ -108,4 +108,5 @@ interface LedgerDao {
         ORDER BY td.product_id ASC, SUM(td.quantity * td.unit_price) DESC
     """)
     suspend fun getTopResellersPerProductRaw(from: Long, to: Long): List<ProductResellerSales>
+
 }

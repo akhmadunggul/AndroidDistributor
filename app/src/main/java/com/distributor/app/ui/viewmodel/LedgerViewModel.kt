@@ -9,18 +9,38 @@ import com.distributor.app.data.dao.ProductResellerSales
 import com.distributor.app.data.dao.ReturnLedgerEntry
 import com.distributor.app.data.dao.SaleLedgerEntry
 import com.distributor.app.data.dao.TopResellerEntry
+import com.distributor.app.utils.LedgerPdfGenerator
+import com.distributor.app.utils.LedgerReportData
+import com.distributor.app.utils.LedgerReportEntry
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.File
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 enum class LedgerPeriod { TODAY, THIS_WEEK, THIS_MONTH, ALL_TIME }
+
+enum class ReportPeriod { TODAY, THIS_WEEK, THIS_MONTH, THIS_YEAR, ALL_TIME, CUSTOM }
+
+sealed class LedgerPdfState {
+    object Idle            : LedgerPdfState()
+    object PeriodPicker    : LedgerPdfState()
+    object DateRangePicker : LedgerPdfState()
+    object Generating      : LedgerPdfState()
+    data class ReadyToShare(val file: File) : LedgerPdfState()
+}
 
 sealed class LedgerEntry {
     abstract val timestampMillis: Long
@@ -59,7 +79,8 @@ data class LedgerUiState(
     val topResellerOverall: TopResellerEntry? = null,
     val topPerProduct: List<ProductResellerSales> = emptyList(),
     val entries: List<LedgerEntry> = emptyList(),
-    val isLoading: Boolean = true
+    val isLoading: Boolean = true,
+    val pdfState: LedgerPdfState = LedgerPdfState.Idle
 )
 
 class LedgerViewModel(application: Application) : AndroidViewModel(application) {
@@ -195,4 +216,171 @@ class LedgerViewModel(application: Application) : AndroidViewModel(application) 
         reason         = reason,
         timestampMillis = timestampMillis
     )
+
+    // ── PDF export ────────────────────────────────────────────────────────────
+
+    fun onPrintFabClicked() {
+        _uiState.update { it.copy(pdfState = LedgerPdfState.PeriodPicker) }
+    }
+
+    fun onPdfPeriodSelected(period: ReportPeriod) {
+        if (period == ReportPeriod.CUSTOM) {
+            _uiState.update { it.copy(pdfState = LedgerPdfState.DateRangePicker) }
+            return
+        }
+        val (from, to) = period.toDateRange()
+        startPdfGeneration(from, to, period.toPeriodLabel(from, to))
+    }
+
+    fun onPdfCustomRangeConfirmed(pickerStartUtcMillis: Long, pickerEndUtcMillis: Long) {
+        val from  = pickerStartUtcMillis.toLocalStartOfDay()
+        val to    = pickerEndUtcMillis.toLocalEndOfDay()
+        val label = "${from.formatReportDate()} – ${to.formatReportDate()}"
+        startPdfGeneration(from, to, label)
+    }
+
+    fun onPdfDialogDismissed() {
+        _uiState.update { it.copy(pdfState = LedgerPdfState.Idle) }
+    }
+
+    fun onPdfShareDismissed() {
+        _uiState.update { it.copy(pdfState = LedgerPdfState.Idle) }
+    }
+
+    private fun startPdfGeneration(from: Long, to: Long, periodLabel: String) {
+        _uiState.update { it.copy(pdfState = LedgerPdfState.Generating) }
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val ctx      = getApplication<Application>()
+                val sales    = ledgerDao.getSaleEntriesFlow(from, to).first()
+                val payments = ledgerDao.getPaymentEntriesFlow(from, to).first()
+                val returns  = returnDao.getReturnEntriesFlow(from, to).first()
+
+                val revenue      = ledgerDao.getTotalRevenue(from, to)
+                val totalReturns = returnDao.getTotalReturns(from, to)
+                val collected    = ledgerDao.getTotalCollected(from, to)
+                val outstanding  = ledgerDao.getOutstandingBalance()
+                val profit       = ledgerDao.getGrossProfit(from, to) - returnDao.getReturnGrossMargin(from, to)
+
+                val reportEntries: List<LedgerReportEntry> = buildList {
+                    sales.mapTo(this) { s ->
+                        LedgerReportEntry(
+                            timestampMillis = s.timestampMillis,
+                            description     = "${s.invoiceNumber} – ${s.resellerName}",
+                            typeLabel       = "JUAL",
+                            amount          = s.totalAmount,
+                            isCredit        = true
+                        )
+                    }
+                    payments.mapTo(this) { p ->
+                        val method = when (p.paymentMethod) {
+                            "CASH"     -> "Tunai"
+                            "TRANSFER" -> "Transfer"
+                            else       -> "Lainnya"
+                        }
+                        LedgerReportEntry(
+                            timestampMillis = p.timestampMillis,
+                            description     = "${p.resellerName} ($method)",
+                            typeLabel       = "BAYAR",
+                            amount          = p.amount,
+                            isCredit        = true
+                        )
+                    }
+                    returns.mapTo(this) { r ->
+                        LedgerReportEntry(
+                            timestampMillis = r.timestampMillis,
+                            description     = "${r.returnNumber} – ${r.resellerName}",
+                            typeLabel       = "RETUR",
+                            amount          = r.totalAmount,
+                            isCredit        = false
+                        )
+                    }
+                }.sortedByDescending { it.timestampMillis }
+
+                val file = LedgerPdfGenerator(ctx).generate(
+                    LedgerReportData(
+                        periodLabel = periodLabel,
+                        revenue     = revenue - totalReturns,
+                        collected   = collected,
+                        outstanding = outstanding,
+                        grossProfit = profit,
+                        entries     = reportEntries
+                    )
+                )
+                _uiState.update { it.copy(pdfState = LedgerPdfState.ReadyToShare(file)) }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _uiState.update { it.copy(pdfState = LedgerPdfState.Idle) }
+            }
+        }
+    }
+
+    private fun ReportPeriod.toDateRange(): Pair<Long, Long> {
+        val now = System.currentTimeMillis()
+        return when (this) {
+            ReportPeriod.TODAY -> {
+                val cal = Calendar.getInstance().apply {
+                    set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
+                    set(Calendar.SECOND, 0);       set(Calendar.MILLISECOND, 0)
+                }
+                Pair(cal.timeInMillis, now)
+            }
+            ReportPeriod.THIS_WEEK -> {
+                val cal = Calendar.getInstance().apply {
+                    firstDayOfWeek = Calendar.MONDAY
+                    set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
+                    set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
+                    set(Calendar.SECOND, 0);       set(Calendar.MILLISECOND, 0)
+                }
+                Pair(cal.timeInMillis, now)
+            }
+            ReportPeriod.THIS_MONTH -> {
+                val cal = Calendar.getInstance().apply {
+                    set(Calendar.DAY_OF_MONTH, 1)
+                    set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
+                    set(Calendar.SECOND, 0);       set(Calendar.MILLISECOND, 0)
+                }
+                Pair(cal.timeInMillis, now)
+            }
+            ReportPeriod.THIS_YEAR -> {
+                val cal = Calendar.getInstance().apply {
+                    set(Calendar.DAY_OF_YEAR, 1)
+                    set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
+                    set(Calendar.SECOND, 0);       set(Calendar.MILLISECOND, 0)
+                }
+                Pair(cal.timeInMillis, now)
+            }
+            ReportPeriod.ALL_TIME -> Pair(0L, Long.MAX_VALUE)
+            ReportPeriod.CUSTOM   -> Pair(0L, now) // handled separately
+        }
+    }
+
+    private fun ReportPeriod.toPeriodLabel(from: Long, to: Long): String = when (this) {
+        ReportPeriod.TODAY      -> "Hari Ini (${from.formatReportDate()})"
+        ReportPeriod.THIS_WEEK  -> "Minggu Ini (${from.formatReportDate()} – ${to.formatReportDate()})"
+        ReportPeriod.THIS_MONTH -> "Bulan Ini (${from.formatReportDate()} – ${to.formatReportDate()})"
+        ReportPeriod.THIS_YEAR  -> "Tahun Ini (${from.formatReportDate()} – ${to.formatReportDate()})"
+        ReportPeriod.ALL_TIME   -> "Semua Waktu"
+        ReportPeriod.CUSTOM     -> "${from.formatReportDate()} – ${to.formatReportDate()}"
+    }
+
+    private fun Long.formatReportDate(): String =
+        SimpleDateFormat("d MMM yyyy", Locale("in", "ID")).format(Date(this))
+
+    private fun Long.toLocalStartOfDay(): Long {
+        val utc = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply { timeInMillis = this@toLocalStartOfDay }
+        return Calendar.getInstance().apply {
+            set(utc.get(Calendar.YEAR), utc.get(Calendar.MONTH), utc.get(Calendar.DAY_OF_MONTH), 0, 0, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
+    }
+
+    private fun Long.toLocalEndOfDay(): Long {
+        val utc = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply { timeInMillis = this@toLocalEndOfDay }
+        return Calendar.getInstance().apply {
+            set(utc.get(Calendar.YEAR), utc.get(Calendar.MONTH), utc.get(Calendar.DAY_OF_MONTH), 23, 59, 59)
+            set(Calendar.MILLISECOND, 999)
+        }.timeInMillis
+    }
 }

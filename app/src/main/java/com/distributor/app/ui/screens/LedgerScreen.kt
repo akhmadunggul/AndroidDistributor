@@ -17,26 +17,35 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.AssignmentReturn
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Payments
+import androidx.compose.material.icons.filled.Print
 import androidx.compose.material.icons.automirrored.filled.ReceiptLong
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.distributor.app.R
@@ -45,8 +54,11 @@ import com.distributor.app.data.dao.TopResellerEntry
 import com.distributor.app.data.entity.TransactionEntity
 import com.distributor.app.ui.components.LanguageMenuIcon
 import com.distributor.app.ui.viewmodel.LedgerEntry
+import com.distributor.app.ui.viewmodel.LedgerPdfState
 import com.distributor.app.ui.viewmodel.LedgerPeriod
 import com.distributor.app.ui.viewmodel.LedgerViewModel
+import com.distributor.app.ui.viewmodel.ReportPeriod
+import com.distributor.app.utils.ReceiptShareHandler
 import com.distributor.app.utils.formatRupiah
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -59,6 +71,109 @@ fun LedgerScreen(
     viewModel: LedgerViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+    val dateRangePickerState = rememberDateRangePickerState()
+
+    // ── PDF dialogs ────────────────────────────────────────────────────────
+    when (val pdf = uiState.pdfState) {
+        is LedgerPdfState.PeriodPicker -> {
+            AlertDialog(
+                onDismissRequest = viewModel::onPdfDialogDismissed,
+                title   = { Text(stringResource(R.string.ledger_pdf_dialog_title)) },
+                text    = {
+                    Column {
+                        ReportPeriod.entries.forEach { period ->
+                            TextButton(
+                                onClick  = { viewModel.onPdfPeriodSelected(period) },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(
+                                    text     = stringResource(period.labelRes()),
+                                    modifier = Modifier.fillMaxWidth(),
+                                    textAlign = TextAlign.Start
+                                )
+                            }
+                        }
+                    }
+                },
+                confirmButton  = {},
+                dismissButton  = {
+                    TextButton(onClick = viewModel::onPdfDialogDismissed) {
+                        Text(stringResource(R.string.action_cancel))
+                    }
+                }
+            )
+        }
+        is LedgerPdfState.DateRangePicker -> {
+            DatePickerDialog(
+                onDismissRequest = viewModel::onPdfDialogDismissed,
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            val s = dateRangePickerState.selectedStartDateMillis
+                            val e = dateRangePickerState.selectedEndDateMillis
+                            if (s != null) viewModel.onPdfCustomRangeConfirmed(s, e ?: s)
+                            else viewModel.onPdfDialogDismissed()
+                        },
+                        enabled = dateRangePickerState.selectedStartDateMillis != null
+                    ) { Text("OK") }
+                },
+                dismissButton = {
+                    TextButton(onClick = viewModel::onPdfDialogDismissed) {
+                        Text(stringResource(R.string.action_cancel))
+                    }
+                }
+            ) {
+                DateRangePicker(state = dateRangePickerState, modifier = Modifier.fillMaxWidth().weight(1f))
+            }
+        }
+        is LedgerPdfState.Generating -> {
+            AlertDialog(
+                onDismissRequest = {},
+                title = null,
+                text  = {
+                    Row(
+                        modifier              = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalAlignment     = Alignment.CenterVertically
+                    ) {
+                        CircularProgressIndicator(modifier = Modifier.size(28.dp))
+                        Text(stringResource(R.string.share_generating))
+                    }
+                },
+                confirmButton = {}
+            )
+        }
+        is LedgerPdfState.ReadyToShare -> {
+            AlertDialog(
+                onDismissRequest = viewModel::onPdfShareDismissed,
+                title = { Text(stringResource(R.string.ledger_pdf_share_title)) },
+                text  = {
+                    Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
+                        TextButton(
+                            onClick  = { ReceiptShareHandler.shareToWhatsApp(context, pdf.file); viewModel.onPdfShareDismissed() },
+                            modifier = Modifier.fillMaxWidth()
+                        ) { Text(stringResource(R.string.share_whatsapp), modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Start) }
+                        TextButton(
+                            onClick  = { ReceiptShareHandler.shareToWhatsAppBusiness(context, pdf.file); viewModel.onPdfShareDismissed() },
+                            modifier = Modifier.fillMaxWidth()
+                        ) { Text(stringResource(R.string.share_whatsapp_business), modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Start) }
+                        TextButton(
+                            onClick  = { ReceiptShareHandler.shareViaSystemSheet(context, pdf.file); viewModel.onPdfShareDismissed() },
+                            modifier = Modifier.fillMaxWidth()
+                        ) { Text(stringResource(R.string.share_other_apps), modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Start) }
+                    }
+                },
+                confirmButton  = {},
+                dismissButton  = {
+                    TextButton(onClick = viewModel::onPdfShareDismissed) {
+                        Text(stringResource(R.string.share_not_now))
+                    }
+                }
+            )
+        }
+        else -> {}
+    }
 
     Scaffold(
         topBar = {
@@ -71,6 +186,11 @@ fun LedgerScreen(
                 },
                 actions = { LanguageMenuIcon() }
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = viewModel::onPrintFabClicked) {
+                Icon(Icons.Default.Print, contentDescription = stringResource(R.string.ledger_print_report))
+            }
         }
     ) { padding ->
         if (uiState.isLoading) {
@@ -461,6 +581,15 @@ private fun LedgerPeriod.labelRes(): Int = when (this) {
     LedgerPeriod.THIS_WEEK  -> R.string.ledger_period_week
     LedgerPeriod.THIS_MONTH -> R.string.ledger_period_month
     LedgerPeriod.ALL_TIME   -> R.string.ledger_period_all
+}
+
+private fun ReportPeriod.labelRes(): Int = when (this) {
+    ReportPeriod.TODAY      -> R.string.ledger_period_today
+    ReportPeriod.THIS_WEEK  -> R.string.ledger_period_week
+    ReportPeriod.THIS_MONTH -> R.string.ledger_period_month
+    ReportPeriod.THIS_YEAR  -> R.string.ledger_period_year
+    ReportPeriod.ALL_TIME   -> R.string.ledger_period_all
+    ReportPeriod.CUSTOM     -> R.string.ledger_period_custom
 }
 
 private fun formatLedgerDate(millis: Long): String =
