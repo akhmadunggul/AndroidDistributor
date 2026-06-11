@@ -240,6 +240,9 @@
     <string name="license_contact_distributor">Hubungi Distributor</string>
     <string name="license_dismiss">Nanti</string>
 
+    <!-- Pratinjau PDF -->
+    <string name="preview_share_via">Bagikan via:</string>
+
     <!-- Kunci PIN keamanan -->
     <string name="pin_lock_title">Masukkan PIN</string>
     <string name="pin_wrong">PIN salah</string>

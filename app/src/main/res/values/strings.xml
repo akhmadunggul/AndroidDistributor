@@ -242,6 +242,9 @@
     <string name="license_contact_distributor">Contact Distributor</string>
     <string name="license_dismiss">Later</string>
 
+    <!-- PDF preview sheet -->
+    <string name="preview_share_via">Share via:</string>
+
     <!-- PIN security lock -->
     <string name="pin_lock_title">Enter PIN</string>
     <string name="pin_wrong">Incorrect PIN</string>

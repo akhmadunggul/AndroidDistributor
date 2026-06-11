@@ -145,31 +145,11 @@ fun LedgerScreen(
             )
         }
         is LedgerPdfState.ReadyToShare -> {
-            AlertDialog(
-                onDismissRequest = viewModel::onPdfShareDismissed,
-                title = { Text(stringResource(R.string.ledger_pdf_share_title)) },
-                text  = {
-                    Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
-                        TextButton(
-                            onClick  = { ReceiptShareHandler.shareToWhatsApp(context, pdf.file); viewModel.onPdfShareDismissed() },
-                            modifier = Modifier.fillMaxWidth()
-                        ) { Text(stringResource(R.string.share_whatsapp), modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Start) }
-                        TextButton(
-                            onClick  = { ReceiptShareHandler.shareToWhatsAppBusiness(context, pdf.file); viewModel.onPdfShareDismissed() },
-                            modifier = Modifier.fillMaxWidth()
-                        ) { Text(stringResource(R.string.share_whatsapp_business), modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Start) }
-                        TextButton(
-                            onClick  = { ReceiptShareHandler.shareViaSystemSheet(context, pdf.file); viewModel.onPdfShareDismissed() },
-                            modifier = Modifier.fillMaxWidth()
-                        ) { Text(stringResource(R.string.share_other_apps), modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Start) }
-                    }
-                },
-                confirmButton  = {},
-                dismissButton  = {
-                    TextButton(onClick = viewModel::onPdfShareDismissed) {
-                        Text(stringResource(R.string.share_not_now))
-                    }
-                }
+            PdfPreviewSheet(
+                file         = pdf.file,
+                isGenerating = false,
+                title        = stringResource(R.string.ledger_pdf_share_title),
+                onDismiss    = viewModel::onPdfShareDismissed
             )
         }
         else -> {}

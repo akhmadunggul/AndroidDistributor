@@ -324,7 +324,6 @@ fun TransactionScreen(
 
 // ── Share receipt bottom sheet ─────────────────────────────────────────────
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ShareReceiptSheet(
     receiptData: ReceiptData,
@@ -332,109 +331,28 @@ private fun ShareReceiptSheet(
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var isGenerating by remember { mutableStateOf(false) }
+    var pdfFile     by remember { mutableStateOf<java.io.File?>(null) }
+    var isGenerating by remember { mutableStateOf(true) }
 
-    fun share(action: (java.io.File) -> Unit) {
-        isGenerating = true
-        scope.launch {
-            try {
-                val file = withContext(Dispatchers.IO) {
-                    ReceiptPdfGenerator(context).generate(receiptData)
-                }
-                action(file)
-            } catch (e: Exception) {
-                snackbarHostState.showSnackbar(context.getString(R.string.share_error))
-            } finally {
-                isGenerating = false
-                onDismiss()
+    LaunchedEffect(receiptData) {
+        try {
+            pdfFile = withContext(Dispatchers.IO) {
+                ReceiptPdfGenerator(context).generate(receiptData)
             }
+        } catch (_: Exception) {
+            onDismiss()
+        } finally {
+            isGenerating = false
         }
     }
 
-    ModalBottomSheet(
-        onDismissRequest = { if (!isGenerating) onDismiss() },
-        sheetState = sheetState
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-                .padding(bottom = 32.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.share_receipt_title),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = receiptData.transaction.invoiceNumber,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            HorizontalDivider()
-            Spacer(modifier = Modifier.height(4.dp))
-
-            if (isGenerating) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 24.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
-                        Text(stringResource(R.string.share_generating))
-                    }
-                }
-            } else {
-                ShareOption(
-                    icon = Icons.AutoMirrored.Filled.Send,
-                    label = stringResource(R.string.share_whatsapp),
-                    onClick = { share { ReceiptShareHandler.shareToWhatsApp(context, it) } }
-                )
-                ShareOption(
-                    icon = Icons.Default.Business,
-                    label = stringResource(R.string.share_whatsapp_business),
-                    onClick = { share { ReceiptShareHandler.shareToWhatsAppBusiness(context, it) } }
-                )
-                ShareOption(
-                    icon = Icons.Default.Share,
-                    label = stringResource(R.string.share_other_apps),
-                    onClick = { share { ReceiptShareHandler.shareViaSystemSheet(context, it) } }
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedButton(
-                    onClick = onDismiss,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(stringResource(R.string.share_not_now))
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun ShareOption(icon: ImageVector, label: String, onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(vertical = 14.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-        Text(label, style = MaterialTheme.typography.bodyLarge)
-    }
+    PdfPreviewSheet(
+        file         = pdfFile,
+        isGenerating = isGenerating,
+        title        = stringResource(R.string.share_receipt_title),
+        subtitle     = receiptData.transaction.invoiceNumber,
+        onDismiss    = onDismiss
+    )
 }
 
 // ── Cart item row ──────────────────────────────────────────────────────────

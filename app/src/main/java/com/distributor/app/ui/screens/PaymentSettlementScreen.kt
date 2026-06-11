@@ -367,7 +367,6 @@ private fun AllocationPreviewRow(alloc: AllocationPreview) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SharePaymentReceiptSheet(
     receiptData: PaymentReceiptData,
@@ -375,96 +374,27 @@ private fun SharePaymentReceiptSheet(
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
-    val scope   = rememberCoroutineScope()
-    var isGenerating by remember { mutableStateOf(false) }
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var pdfFile      by remember { mutableStateOf<java.io.File?>(null) }
+    var isGenerating by remember { mutableStateOf(true) }
 
-    fun share(action: (java.io.File) -> Unit) {
-        isGenerating = true
-        scope.launch {
-            try {
-                val file = withContext(Dispatchers.IO) {
-                    ReceiptPdfGenerator(context).generatePaymentReceipt(receiptData)
-                }
-                action(file)
-            } catch (e: Exception) {
-                snackbarHostState.showSnackbar(context.getString(R.string.share_error))
-            } finally {
-                isGenerating = false
-                onDismiss()
+    LaunchedEffect(receiptData) {
+        try {
+            pdfFile = withContext(Dispatchers.IO) {
+                ReceiptPdfGenerator(context).generatePaymentReceipt(receiptData)
             }
+        } catch (_: Exception) {
+            onDismiss()
+        } finally {
+            isGenerating = false
         }
     }
 
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            Text(
-                text  = stringResource(R.string.payment_receipt_title),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-
-            if (isGenerating) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 16.dp),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    CircularProgressIndicator(modifier = Modifier.size(28.dp), strokeWidth = 2.dp)
-                    Spacer(modifier = Modifier.size(12.dp))
-                    Text(stringResource(R.string.share_generating))
-                }
-            } else {
-                PaymentShareOption(
-                    icon    = Icons.AutoMirrored.Filled.Send,
-                    label   = stringResource(R.string.share_whatsapp),
-                    onClick = { share { ReceiptShareHandler.shareToWhatsApp(context, it) } }
-                )
-                PaymentShareOption(
-                    icon    = Icons.Default.Business,
-                    label   = stringResource(R.string.share_whatsapp_business),
-                    onClick = { share { ReceiptShareHandler.shareToWhatsAppBusiness(context, it) } }
-                )
-                PaymentShareOption(
-                    icon    = Icons.Default.Share,
-                    label   = stringResource(R.string.share_other_apps),
-                    onClick = { share { ReceiptShareHandler.shareViaSystemSheet(context, it) } }
-                )
-                OutlinedButton(
-                    onClick  = onDismiss,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 4.dp, bottom = 16.dp)
-                ) { Text(stringResource(R.string.share_not_now)) }
-            }
-        }
-    }
-}
-
-@Composable
-private fun PaymentShareOption(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    label: String,
-    onClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(vertical = 14.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-        Text(label, style = MaterialTheme.typography.bodyLarge)
-    }
+    PdfPreviewSheet(
+        file         = pdfFile,
+        isGenerating = isGenerating,
+        title        = stringResource(R.string.payment_receipt_title),
+        onDismiss    = onDismiss
+    )
 }
 
 private fun formatDate(millis: Long): String =
