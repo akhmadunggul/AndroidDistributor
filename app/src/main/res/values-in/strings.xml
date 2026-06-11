@@ -262,8 +262,22 @@
     <string name="settings_security_section">Keamanan</string>
     <string name="settings_pin_setup">Kunci PIN Aplikasi</string>
 
+    <!-- Dashboard -->
+    <string name="screen_dashboard">Dashboard</string>
+    <string name="home_desc_dashboard">Ringkasan performa bisnis</string>
+    <string name="dashboard_invoices">Invoice</string>
+    <string name="dashboard_top_reseller">Pembeli Teratas</string>
+    <string name="dashboard_top_products">Produk Terlaris</string>
+    <string name="dashboard_low_stock">Stok Menipis (%d produk)</string>
+    <string name="dashboard_outstanding_note">total belum lunas</string>
+
     <!-- Reset data -->
     <string name="settings_danger_section">Zona Berbahaya</string>
+    <string name="settings_demo_button">Muat Data Demo</string>
+    <string name="demo_confirm_title">Muat Data Demo?</string>
+    <string name="demo_confirm_message">Semua data yang ada akan dihapus dan diganti dengan data contoh untuk keperluan demonstrasi.</string>
+    <string name="demo_confirm_load">Muat Data Demo</string>
+    <string name="demo_data_loaded">Data demo berhasil dimuat.</string>
     <string name="settings_reset_button">Reset Semua Data</string>
     <string name="reset_confirm1_title">Reset Semua Data?</string>
     <string name="reset_confirm1_message">Ini akan menghapus semua produk, reseller, transaksi, catatan stok, dan riwayat pembayaran secara permanen. Pengaturan dan info bisnis akan tetap tersimpan.</string>

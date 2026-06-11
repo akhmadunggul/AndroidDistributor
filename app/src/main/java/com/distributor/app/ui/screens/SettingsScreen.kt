@@ -91,6 +91,8 @@ fun SettingsScreen(
 
     var showResetConfirm1 by remember { mutableStateOf(false) }
     var showResetConfirm2 by remember { mutableStateOf(false) }
+    var showDemoConfirm   by remember { mutableStateOf(false) }
+    val demoLoaded = stringResource(R.string.demo_data_loaded)
 
     LaunchedEffect(uiState.snackbarMessage) {
         uiState.snackbarMessage?.let { msg ->
@@ -247,6 +249,14 @@ fun SettingsScreen(
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.error
             )
+            OutlinedButton(
+                onClick  = { showDemoConfirm = true },
+                enabled  = !uiState.isResetting,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(stringResource(R.string.settings_demo_button))
+            }
+
             Button(
                 onClick  = { showResetConfirm1 = true },
                 enabled  = !uiState.isResetting,
@@ -327,6 +337,28 @@ fun SettingsScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showResetConfirm1 = false }) {
+                    Text(stringResource(R.string.action_cancel))
+                }
+            }
+        )
+    }
+
+    // ── Demo data confirmation ─────────────────────────────────────────────
+    if (showDemoConfirm) {
+        AlertDialog(
+            onDismissRequest = { showDemoConfirm = false },
+            title   = { Text(stringResource(R.string.demo_confirm_title)) },
+            text    = { Text(stringResource(R.string.demo_confirm_message)) },
+            confirmButton = {
+                Button(onClick = {
+                    showDemoConfirm = false
+                    viewModel.seedDemoData(demoLoaded)
+                }) {
+                    Text(stringResource(R.string.demo_confirm_load))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDemoConfirm = false }) {
                     Text(stringResource(R.string.action_cancel))
                 }
             }

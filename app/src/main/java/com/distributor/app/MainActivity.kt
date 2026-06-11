@@ -36,6 +36,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.distributor.app.ui.screens.AboutScreen
+import com.distributor.app.ui.screens.DashboardScreen
 import com.distributor.app.ui.screens.HomeScreen
 import com.distributor.app.ui.screens.LedgerScreen
 import com.distributor.app.ui.screens.SplashScreen
@@ -91,6 +92,7 @@ private object Routes {
     const val LEDGER          = "ledger"
     const val RETURN          = "return"
     const val STOCK_OPNAME    = "stock_opname"
+    const val DASHBOARD       = "dashboard"
     const val SETTINGS        = "settings"
     const val ABOUT           = "about"
     const val SPLASH          = "splash"
@@ -147,6 +149,7 @@ private fun DistributorNavHost() {
         currentRoute != Routes.STOCK_OPNAME &&
         currentRoute != Routes.SETTINGS &&
         currentRoute != Routes.PRODUCTS &&
+        currentRoute != Routes.DASHBOARD &&
         currentRoute != Routes.LEDGER &&
         currentRoute != Routes.ABOUT &&
         currentRoute != Routes.SPLASH &&
@@ -350,8 +353,12 @@ private fun DistributorNavHost() {
             composable(Routes.PIN_SETUP) {
                 PinSetupScreen(onComplete = { navController.popBackStack() })
             }
+            composable(Routes.DASHBOARD) {
+                DashboardScreen(onNavigateBack = { navController.popBackStack() })
+            }
             composable(Routes.HOME) {
                 HomeScreen(
+                    onNavigateToDashboard = { navController.navigate(Routes.DASHBOARD) { launchSingleTop = true } },
                     onNavigateToProducts  = { navController.navigate(Routes.PRODUCTS)  { launchSingleTop = true } },
                     onNavigateToStock     = { navController.navigate(Routes.STOCK)     { launchSingleTop = true } },
                     onNavigateToSales     = { navController.navigate(Routes.SALES)     { launchSingleTop = true } },

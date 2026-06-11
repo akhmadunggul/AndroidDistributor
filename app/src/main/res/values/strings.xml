@@ -264,8 +264,22 @@
     <string name="settings_security_section">Security</string>
     <string name="settings_pin_setup">App PIN Lock</string>
 
+    <!-- Dashboard -->
+    <string name="screen_dashboard">Dashboard</string>
+    <string name="home_desc_dashboard">Business performance overview</string>
+    <string name="dashboard_invoices">Invoices</string>
+    <string name="dashboard_top_reseller">Top Buyer</string>
+    <string name="dashboard_top_products">Top Products</string>
+    <string name="dashboard_low_stock">Low Stock (%d products)</string>
+    <string name="dashboard_outstanding_note">all-time unpaid</string>
+
     <!-- Reset data -->
     <string name="settings_danger_section">Danger Zone</string>
+    <string name="settings_demo_button">Load Demo Data</string>
+    <string name="demo_confirm_title">Load Demo Data?</string>
+    <string name="demo_confirm_message">All existing data will be cleared and replaced with sample data for demonstration purposes.</string>
+    <string name="demo_confirm_load">Load Demo Data</string>
+    <string name="demo_data_loaded">Demo data loaded successfully.</string>
     <string name="settings_reset_button">Reset All Data</string>
     <string name="reset_confirm1_title">Reset All Data?</string>
     <string name="reset_confirm1_message">This will permanently delete all products, resellers, transactions, stock records, and payment history. Settings and business info will be kept.</string>

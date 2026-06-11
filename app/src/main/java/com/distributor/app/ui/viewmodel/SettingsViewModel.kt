@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.distributor.app.data.AppDatabase
 import com.distributor.app.utils.BusinessConfig
 import com.distributor.app.utils.BusinessConfigStore
+import com.distributor.app.utils.DemoDataSeeder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -82,6 +83,17 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                 )
             )
             _uiState.update { it.copy(isSubmitting = false, snackbarMessage = successMessage) }
+        }
+    }
+
+    fun seedDemoData(successMessage: String) {
+        val context = getApplication<Application>()
+        _uiState.update { it.copy(isResetting = true) }
+        viewModelScope.launch(Dispatchers.IO) {
+            val db = AppDatabase.getInstance(context)
+            db.clearAllTables()
+            DemoDataSeeder.seed(db)
+            _uiState.update { it.copy(isResetting = false, snackbarMessage = successMessage) }
         }
     }
 

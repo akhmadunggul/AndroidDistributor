@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.AssignmentReturn
+import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.Payments
@@ -58,6 +59,7 @@ import com.distributor.app.utils.HomeLayoutStyle
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
+    onNavigateToDashboard: () -> Unit = {},
     onNavigateToProducts:  () -> Unit = {},
     onNavigateToStock:     () -> Unit = {},
     onNavigateToSales:     () -> Unit = {},
@@ -82,6 +84,7 @@ fun HomeScreen(
     )
 
     val items = listOf(
+        MenuItem(Icons.Default.Dashboard,                    Color(0xFF7B1FA2), R.string.screen_dashboard, R.string.home_desc_dashboard, onNavigateToDashboard),
         MenuItem(Icons.Default.Inventory2,                   primary,           R.string.tab_products,  R.string.home_desc_products,  onNavigateToProducts),
         MenuItem(Icons.Default.Warehouse,                    Color(0xFF4CAF50), R.string.tab_stock,     R.string.home_desc_stock,     onNavigateToStock),
         MenuItem(Icons.Default.ShoppingCart,                 Color(0xFFFF7043), R.string.tab_sales,     R.string.home_desc_sales,     onNavigateToSales),

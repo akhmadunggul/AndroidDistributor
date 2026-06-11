@@ -25,6 +25,11 @@ data class TopResellerEntry(
     val totalPurchase: Double
 )
 
+data class TopProductEntry(
+    val productName: String,
+    val totalRevenue: Double
+)
+
 data class ProductResellerSales(
     val productId: Long,
     val productName: String,
@@ -108,5 +113,21 @@ interface LedgerDao {
         ORDER BY td.product_id ASC, SUM(td.quantity * td.unit_price) DESC
     """)
     suspend fun getTopResellersPerProductRaw(from: Long, to: Long): List<ProductResellerSales>
+
+    @Query("""
+        SELECT p.name AS productName,
+               COALESCE(SUM(td.quantity * td.unit_price), 0.0) AS totalRevenue
+        FROM transaction_details td
+        JOIN transactions t ON td.transaction_id = t.id
+        JOIN products p ON td.product_id = p.id
+        WHERE t.created_at BETWEEN :from AND :to
+        GROUP BY td.product_id
+        ORDER BY SUM(td.quantity * td.unit_price) DESC
+        LIMIT 5
+    """)
+    suspend fun getTopProducts(from: Long, to: Long): List<TopProductEntry>
+
+    @Query("SELECT COUNT(*) FROM transactions WHERE created_at BETWEEN :from AND :to")
+    suspend fun getTransactionCount(from: Long, to: Long): Int
 
 }
