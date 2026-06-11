@@ -73,6 +73,8 @@
     <string name="reseller_register_button">Daftarkan Reseller</string>
 
     <!-- Stock operation screen -->
+    <string name="stock_section_current">Stok Saat Ini</string>
+    <string name="stock_section_record">Catat Entri</string>
     <string name="stock_op_type_label">Jenis Operasi</string>
     <string name="stock_op_product_placeholder">Pilih produk</string>
     <string name="stock_op_current_stock">Stok saat ini: %1$s %2$s</string>

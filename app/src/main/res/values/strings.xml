@@ -73,6 +73,8 @@
     <string name="reseller_register_button">Register Reseller</string>
 
     <!-- Stock operation screen -->
+    <string name="stock_section_current">Current Stock</string>
+    <string name="stock_section_record">Record Entry</string>
     <string name="stock_op_type_label">Operation Type</string>
     <string name="stock_op_product_placeholder">Select a product</string>
     <string name="stock_op_current_stock">Current stock: %1$s %2$s</string>

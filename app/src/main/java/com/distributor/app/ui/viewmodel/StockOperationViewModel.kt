@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 
 data class StockOperationUiState(
     val products: List<ProductEntity> = emptyList(),
+    val allStocks: Map<Long, Double> = emptyMap(),
     val selectedProduct: ProductEntity? = null,
     val currentStock: Double = 0.0,
     val typeSelection: String = StockLedgerEntity.TYPE_IN,
@@ -46,12 +47,21 @@ class StockOperationViewModel(application: Application) : AndroidViewModel(appli
     init {
         observeProducts()
         observeSelectedProductStock()
+        observeAllStocks()
     }
 
     private fun observeProducts() {
         viewModelScope.launch {
             productDao.getAllProducts().collect { products ->
                 _uiState.update { it.copy(products = products) }
+            }
+        }
+    }
+
+    private fun observeAllStocks() {
+        viewModelScope.launch {
+            stockLedgerDao.getAllCurrentStocksFlow().collect { stockList ->
+                _uiState.update { it.copy(allStocks = stockList.associate { it.productId to it.stock }) }
             }
         }
     }
