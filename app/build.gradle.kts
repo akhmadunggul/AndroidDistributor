@@ -13,8 +13,8 @@ android {
         applicationId = "com.distributor.app"
         minSdk        = 26
         targetSdk     = 35
-        versionCode   = 17
-        versionName   = "2.6"
+        versionCode   = 18
+        versionName   = "2.7"
 
         buildConfigField("String", "RELEASE_DATE", "\"2026-06-11\"")
     }
