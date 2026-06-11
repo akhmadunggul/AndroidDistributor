@@ -66,6 +66,7 @@ import java.io.File
 fun SettingsScreen(
     onNavigateBack: () -> Unit = {},
     onNavigateToAbout: () -> Unit = {},
+    onNavigateToPinSetup: () -> Unit = {},
     viewModel: SettingsViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -173,6 +174,21 @@ fun SettingsScreen(
                 } else {
                     Text(stringResource(R.string.settings_save_button))
                 }
+            }
+
+            HorizontalDivider()
+
+            // ── Security ──────────────────────────────────────────────────────
+            Text(
+                text = stringResource(R.string.settings_security_section),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            OutlinedButton(
+                onClick  = onNavigateToPinSetup,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(stringResource(R.string.settings_pin_setup))
             }
 
             HorizontalDivider()

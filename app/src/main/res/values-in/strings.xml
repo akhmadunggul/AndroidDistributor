@@ -240,6 +240,19 @@
     <string name="license_contact_distributor">Hubungi Distributor</string>
     <string name="license_dismiss">Nanti</string>
 
+    <!-- Kunci PIN keamanan -->
+    <string name="pin_lock_title">Masukkan PIN</string>
+    <string name="pin_wrong">PIN salah</string>
+    <string name="pin_setup_title">Kunci PIN</string>
+    <string name="pin_setup_create">Buat PIN Baru</string>
+    <string name="pin_setup_confirm">Konfirmasi PIN</string>
+    <string name="pin_setup_verify_current">Masukkan PIN Saat Ini</string>
+    <string name="pin_setup_mismatch">PIN tidak cocok, coba lagi</string>
+    <string name="pin_setup_change">Ubah PIN</string>
+    <string name="pin_setup_disable">Nonaktifkan PIN</string>
+    <string name="settings_security_section">Keamanan</string>
+    <string name="settings_pin_setup">Kunci PIN Aplikasi</string>
+
     <!-- Ekspor PDF Buku Kas -->
     <string name="ledger_period_year">Tahun Ini</string>
     <string name="ledger_period_custom">Rentang Kustom</string>

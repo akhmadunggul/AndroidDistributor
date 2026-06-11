@@ -49,6 +49,9 @@ import com.distributor.app.ui.screens.StockOperationScreen
 import com.distributor.app.ui.screens.TransactionScreen
 import com.distributor.app.utils.LocaleHelper
 import com.distributor.app.ui.screens.ActivationScreen
+import com.distributor.app.ui.screens.PinLockScreen
+import com.distributor.app.ui.screens.PinSetupScreen
+import com.distributor.app.utils.PinStore
 import com.distributor.app.utils.LicenseService
 import com.distributor.app.utils.LicenseState
 import com.distributor.app.utils.LicenseStore
@@ -93,6 +96,8 @@ private object Routes {
     const val SPLASH          = "splash"
     const val HOME            = "home"
     const val ACTIVATION      = "activation"
+    const val PIN_LOCK        = "pin_lock"
+    const val PIN_SETUP       = "pin_setup"
 }
 
 // ── Bottom-nav tab descriptors ──────────────────────────────────────────────
@@ -146,7 +151,9 @@ private fun DistributorNavHost() {
         currentRoute != Routes.ABOUT &&
         currentRoute != Routes.SPLASH &&
         currentRoute != Routes.RETURN &&
-        currentRoute != Routes.ACTIVATION
+        currentRoute != Routes.ACTIVATION &&
+        currentRoute != Routes.PIN_LOCK &&
+        currentRoute != Routes.PIN_SETUP
 
     // ── Version check ──────────────────────────────────────────────────────
     val context = LocalContext.current
@@ -316,7 +323,11 @@ private fun DistributorNavHost() {
         ) {
             composable(Routes.SPLASH) {
                 SplashScreen(onComplete = {
-                    val dest = if (LicenseStore.isActivated(context)) Routes.HOME else Routes.ACTIVATION
+                    val dest = when {
+                        !LicenseStore.isActivated(context) -> Routes.ACTIVATION
+                        PinStore.isPinEnabled(context)     -> Routes.PIN_LOCK
+                        else                               -> Routes.HOME
+                    }
                     navController.navigate(dest) {
                         popUpTo(Routes.SPLASH) { inclusive = true }
                     }
@@ -328,6 +339,16 @@ private fun DistributorNavHost() {
                         popUpTo(0) { inclusive = true }
                     }
                 })
+            }
+            composable(Routes.PIN_LOCK) {
+                PinLockScreen(onUnlocked = {
+                    navController.navigate(Routes.HOME) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                })
+            }
+            composable(Routes.PIN_SETUP) {
+                PinSetupScreen(onComplete = { navController.popBackStack() })
             }
             composable(Routes.HOME) {
                 HomeScreen(
@@ -371,8 +392,9 @@ private fun DistributorNavHost() {
             }
             composable(Routes.SETTINGS) {
                 SettingsScreen(
-                    onNavigateBack    = { navController.popBackStack() },
-                    onNavigateToAbout = { navController.navigate(Routes.ABOUT) }
+                    onNavigateBack       = { navController.popBackStack() },
+                    onNavigateToAbout    = { navController.navigate(Routes.ABOUT) },
+                    onNavigateToPinSetup = { navController.navigate(Routes.PIN_SETUP) }
                 )
             }
             composable(Routes.ABOUT) {

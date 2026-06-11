@@ -242,6 +242,19 @@
     <string name="license_contact_distributor">Contact Distributor</string>
     <string name="license_dismiss">Later</string>
 
+    <!-- PIN security lock -->
+    <string name="pin_lock_title">Enter PIN</string>
+    <string name="pin_wrong">Incorrect PIN</string>
+    <string name="pin_setup_title">PIN Security</string>
+    <string name="pin_setup_create">Create PIN</string>
+    <string name="pin_setup_confirm">Confirm PIN</string>
+    <string name="pin_setup_verify_current">Enter Current PIN</string>
+    <string name="pin_setup_mismatch">PINs don\'t match, try again</string>
+    <string name="pin_setup_change">Change PIN</string>
+    <string name="pin_setup_disable">Disable PIN Lock</string>
+    <string name="settings_security_section">Security</string>
+    <string name="settings_pin_setup">App PIN Lock</string>
+
     <!-- Ledger PDF export -->
     <string name="ledger_period_year">This Year</string>
     <string name="ledger_period_custom">Custom Range</string>
