@@ -262,6 +262,17 @@
     <string name="settings_security_section">Keamanan</string>
     <string name="settings_pin_setup">Kunci PIN Aplikasi</string>
 
+    <!-- Reset data -->
+    <string name="settings_danger_section">Zona Berbahaya</string>
+    <string name="settings_reset_button">Reset Semua Data</string>
+    <string name="reset_confirm1_title">Reset Semua Data?</string>
+    <string name="reset_confirm1_message">Ini akan menghapus semua produk, reseller, transaksi, catatan stok, dan riwayat pembayaran secara permanen. Pengaturan dan info bisnis akan tetap tersimpan.</string>
+    <string name="reset_confirm1_proceed">Lanjutkan</string>
+    <string name="reset_confirm2_title">Anda benar-benar yakin?</string>
+    <string name="reset_confirm2_message">Tindakan ini tidak dapat dibatalkan. Setiap transaksi, invoice, entri stok, dan data reseller akan dihapus permanen.</string>
+    <string name="reset_confirm2_delete">Ya, Hapus Semua</string>
+    <string name="reset_success">Semua data berhasil direset.</string>
+
     <!-- Ekspor PDF Buku Kas -->
     <string name="ledger_period_year">Tahun Ini</string>
     <string name="ledger_period_custom">Rentang Kustom</string>

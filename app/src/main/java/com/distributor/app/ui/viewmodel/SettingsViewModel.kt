@@ -4,6 +4,7 @@ import android.app.Application
 import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.distributor.app.data.AppDatabase
 import com.distributor.app.utils.BusinessConfig
 import com.distributor.app.utils.BusinessConfigStore
 import kotlinx.coroutines.Dispatchers
@@ -20,6 +21,7 @@ data class SettingsUiState(
     val address: String = "",
     val logoFile: File? = null,
     val isSubmitting: Boolean = false,
+    val isResetting: Boolean = false,
     val snackbarMessage: String? = null
 )
 
@@ -80,6 +82,15 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                 )
             )
             _uiState.update { it.copy(isSubmitting = false, snackbarMessage = successMessage) }
+        }
+    }
+
+    fun resetAllData(successMessage: String) {
+        val context = getApplication<Application>()
+        _uiState.update { it.copy(isResetting = true) }
+        viewModelScope.launch(Dispatchers.IO) {
+            AppDatabase.getInstance(context).clearAllTables()
+            _uiState.update { it.copy(isResetting = false, snackbarMessage = successMessage) }
         }
     }
 

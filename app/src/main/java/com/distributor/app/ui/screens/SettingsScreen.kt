@@ -23,7 +23,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Business
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -39,6 +41,7 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -84,6 +87,10 @@ fun SettingsScreen(
     val savedMessage  = stringResource(R.string.settings_saved)
     val logoErrKey    = "logo_error"
     val logoErrMsg    = stringResource(R.string.settings_logo_error)
+    val resetSuccess  = stringResource(R.string.reset_success)
+
+    var showResetConfirm1 by remember { mutableStateOf(false) }
+    var showResetConfirm2 by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState.snackbarMessage) {
         uiState.snackbarMessage?.let { msg ->
@@ -234,6 +241,30 @@ fun SettingsScreen(
 
             HorizontalDivider()
 
+            // ── Danger Zone ───────────────────────────────────────────────────
+            Text(
+                text  = stringResource(R.string.settings_danger_section),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.error
+            )
+            Button(
+                onClick  = { showResetConfirm1 = true },
+                enabled  = !uiState.isResetting,
+                colors   = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                    contentColor   = MaterialTheme.colorScheme.onErrorContainer
+                ),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                if (uiState.isResetting) {
+                    CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                } else {
+                    Text(stringResource(R.string.settings_reset_button))
+                }
+            }
+
+            HorizontalDivider()
+
             // ── About ─────────────────────────────────────────────────────────
             Row(
                 modifier              = Modifier.fillMaxWidth(),
@@ -275,6 +306,58 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
         }
+    }
+
+    // ── First confirmation ─────────────────────────────────────────────────
+    if (showResetConfirm1) {
+        AlertDialog(
+            onDismissRequest = { showResetConfirm1 = false },
+            title   = { Text(stringResource(R.string.reset_confirm1_title)) },
+            text    = { Text(stringResource(R.string.reset_confirm1_message)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    showResetConfirm1 = false
+                    showResetConfirm2 = true
+                }) {
+                    Text(
+                        stringResource(R.string.reset_confirm1_proceed),
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showResetConfirm1 = false }) {
+                    Text(stringResource(R.string.action_cancel))
+                }
+            }
+        )
+    }
+
+    // ── Second confirmation ────────────────────────────────────────────────
+    if (showResetConfirm2) {
+        AlertDialog(
+            onDismissRequest = { showResetConfirm2 = false },
+            title   = { Text(stringResource(R.string.reset_confirm2_title)) },
+            text    = { Text(stringResource(R.string.reset_confirm2_message)) },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showResetConfirm2 = false
+                        viewModel.resetAllData(resetSuccess)
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Text(stringResource(R.string.reset_confirm2_delete))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showResetConfirm2 = false }) {
+                    Text(stringResource(R.string.action_cancel))
+                }
+            }
+        )
     }
 }
 

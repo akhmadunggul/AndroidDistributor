@@ -264,6 +264,17 @@
     <string name="settings_security_section">Security</string>
     <string name="settings_pin_setup">App PIN Lock</string>
 
+    <!-- Reset data -->
+    <string name="settings_danger_section">Danger Zone</string>
+    <string name="settings_reset_button">Reset All Data</string>
+    <string name="reset_confirm1_title">Reset All Data?</string>
+    <string name="reset_confirm1_message">This will permanently delete all products, resellers, transactions, stock records, and payment history. Settings and business info will be kept.</string>
+    <string name="reset_confirm1_proceed">Continue</string>
+    <string name="reset_confirm2_title">Are you absolutely sure?</string>
+    <string name="reset_confirm2_message">This action cannot be undone. Every transaction, invoice, stock entry, and reseller record will be wiped permanently.</string>
+    <string name="reset_confirm2_delete">Yes, Delete Everything</string>
+    <string name="reset_success">All data has been reset.</string>
+
     <!-- Ledger PDF export -->
     <string name="ledger_period_year">This Year</string>
     <string name="ledger_period_custom">Custom Range</string>
