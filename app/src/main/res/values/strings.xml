@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Distributor</string>
+    <string name="app_name">Distro-Ku</string>
 
     <!-- Navigation tabs -->
     <string name="tab_home">Home</string>
