@@ -90,10 +90,16 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         val context = getApplication<Application>()
         _uiState.update { it.copy(isResetting = true) }
         viewModelScope.launch(Dispatchers.IO) {
-            val db = AppDatabase.getInstance(context)
-            db.clearAllTables()
-            DemoDataSeeder.seed(db)
-            _uiState.update { it.copy(isResetting = false, snackbarMessage = successMessage) }
+            try {
+                val db = AppDatabase.getInstance(context)
+                db.clearAllTables()
+                DemoDataSeeder.seed(db)
+                _uiState.update { it.copy(isResetting = false, snackbarMessage = successMessage) }
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(isResetting = false, snackbarMessage = "Seed error: ${e.javaClass.simpleName}: ${e.message}")
+                }
+            }
         }
     }
 

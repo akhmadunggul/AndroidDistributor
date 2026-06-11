@@ -105,6 +105,7 @@ object DemoDataSeeder {
 
         // TX4 — Toko Berkah Mandiri, 21 days ago, UNPAID
         // 12 Aqua × 18500 + 10 Susu × 17000 = 392 000
+        @Suppress("UNUSED_VARIABLE")
         val tx4 = txDao.insertTransaction(TransactionEntity(
             resellerId = rBerkah, invoiceNumber = "INV-DEMO-004",
             totalAmount = 392_000.0, amountPaid = 0.0,
@@ -138,6 +139,7 @@ object DemoDataSeeder {
 
         // TX6 — Grosir Maju Jaya, 12 days ago, UNPAID
         // 20 Beras × 72000 + 15 Minyak × 33000 + 10 Gula × 15000 = 2 085 000
+        @Suppress("UNUSED_VARIABLE")
         val tx6 = txDao.insertTransaction(TransactionEntity(
             resellerId = rGrosir, invoiceNumber = "INV-DEMO-006",
             totalAmount = 2_085_000.0, amountPaid = 0.0,
@@ -156,6 +158,7 @@ object DemoDataSeeder {
 
         // TX7 — Warung Pak Budi, 9 days ago, UNPAID
         // 5 Sabun × 252000 + 4 Tepung × 12500 = 1 310 000
+        @Suppress("UNUSED_VARIABLE")
         val tx7 = txDao.insertTransaction(TransactionEntity(
             resellerId = rBudi, invoiceNumber = "INV-DEMO-007",
             totalAmount = 1_310_000.0, amountPaid = 0.0,
@@ -170,7 +173,5 @@ object DemoDataSeeder {
             StockLedgerEntity(productId = pTepung, type = StockLedgerEntity.TYPE_OUT, quantity = 4.0, referenceTransactionId = tx7, createdAt = ago(9))
         ))
 
-        // Suppress unused-variable warnings — IDs kept for readability
-        listOf(tx4, tx6, tx7).forEach { _ -> }
     }
 }
