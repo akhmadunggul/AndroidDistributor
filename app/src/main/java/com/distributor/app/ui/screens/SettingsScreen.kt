@@ -33,6 +33,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -44,6 +47,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -53,8 +57,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.distributor.app.BuildConfig
+import com.distributor.app.utils.BusinessConfigStore
+import com.distributor.app.utils.HomeLayoutStyle
 import com.distributor.app.R
 import com.distributor.app.ui.viewmodel.SettingsViewModel
 import kotlinx.coroutines.Dispatchers
@@ -71,6 +78,8 @@ fun SettingsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+    val ctx = LocalContext.current
+    var homeLayout by remember { mutableStateOf(BusinessConfigStore.getHomeLayoutStyle(ctx)) }
 
     val savedMessage  = stringResource(R.string.settings_saved)
     val logoErrKey    = "logo_error"
@@ -173,6 +182,38 @@ fun SettingsScreen(
                     CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
                 } else {
                     Text(stringResource(R.string.settings_save_button))
+                }
+            }
+
+            HorizontalDivider()
+
+            // ── Display ───────────────────────────────────────────────────────
+            Text(
+                text  = stringResource(R.string.settings_display_section),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text  = stringResource(R.string.home_layout_label),
+                style = MaterialTheme.typography.bodyMedium
+            )
+            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                HomeLayoutStyle.entries.forEachIndexed { index, style ->
+                    SegmentedButton(
+                        selected = homeLayout == style,
+                        onClick  = {
+                            homeLayout = style
+                            BusinessConfigStore.saveHomeLayoutStyle(ctx, style)
+                        },
+                        shape = SegmentedButtonDefaults.itemShape(index = index, count = 2)
+                    ) {
+                        Text(
+                            stringResource(
+                                if (style == HomeLayoutStyle.CARD) R.string.home_layout_card
+                                else R.string.home_layout_icon_grid
+                            )
+                        )
+                    }
                 }
             }
 

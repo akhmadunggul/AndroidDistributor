@@ -242,6 +242,12 @@
     <string name="license_contact_distributor">Contact Distributor</string>
     <string name="license_dismiss">Later</string>
 
+    <!-- Home menu layout -->
+    <string name="settings_display_section">Display</string>
+    <string name="home_layout_label">Main Menu Layout</string>
+    <string name="home_layout_card">Card</string>
+    <string name="home_layout_icon_grid">Icon Grid</string>
+
     <!-- PDF preview sheet -->
     <string name="preview_share_via">Share via:</string>
 

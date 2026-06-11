@@ -1,6 +1,8 @@
 package com.distributor.app.ui.screens
 
+import android.content.SharedPreferences
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,16 +35,25 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.distributor.app.R
 import com.distributor.app.ui.components.LanguageMenuIcon
+import com.distributor.app.utils.BusinessConfigStore
+import com.distributor.app.utils.HomeLayoutStyle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -81,6 +92,20 @@ fun HomeScreen(
         MenuItem(Icons.Default.Settings,                     outline,           R.string.menu_settings, R.string.home_desc_settings,  onNavigateToSettings),
     )
 
+    // ── Reactive layout preference ─────────────────────────────────────────
+    val context = LocalContext.current
+    var layoutStyle by remember { mutableStateOf(BusinessConfigStore.getHomeLayoutStyle(context)) }
+
+    DisposableEffect(Unit) {
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == BusinessConfigStore.KEY_HOME_LAYOUT) {
+                layoutStyle = BusinessConfigStore.getHomeLayoutStyle(context)
+            }
+        }
+        BusinessConfigStore.registerLayoutListener(context, listener)
+        onDispose { BusinessConfigStore.unregisterLayoutListener(context, listener) }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -89,27 +114,54 @@ fun HomeScreen(
             )
         }
     ) { padding ->
-        LazyVerticalGrid(
-            columns               = GridCells.Fixed(2),
-            contentPadding        = PaddingValues(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalArrangement   = Arrangement.spacedBy(12.dp),
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-        ) {
-            items(items) { item ->
-                HomeMenuCard(
-                    icon      = item.icon,
-                    iconColor = item.color,
-                    titleRes  = item.titleRes,
-                    descRes   = item.descRes,
-                    onClick   = item.onClick
-                )
+        when (layoutStyle) {
+            HomeLayoutStyle.CARD -> {
+                LazyVerticalGrid(
+                    columns               = GridCells.Fixed(2),
+                    contentPadding        = PaddingValues(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalArrangement   = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                ) {
+                    items(items) { item ->
+                        HomeMenuCard(
+                            icon      = item.icon,
+                            iconColor = item.color,
+                            titleRes  = item.titleRes,
+                            descRes   = item.descRes,
+                            onClick   = item.onClick
+                        )
+                    }
+                }
+            }
+
+            HomeLayoutStyle.ICON_GRID -> {
+                LazyVerticalGrid(
+                    columns               = GridCells.Fixed(4),
+                    contentPadding        = PaddingValues(horizontal = 12.dp, vertical = 20.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalArrangement   = Arrangement.spacedBy(16.dp),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                ) {
+                    items(items) { item ->
+                        HomeIconItem(
+                            icon      = item.icon,
+                            iconColor = item.color,
+                            titleRes  = item.titleRes,
+                            onClick   = item.onClick
+                        )
+                    }
+                }
             }
         }
     }
 }
+
+// ── Card layout (default) ──────────────────────────────────────────────────
 
 @Composable
 private fun HomeMenuCard(
@@ -160,5 +212,46 @@ private fun HomeMenuCard(
                 textAlign = TextAlign.Center
             )
         }
+    }
+}
+
+// ── Icon grid layout (compact, Gojek-style) ────────────────────────────────
+
+@Composable
+private fun HomeIconItem(
+    icon: ImageVector,
+    iconColor: Color,
+    titleRes: Int,
+    onClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(vertical = 8.dp, horizontal = 2.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(52.dp)
+                .background(iconColor.copy(alpha = 0.15f), CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector        = icon,
+                contentDescription = null,
+                tint               = iconColor,
+                modifier           = Modifier.size(26.dp)
+            )
+        }
+        Text(
+            text       = stringResource(titleRes),
+            style      = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Medium,
+            textAlign  = TextAlign.Center,
+            maxLines   = 2,
+            overflow   = TextOverflow.Ellipsis
+        )
     }
 }
