@@ -5,9 +5,9 @@
     <!-- Navigation tabs -->
     <string name="tab_home">Utama</string>
     <string name="tab_products">Produk</string>
-    <string name="tab_stock">Stok</string>
-    <string name="tab_sales">Jual</string>
-    <string name="tab_payment">Bayar</string>
+    <string name="tab_stock">Stok (Opname)</string>
+    <string name="tab_sales">Penjualan</string>
+    <string name="tab_payment">Pembayaran</string>
     <string name="tab_resellers">Reseller</string>
     <string name="tab_ledger">Buku Kas</string>
 

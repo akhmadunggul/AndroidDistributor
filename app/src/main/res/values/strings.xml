@@ -5,7 +5,7 @@
     <!-- Navigation tabs -->
     <string name="tab_home">Home</string>
     <string name="tab_products">Products</string>
-    <string name="tab_stock">Stock</string>
+    <string name="tab_stock">Stock (Opname)</string>
     <string name="tab_sales">Sales</string>
     <string name="tab_payment">Payment</string>
     <string name="tab_resellers">Resellers</string>

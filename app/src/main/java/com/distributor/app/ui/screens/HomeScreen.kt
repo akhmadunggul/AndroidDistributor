@@ -27,7 +27,7 @@ import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.QueryStats
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.filled.Warehouse
+import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -86,7 +86,7 @@ fun HomeScreen(
     val items = listOf(
         MenuItem(Icons.Default.Dashboard,                    Color(0xFF7B1FA2), R.string.screen_dashboard, R.string.home_desc_dashboard, onNavigateToDashboard),
         MenuItem(Icons.Default.Inventory2,                   primary,           R.string.tab_products,  R.string.home_desc_products,  onNavigateToProducts),
-        MenuItem(Icons.Default.Warehouse,                    Color(0xFF4CAF50), R.string.tab_stock,     R.string.home_desc_stock,     onNavigateToStock),
+        MenuItem(Icons.Default.Inventory,                    Color(0xFF4CAF50), R.string.tab_stock,     R.string.home_desc_stock,     onNavigateToStock),
         MenuItem(Icons.Default.ShoppingCart,                 Color(0xFFFF7043), R.string.tab_sales,     R.string.home_desc_sales,     onNavigateToSales),
         MenuItem(Icons.Default.Payments,                     secondary,         R.string.tab_payment,   R.string.home_desc_payment,   onNavigateToPayment),
         MenuItem(Icons.Default.Group,                        Color(0xFF29B6F6), R.string.tab_resellers, R.string.home_desc_resellers, onNavigateToResellers),
