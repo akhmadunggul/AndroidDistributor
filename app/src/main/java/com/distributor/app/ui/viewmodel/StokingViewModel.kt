@@ -16,31 +16,28 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-data class StockOperationUiState(
+data class StokingUiState(
     val products: List<ProductEntity> = emptyList(),
     val allStocks: Map<Long, Double> = emptyMap(),
     val selectedProduct: ProductEntity? = null,
     val currentStock: Double = 0.0,
-    val typeSelection: String = StockLedgerEntity.TYPE_IN,
     val quantityInput: String = "",
-    val unitCostInput: String = "",
     val notesInput: String = "",
     val selectedDateMillis: Long = System.currentTimeMillis(),
     val isDatePickerOpen: Boolean = false,
     val quantityError: String? = null,
-    val unitCostError: String? = null,
     val isSubmitting: Boolean = false,
     val snackbarMessage: String? = null
 )
 
-class StockOperationViewModel(application: Application) : AndroidViewModel(application) {
+class StokingViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val database: AppDatabase = AppDatabase.getInstance(application)
+    private val database = AppDatabase.getInstance(application)
     private val productDao = database.productDao()
     private val stockLedgerDao = database.stockLedgerDao()
 
-    private val _uiState = MutableStateFlow(StockOperationUiState())
-    val uiState: StateFlow<StockOperationUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(StokingUiState())
+    val uiState: StateFlow<StokingUiState> = _uiState.asStateFlow()
 
     private val _selectedProductId = MutableStateFlow<Long?>(null)
 
@@ -85,16 +82,8 @@ class StockOperationViewModel(application: Application) : AndroidViewModel(appli
         _uiState.update { it.copy(selectedProduct = product, quantityError = null) }
     }
 
-    fun onTypeSelected(type: String) {
-        _uiState.update { it.copy(typeSelection = type, unitCostError = null) }
-    }
-
     fun onQuantityChanged(input: String) {
         _uiState.update { it.copy(quantityInput = input, quantityError = null) }
-    }
-
-    fun onUnitCostChanged(input: String) {
-        _uiState.update { it.copy(unitCostInput = input, unitCostError = null) }
     }
 
     fun onNotesChanged(input: String) {
@@ -137,52 +126,16 @@ class StockOperationViewModel(application: Application) : AndroidViewModel(appli
             return
         }
 
-        val isInbound: Boolean = state.typeSelection in StockLedgerEntity.INBOUND_TYPES
-
-        val unitCost: Double? = if (isInbound) {
-            try {
-                val parsed = state.unitCostInput.toDouble()
-                if (parsed < 0.0) throw NumberFormatException("negative value")
-                parsed
-            } catch (e: NumberFormatException) {
-                _uiState.update { it.copy(unitCostError = "Enter a valid unit cost") }
-                return
-            }
-        } else {
-            null
-        }
-
-        if (!isInbound && quantity > state.currentStock) {
-            _uiState.update { it.copy(
-                quantityError = "Exceeds available stock (${state.currentStock} ${product.unit})",
-                snackbarMessage = "Insufficient stock for this operation"
-            )}
-            return
-        }
-
         _uiState.update { it.copy(isSubmitting = true) }
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                // Re-read stock from DB at write time to guard against race conditions
-                if (!isInbound) {
-                    val latestStock = stockLedgerDao.getCurrentStock(product.id)
-                    if (quantity > latestStock) {
-                        _uiState.update { it.copy(
-                            isSubmitting  = false,
-                            quantityError = "Exceeds current stock (${latestStock} ${product.unit})",
-                            snackbarMessage = "Stock has changed — current balance is ${latestStock} ${product.unit}"
-                        )}
-                        return@launch
-                    }
-                }
-
                 stockLedgerDao.insertEntry(
                     StockLedgerEntity(
                         productId = product.id,
-                        type = state.typeSelection,
+                        type = StockLedgerEntity.TYPE_IN,
                         quantity = quantity,
-                        unitCost = unitCost,
+                        unitCost = product.sellingPrice,
                         notes = state.notesInput,
                         createdAt = state.selectedDateMillis
                     )
@@ -190,7 +143,6 @@ class StockOperationViewModel(application: Application) : AndroidViewModel(appli
                 _uiState.update { it.copy(
                     isSubmitting = false,
                     quantityInput = "",
-                    unitCostInput = "",
                     notesInput = "",
                     snackbarMessage = "Stock entry saved successfully"
                 )}

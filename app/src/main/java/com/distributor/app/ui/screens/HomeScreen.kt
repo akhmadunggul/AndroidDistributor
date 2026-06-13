@@ -20,7 +20,9 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.AssignmentReturn
+import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.Dashboard
+import androidx.compose.material.icons.automirrored.filled.Help
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.Payments
@@ -61,13 +63,15 @@ import com.distributor.app.utils.HomeLayoutStyle
 fun HomeScreen(
     onNavigateToDashboard: () -> Unit = {},
     onNavigateToProducts:  () -> Unit = {},
-    onNavigateToStock:     () -> Unit = {},
+    onNavigateToStoking:   () -> Unit = {},
+    onNavigateToOpname:    () -> Unit = {},
     onNavigateToSales:     () -> Unit = {},
     onNavigateToPayment:   () -> Unit = {},
     onNavigateToResellers: () -> Unit = {},
     onNavigateToReturn:    () -> Unit = {},
     onNavigateToLedger:    () -> Unit = {},
-    onNavigateToSettings:  () -> Unit = {}
+    onNavigateToSettings:  () -> Unit = {},
+    onNavigateToFaq:       () -> Unit = {}
 ) {
     val primary   = MaterialTheme.colorScheme.primary
     val secondary = MaterialTheme.colorScheme.secondary
@@ -84,15 +88,17 @@ fun HomeScreen(
     )
 
     val items = listOf(
-        MenuItem(Icons.Default.Dashboard,                    Color(0xFF7B1FA2), R.string.screen_dashboard, R.string.home_desc_dashboard, onNavigateToDashboard),
-        MenuItem(Icons.Default.Inventory2,                   primary,           R.string.tab_products,  R.string.home_desc_products,  onNavigateToProducts),
-        MenuItem(Icons.Default.Inventory,                    Color(0xFF4CAF50), R.string.tab_stock,     R.string.home_desc_stock,     onNavigateToStock),
-        MenuItem(Icons.Default.ShoppingCart,                 Color(0xFFFF7043), R.string.tab_sales,     R.string.home_desc_sales,     onNavigateToSales),
-        MenuItem(Icons.Default.Payments,                     secondary,         R.string.tab_payment,   R.string.home_desc_payment,   onNavigateToPayment),
-        MenuItem(Icons.Default.Group,                        Color(0xFF29B6F6), R.string.tab_resellers, R.string.home_desc_resellers, onNavigateToResellers),
-        MenuItem(Icons.AutoMirrored.Filled.AssignmentReturn, error,             R.string.tab_return,    R.string.home_desc_return,    onNavigateToReturn),
-        MenuItem(Icons.Default.QueryStats,                   tertiary,          R.string.tab_ledger,    R.string.home_desc_ledger,    onNavigateToLedger),
-        MenuItem(Icons.Default.Settings,                     outline,           R.string.menu_settings, R.string.home_desc_settings,  onNavigateToSettings),
+        MenuItem(Icons.Default.Dashboard,                    Color(0xFF7B1FA2), R.string.screen_dashboard,   R.string.home_desc_dashboard,   onNavigateToDashboard),
+        MenuItem(Icons.Default.Inventory2,                   primary,           R.string.tab_products,       R.string.home_desc_products,    onNavigateToProducts),
+        MenuItem(Icons.Default.Inventory,                    Color(0xFF4CAF50), R.string.tab_stoking,        R.string.home_desc_stoking,     onNavigateToStoking),
+        MenuItem(Icons.Default.Checklist,                    Color(0xFF00897B), R.string.tab_stock_opname,   R.string.home_desc_stock_opname, onNavigateToOpname),
+        MenuItem(Icons.Default.ShoppingCart,                 Color(0xFFFF7043), R.string.tab_sales,          R.string.home_desc_sales,       onNavigateToSales),
+        MenuItem(Icons.Default.Payments,                     secondary,         R.string.tab_payment,        R.string.home_desc_payment,     onNavigateToPayment),
+        MenuItem(Icons.Default.Group,                        Color(0xFF29B6F6), R.string.tab_resellers,      R.string.home_desc_resellers,   onNavigateToResellers),
+        MenuItem(Icons.AutoMirrored.Filled.AssignmentReturn, error,             R.string.tab_return,         R.string.home_desc_return,      onNavigateToReturn),
+        MenuItem(Icons.Default.QueryStats,                   tertiary,          R.string.tab_ledger,         R.string.home_desc_ledger,      onNavigateToLedger),
+        MenuItem(Icons.Default.Settings,                     outline,           R.string.menu_settings,      R.string.home_desc_settings,    onNavigateToSettings),
+        MenuItem(Icons.AutoMirrored.Filled.Help,              Color(0xFF546E7A), R.string.tab_faq,            R.string.home_desc_faq,         onNavigateToFaq),
     )
 
     // ── Reactive layout preference ─────────────────────────────────────────

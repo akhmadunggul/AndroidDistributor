@@ -7,6 +7,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Home
@@ -36,6 +38,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.distributor.app.ui.screens.AboutScreen
+import com.distributor.app.ui.screens.FaqScreen
 import com.distributor.app.ui.screens.DashboardScreen
 import com.distributor.app.ui.screens.HomeScreen
 import com.distributor.app.ui.screens.LedgerScreen
@@ -46,7 +49,7 @@ import com.distributor.app.ui.screens.ResellerListScreen
 import com.distributor.app.ui.screens.ReturnScreen
 import com.distributor.app.ui.screens.SettingsScreen
 import com.distributor.app.ui.screens.StockOpnameScreen
-import com.distributor.app.ui.screens.StockOperationScreen
+import com.distributor.app.ui.screens.StokingScreen
 import com.distributor.app.ui.screens.TransactionScreen
 import com.distributor.app.utils.LocaleHelper
 import com.distributor.app.ui.screens.ActivationScreen
@@ -100,6 +103,7 @@ private object Routes {
     const val ACTIVATION      = "activation"
     const val PIN_LOCK        = "pin_lock"
     const val PIN_SETUP       = "pin_setup"
+    const val FAQ             = "faq"
 }
 
 // ── Bottom-nav tab descriptors ──────────────────────────────────────────────
@@ -112,7 +116,7 @@ private data class NavTab(
 
 private val NAV_TABS: List<NavTab> = listOf(
     NavTab(Routes.HOME,      R.string.tab_home,      Icons.Default.Home),
-    NavTab(Routes.STOCK,     R.string.tab_stock,     Icons.Default.Warehouse),
+    NavTab(Routes.STOCK,     R.string.tab_stoking,   Icons.Default.Warehouse),
     NavTab(Routes.SALES,     R.string.tab_sales,     Icons.Default.ShoppingCart),
     NavTab(Routes.PAYMENT,   R.string.tab_payment,   Icons.Default.Payments),
     NavTab(Routes.RESELLERS, R.string.tab_resellers, Icons.Default.Group)
@@ -146,7 +150,6 @@ private fun DistributorNavHost() {
     val currentRoute = backStackEntry?.destination?.route
 
     val showBottomBar: Boolean =
-        currentRoute != Routes.STOCK_OPNAME &&
         currentRoute != Routes.SETTINGS &&
         currentRoute != Routes.PRODUCTS &&
         currentRoute != Routes.DASHBOARD &&
@@ -156,7 +159,8 @@ private fun DistributorNavHost() {
         currentRoute != Routes.RETURN &&
         currentRoute != Routes.ACTIVATION &&
         currentRoute != Routes.PIN_LOCK &&
-        currentRoute != Routes.PIN_SETUP
+        currentRoute != Routes.PIN_SETUP &&
+        currentRoute != Routes.FAQ
 
     // ── Version check ──────────────────────────────────────────────────────
     val context = LocalContext.current
@@ -205,6 +209,34 @@ private fun DistributorNavHost() {
         }
     }
 
+    // ── WA contact fetch (cached; used in license dialogs) ─────────────────
+    var contactWa by remember { mutableStateOf(LicenseStore.getContactWa(context)) }
+    var isLoadingWa by remember { mutableStateOf(contactWa == null) }
+
+    LaunchedEffect(Unit) {
+        if (!LicenseStore.isActivated(context)) { isLoadingWa = false; return@LaunchedEffect }
+        val wa = LicenseService.fetchContactWa()
+        if (wa != null) {
+            LicenseStore.saveContactWa(context, wa)
+            contactWa = wa
+        }
+        isLoadingWa = false
+    }
+
+    val waMessage = stringResource(R.string.wa_renewal_message)
+    val waUnavailableMsg = stringResource(R.string.wa_contact_unavailable)
+    fun openContactWa() {
+        val number = contactWa
+        if (number != null) {
+            val cleaned = number.replace("[^0-9]".toRegex(), "")
+            val encoded = Uri.encode(waMessage)
+            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://wa.me/$cleaned?text=$encoded")))
+        } else {
+            val debug = LicenseService.lastWaFetchDebug.ifBlank { waUnavailableMsg }
+            android.widget.Toast.makeText(context, debug, android.widget.Toast.LENGTH_LONG).show()
+        }
+    }
+
     BackHandler(enabled = licenseState is LicenseState.Expired || licenseState is LicenseState.Revoked) {}
 
     when (val ls = licenseState) {
@@ -212,19 +244,25 @@ private fun DistributorNavHost() {
             onDismissRequest = {},
             title = { Text(stringResource(R.string.license_expired_title)) },
             text  = { Text(stringResource(R.string.license_expired_body)) },
-            confirmButton = {}
+            confirmButton = {
+                ContactWaButton(isLoadingWa = isLoadingWa, onClick = ::openContactWa)
+            }
         )
         is LicenseState.Revoked -> AlertDialog(
             onDismissRequest = {},
             title = { Text(stringResource(R.string.license_revoked_title)) },
             text  = { Text(stringResource(R.string.license_revoked_body)) },
-            confirmButton = {}
+            confirmButton = {
+                ContactWaButton(isLoadingWa = isLoadingWa, onClick = ::openContactWa)
+            }
         )
         is LicenseState.TrialWarning -> AlertDialog(
             onDismissRequest = { licenseState = LicenseState.Idle },
             title = { Text(stringResource(R.string.license_trial_warning_title)) },
             text  = { Text(stringResource(R.string.license_trial_warning_body, ls.days)) },
-            confirmButton = {},
+            confirmButton = {
+                ContactWaButton(isLoadingWa = isLoadingWa, onClick = ::openContactWa)
+            },
             dismissButton = {
                 TextButton(onClick = { licenseState = LicenseState.Idle }) {
                     Text(stringResource(R.string.license_dismiss))
@@ -358,26 +396,24 @@ private fun DistributorNavHost() {
             }
             composable(Routes.HOME) {
                 HomeScreen(
-                    onNavigateToDashboard = { navController.navigate(Routes.DASHBOARD) { launchSingleTop = true } },
-                    onNavigateToProducts  = { navController.navigate(Routes.PRODUCTS)  { launchSingleTop = true } },
-                    onNavigateToStock     = { navController.navigate(Routes.STOCK)     { launchSingleTop = true } },
-                    onNavigateToSales     = { navController.navigate(Routes.SALES)     { launchSingleTop = true } },
-                    onNavigateToPayment   = { navController.navigate(Routes.PAYMENT)   { launchSingleTop = true } },
-                    onNavigateToResellers = { navController.navigate(Routes.RESELLERS) { launchSingleTop = true } },
-                    onNavigateToReturn    = { navController.navigate(Routes.RETURN)    { launchSingleTop = true } },
-                    onNavigateToLedger    = { navController.navigate(Routes.LEDGER)    { launchSingleTop = true } },
-                    onNavigateToSettings  = { navController.navigate(Routes.SETTINGS)  { launchSingleTop = true } }
+                    onNavigateToDashboard = { navController.navigate(Routes.DASHBOARD)    { launchSingleTop = true } },
+                    onNavigateToProducts  = { navController.navigate(Routes.PRODUCTS)     { launchSingleTop = true } },
+                    onNavigateToStoking   = { navController.navigate(Routes.STOCK)        { launchSingleTop = true } },
+                    onNavigateToOpname    = { navController.navigate(Routes.STOCK_OPNAME) { launchSingleTop = true } },
+                    onNavigateToSales     = { navController.navigate(Routes.SALES)        { launchSingleTop = true } },
+                    onNavigateToPayment   = { navController.navigate(Routes.PAYMENT)      { launchSingleTop = true } },
+                    onNavigateToResellers = { navController.navigate(Routes.RESELLERS)    { launchSingleTop = true } },
+                    onNavigateToReturn    = { navController.navigate(Routes.RETURN)       { launchSingleTop = true } },
+                    onNavigateToLedger    = { navController.navigate(Routes.LEDGER)       { launchSingleTop = true } },
+                    onNavigateToSettings  = { navController.navigate(Routes.SETTINGS)     { launchSingleTop = true } },
+                    onNavigateToFaq       = { navController.navigate(Routes.FAQ)          { launchSingleTop = true } }
                 )
             }
             composable(Routes.RETURN) {
                 ReturnScreen()
             }
             composable(Routes.STOCK) {
-                StockOperationScreen(
-                    onNavigateToOpname = {
-                        navController.navigate(Routes.STOCK_OPNAME)
-                    }
-                )
+                StokingScreen()
             }
             composable(Routes.SALES) {
                 TransactionScreen()
@@ -407,7 +443,25 @@ private fun DistributorNavHost() {
             composable(Routes.ABOUT) {
                 AboutScreen(onNavigateBack = { navController.popBackStack() })
             }
+            composable(Routes.FAQ) {
+                FaqScreen(onNavigateBack = { navController.popBackStack() })
+            }
         }
     }
     } // CompositionLocalProvider
+}
+
+@Composable
+private fun ContactWaButton(isLoadingWa: Boolean, onClick: () -> Unit) {
+    Button(onClick = onClick, enabled = !isLoadingWa) {
+        if (isLoadingWa) {
+            CircularProgressIndicator(
+                modifier    = Modifier.size(16.dp),
+                strokeWidth = 2.dp,
+                color       = MaterialTheme.colorScheme.onPrimary
+            )
+        } else {
+            Text(stringResource(R.string.license_contact_distributor))
+        }
+    }
 }

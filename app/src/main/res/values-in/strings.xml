@@ -6,6 +6,8 @@
     <string name="tab_home">Utama</string>
     <string name="tab_products">Produk</string>
     <string name="tab_stock">Stok (Opname)</string>
+    <string name="tab_stoking">Stoking</string>
+    <string name="tab_stock_opname">Operasi Stok</string>
     <string name="tab_sales">Penjualan</string>
     <string name="tab_payment">Pembayaran</string>
     <string name="tab_resellers">Reseller</string>
@@ -15,6 +17,7 @@
     <string name="screen_home">Menu Utama</string>
     <string name="screen_products">Produk</string>
     <string name="screen_stock">Operasi Stok</string>
+    <string name="screen_stoking">Stoking</string>
     <string name="screen_sales">Pesanan Penjualan</string>
     <string name="screen_payment">Pelunasan Pembayaran</string>
     <string name="screen_resellers">Reseller</string>
@@ -24,6 +27,8 @@
     <!-- Home screen menu card descriptions -->
     <string name="home_desc_products">Katalog produk &amp; batas stok</string>
     <string name="home_desc_stock">Stok masuk, keluar &amp; opname</string>
+    <string name="home_desc_stoking">Tambah stok produk masuk</string>
+    <string name="home_desc_stock_opname">Rekonsiliasi stok fisik</string>
     <string name="home_desc_sales">Buat faktur penjualan</string>
     <string name="home_desc_payment">Catat pelunasan reseller</string>
     <string name="home_desc_resellers">Kelola data reseller</string>
@@ -75,6 +80,10 @@
     <!-- Stock operation screen -->
     <string name="stock_section_current">Stok Saat Ini</string>
     <string name="stock_section_record">Catat Entri</string>
+    <!-- Layar Stoking -->
+    <string name="stoking_section_add">Tambah Stok</string>
+    <string name="stoking_ref_price">Harga Jual: %s</string>
+    <string name="stoking_save_button">Simpan Penambahan Stok</string>
     <string name="stock_op_type_label">Jenis Operasi</string>
     <string name="stock_op_product_placeholder">Pilih produk</string>
     <string name="stock_op_current_stock">Stok saat ini: %1$s %2$s</string>
@@ -241,6 +250,8 @@
     <string name="license_offline_body">Lisensi belum dapat diverifikasi. Pastikan terhubung ke internet dalam waktu dekat.</string>
     <string name="license_contact_distributor">Hubungi Distributor</string>
     <string name="license_dismiss">Nanti</string>
+    <string name="wa_renewal_message">Pengajuan perpanjangan lisensi</string>
+    <string name="wa_contact_unavailable">Nomor kontak belum tersedia. Coba lagi sesaat.</string>
 
     <!-- Tampilan menu utama -->
     <string name="settings_display_section">Tampilan</string>
@@ -288,6 +299,69 @@
     <string name="reset_confirm2_message">Tindakan ini tidak dapat dibatalkan. Setiap transaksi, invoice, entri stok, dan data reseller akan dihapus permanen.</string>
     <string name="reset_confirm2_delete">Ya, Hapus Semua</string>
     <string name="reset_success">Semua data berhasil direset.</string>
+
+    <!-- Layar FAQ / Panduan Penggunaan -->
+    <string name="screen_faq">Panduan Penggunaan</string>
+    <string name="tab_faq">Panduan</string>
+    <string name="home_desc_faq">Cara menggunakan aplikasi</string>
+
+    <string name="faq_section_general">Umum</string>
+    <string name="faq_q_what_is_app">Apa itu Distro-Ku?</string>
+    <string name="faq_a_what_is_app">Distro-Ku adalah aplikasi manajemen distribusi offline untuk usaha kecil. Catat stok, buat invoice, kelola reseller, dan pantau keuangan — semuanya tersimpan di perangkat Anda tanpa memerlukan internet.</string>
+    <string name="faq_q_need_internet">Apakah perlu koneksi internet?</string>
+    <string name="faq_a_need_internet">Tidak. Seluruh data disimpan secara lokal di perangkat Anda. Koneksi internet hanya diperlukan pada saat aktivasi lisensi pertama kali.</string>
+    <string name="faq_q_data_backup">Bagaimana cara mencadangkan data?</string>
+    <string name="faq_a_data_backup">Cadangan manual belum tersedia di dalam aplikasi. Hindari menghapus data aplikasi atau melakukan factory reset perangkat tanpa pencadangan untuk mencegah kehilangan data.</string>
+
+    <string name="faq_section_products">Produk</string>
+    <string name="faq_q_add_product">Cara menambah produk baru?</string>
+    <string name="faq_a_add_product">Buka menu Produk dari halaman utama, ketuk tombol + di pojok kanan bawah, isi nama, SKU, satuan, harga modal, dan harga jual, lalu ketuk Simpan Produk.</string>
+    <string name="faq_q_what_is_sku">Apa itu SKU?</string>
+    <string name="faq_a_what_is_sku">SKU (Stock Keeping Unit) adalah kode unik untuk setiap produk yang membedakan produk dengan nama serupa. Contoh: AQUA-600ML, AQUA-1500ML.</string>
+    <string name="faq_q_threshold">Apa itu Batas Peringatan Restock?</string>
+    <string name="faq_a_threshold">Angka minimal stok sebelum peringatan muncul. Jika stok produk mencapai atau di bawah angka ini, kartunya akan berwarna merah di layar Stoking dan Operasi Stok.</string>
+
+    <string name="faq_section_stoking">Stoking</string>
+    <string name="faq_q_what_is_stoking">Apa itu Stoking?</string>
+    <string name="faq_a_what_is_stoking">Stoking mencatat penambahan stok produk masuk. Pilih produk, masukkan jumlah, pilih tanggal, lalu simpan. Saldo stok produk langsung bertambah.</string>
+    <string name="faq_q_auto_price">Mengapa harga satuan terisi otomatis?</string>
+    <string name="faq_a_auto_price">Harga satuan otomatis mengacu pada Harga Jual yang ditetapkan di menu Produk, untuk menjaga konsistensi data. Jika perlu mengubah harga referensi, perbarui harga jual produk di menu Produk.</string>
+
+    <string name="faq_section_opname">Operasi Stok</string>
+    <string name="faq_q_what_is_opname">Apa itu Operasi Stok?</string>
+    <string name="faq_a_what_is_opname">Operasi Stok mencocokkan stok di sistem dengan hitungan fisik di gudang. Masukkan jumlah fisik setiap produk, periksa kolom selisih, lalu simpan untuk menerapkan semua penyesuaian sekaligus.</string>
+    <string name="faq_q_when_opname">Kapan sebaiknya melakukan Operasi Stok?</string>
+    <string name="faq_a_when_opname">Lakukan Operasi Stok secara berkala — mingguan atau bulanan — atau saat ada ketidaksesuaian antara barang fisik dengan catatan di sistem. Ini menjaga akurasi data stok.</string>
+
+    <string name="faq_section_sales">Penjualan &amp; Invoice</string>
+    <string name="faq_q_create_invoice">Cara membuat invoice penjualan?</string>
+    <string name="faq_a_create_invoice">Buka menu Penjualan, pilih reseller, tambahkan produk dan jumlah ke keranjang, lalu ketuk Buat Invoice. Stok langsung berkurang dan invoice tersimpan dengan nomor otomatis.</string>
+    <string name="faq_q_invoice_status">Apa arti status invoice?</string>
+    <string name="faq_a_invoice_status">Belum Bayar: belum ada pembayaran.\nSebagian: sudah ada pembayaran tapi belum lunas.\nLunas: seluruh tagihan sudah dilunasi.</string>
+
+    <string name="faq_section_payment">Pembayaran</string>
+    <string name="faq_q_record_payment">Cara mencatat pembayaran dari reseller?</string>
+    <string name="faq_a_record_payment">Buka menu Pembayaran, pilih reseller, masukkan jumlah dan metode pembayaran, lalu ketuk Pembayaran. Sistem menggunakan FIFO — invoice terlama dilunasi terlebih dahulu. Pratinjau alokasi ditampilkan sebelum konfirmasi.</string>
+    <string name="faq_q_share_receipt">Bagaimana cara berbagi struk pembayaran?</string>
+    <string name="faq_a_share_receipt">Setelah mencatat pembayaran, pilih opsi Bagikan. Aplikasi membuat struk PDF yang bisa dikirim langsung via WhatsApp atau aplikasi lainnya.</string>
+
+    <string name="faq_section_reseller">Reseller &amp; Retur</string>
+    <string name="faq_q_add_reseller">Cara mendaftarkan reseller?</string>
+    <string name="faq_a_add_reseller">Buka menu Reseller, ketuk + untuk menambah baru. Isi nama, nomor HP, dan alamat opsional. Anda juga bisa mengimpor data kontak langsung dari daftar kontak HP hanya dengan satu ketukan.</string>
+    <string name="faq_q_return">Cara memproses retur produk?</string>
+    <string name="faq_a_return">Buka menu Retur dari halaman utama, pilih reseller, tambahkan item retur beserta jumlah dan alasan (Tidak Terjual, Cacat/Rusak, atau Lainnya), lalu kirim. Nilai retur otomatis dikurangi dari omzet di Buku Kas.</string>
+
+    <string name="faq_section_ledger">Buku Kas</string>
+    <string name="faq_q_what_is_ledger">Apa yang ditampilkan di Buku Kas?</string>
+    <string name="faq_a_what_is_ledger">Buku Kas menampilkan ringkasan keuangan: Omzet (total tagihan), Diterima (pembayaran terkumpul), Piutang (saldo belum dibayar), dan Laba Kotor. Tersedia filter: Hari Ini, Minggu Ini, Bulan Ini, Tahun Ini, dan Semua.</string>
+    <string name="faq_q_gross_profit">Bagaimana Laba Kotor dihitung?</string>
+    <string name="faq_a_gross_profit">Laba Kotor = Total omzet − Harga modal produk terjual − Nilai retur. Ini adalah estimasi margin keuntungan sebelum biaya operasional lain seperti ongkos kirim atau overhead.</string>
+
+    <string name="faq_section_settings">Pengaturan</string>
+    <string name="faq_q_pin_lock">Apa itu Kunci PIN?</string>
+    <string name="faq_a_pin_lock">Kunci PIN menambahkan keamanan 4 digit pada aplikasi. Aktifkan di Pengaturan → Keamanan → Kunci PIN Aplikasi. Setelah diatur, PIN diminta setiap kali aplikasi dibuka.</string>
+    <string name="faq_q_reset_data">Apa yang terjadi saat Reset Semua Data?</string>
+    <string name="faq_a_reset_data">Semua produk, reseller, transaksi, catatan stok, dan riwayat pembayaran dihapus permanen. Pengaturan bisnis dan info perusahaan tetap tersimpan. Tindakan ini tidak dapat dibatalkan — gunakan hanya jika benar-benar diperlukan.</string>
 
     <!-- Ekspor PDF Buku Kas -->
     <string name="ledger_period_year">Tahun Ini</string>

@@ -10,6 +10,7 @@ object LicenseStore {
     private const val K_EXPIRY_MS  = "expiry_ms"
     private const val K_DAYS       = "days"
     private const val K_LAST_CHECK = "last_check_ms"
+    private const val K_CONTACT_WA = "contact_wa"
 
     fun getDeviceId(ctx: Context): String =
         Settings.Secure.getString(ctx.contentResolver, Settings.Secure.ANDROID_ID) ?: "unknown"
@@ -38,6 +39,13 @@ object LicenseStore {
             .putInt(K_DAYS,        days)
             .putLong(K_LAST_CHECK, System.currentTimeMillis())
             .apply()
+    }
+
+    fun getContactWa(ctx: Context): String? =
+        prefs(ctx).getString(K_CONTACT_WA, null).takeIf { !it.isNullOrBlank() }
+
+    fun saveContactWa(ctx: Context, number: String) {
+        prefs(ctx).edit().putString(K_CONTACT_WA, number).apply()
     }
 
     fun clear(ctx: Context) = prefs(ctx).edit().clear().apply()

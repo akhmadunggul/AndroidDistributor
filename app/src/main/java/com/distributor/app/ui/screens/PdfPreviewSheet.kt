@@ -6,7 +6,8 @@ import android.graphics.pdf.PdfRenderer
 import android.os.ParcelFileDescriptor
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.rememberTransformableState
+import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,6 +30,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -39,17 +41,21 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.distributor.app.R
 import com.distributor.app.utils.ReceiptShareHandler
@@ -70,11 +76,13 @@ internal fun PdfPreviewSheet(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var renderedPages by remember { mutableStateOf(emptyList<Bitmap>()) }
     var renderError by remember { mutableStateOf(false) }
+    var scale by remember { mutableFloatStateOf(1f) }
 
     LaunchedEffect(file) {
         if (file == null) return@LaunchedEffect
         renderError = false
         renderedPages = emptyList()
+        scale = 1f
         try {
             val pages = withContext(Dispatchers.IO) {
                 val fd = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
@@ -83,8 +91,8 @@ internal fun PdfPreviewSheet(
                 val targetWidth = context.resources.displayMetrics.widthPixels
                 for (i in 0 until renderer.pageCount) {
                     val page = renderer.openPage(i)
-                    val scale = targetWidth.toFloat() / page.width
-                    val bmp = Bitmap.createBitmap(targetWidth, (page.height * scale).toInt(), Bitmap.Config.ARGB_8888)
+                    val s = targetWidth.toFloat() / page.width
+                    val bmp = Bitmap.createBitmap(targetWidth, (page.height * s).toInt(), Bitmap.Config.ARGB_8888)
                     bmp.eraseColor(Color.WHITE)
                     page.render(bmp, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
                     page.close()
@@ -101,6 +109,10 @@ internal fun PdfPreviewSheet(
     }
 
     val isLoading = isGenerating || (file != null && renderedPages.isEmpty() && !renderError)
+
+    val transformableState = rememberTransformableState { zoomChange, _, _ ->
+        scale = (scale * zoomChange).coerceIn(1f, 3f)
+    }
 
     ModalBottomSheet(
         onDismissRequest = { if (!isLoading) onDismiss() },
@@ -172,7 +184,8 @@ internal fun PdfPreviewSheet(
                         LazyColumn(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .background(MaterialTheme.colorScheme.surfaceVariant),
+                                .graphicsLayer(scaleX = scale, scaleY = scale)
+                                .transformable(state = transformableState),
                             contentPadding = PaddingValues(8.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
@@ -191,58 +204,53 @@ internal fun PdfPreviewSheet(
                                 }
                             }
                         }
+
                     }
                 }
             }
 
-            // ── Share actions ────────────────────────────────────────────────
+            // ── Share actions (compact row) ───────────────────────────────────
             HorizontalDivider()
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(0.dp)
-            ) {
-                if (!isLoading && !renderError) {
-                    Text(
-                        text = stringResource(R.string.preview_share_via),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(bottom = 4.dp, top = 4.dp)
-                    )
-                }
-                PdfShareOption(
-                    icon    = Icons.AutoMirrored.Filled.Send,
-                    label   = stringResource(R.string.share_whatsapp),
-                    enabled = file != null && !isLoading
-                ) {
-                    file?.let { ReceiptShareHandler.shareToWhatsApp(context, it) }
-                    onDismiss()
-                }
-                PdfShareOption(
-                    icon    = Icons.Default.Business,
-                    label   = stringResource(R.string.share_whatsapp_business),
-                    enabled = file != null && !isLoading
-                ) {
-                    file?.let { ReceiptShareHandler.shareToWhatsAppBusiness(context, it) }
-                    onDismiss()
-                }
-                PdfShareOption(
-                    icon    = Icons.Default.Share,
-                    label   = stringResource(R.string.share_other_apps),
-                    enabled = file != null && !isLoading
-                ) {
-                    file?.let { ReceiptShareHandler.shareViaSystemSheet(context, it) }
-                    onDismiss()
-                }
-                OutlinedButton(
-                    onClick  = onDismiss,
+            if (!isLoading && !renderError) {
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 4.dp, bottom = 8.dp)
+                        .padding(horizontal = 8.dp, vertical = 6.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    Text(stringResource(R.string.share_not_now))
+                    PdfShareOption(
+                        icon    = Icons.AutoMirrored.Filled.Send,
+                        label   = stringResource(R.string.share_whatsapp),
+                        enabled = file != null
+                    ) {
+                        file?.let { ReceiptShareHandler.shareToWhatsApp(context, it) }
+                        onDismiss()
+                    }
+                    PdfShareOption(
+                        icon    = Icons.Default.Business,
+                        label   = stringResource(R.string.share_whatsapp_business),
+                        enabled = file != null
+                    ) {
+                        file?.let { ReceiptShareHandler.shareToWhatsAppBusiness(context, it) }
+                        onDismiss()
+                    }
+                    PdfShareOption(
+                        icon    = Icons.Default.Share,
+                        label   = stringResource(R.string.share_other_apps),
+                        enabled = file != null
+                    ) {
+                        file?.let { ReceiptShareHandler.shareViaSystemSheet(context, it) }
+                        onDismiss()
+                    }
                 }
+            }
+            OutlinedButton(
+                onClick  = onDismiss,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 16.dp, top = 2.dp, bottom = 8.dp)
+            ) {
+                Text(stringResource(R.string.share_not_now))
             }
         }
     }
@@ -255,24 +263,21 @@ private fun PdfShareOption(
     enabled: Boolean,
     onClick: () -> Unit
 ) {
-    val contentAlpha = if (enabled) 1f else 0.38f
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(enabled = enabled, onClick = onClick)
-            .padding(vertical = 14.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary.copy(alpha = contentAlpha)
-        )
+        FilledTonalIconButton(onClick = onClick, enabled = enabled) {
+            Icon(imageVector = icon, contentDescription = label)
+        }
         Text(
-            text = label,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = contentAlpha)
+            text     = label,
+            style    = MaterialTheme.typography.labelSmall,
+            color    = MaterialTheme.colorScheme.onSurface.copy(alpha = if (enabled) 1f else 0.38f),
+            textAlign = TextAlign.Center,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.size(width = 72.dp, height = 32.dp)
         )
     }
 }

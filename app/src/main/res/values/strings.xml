@@ -6,6 +6,8 @@
     <string name="tab_home">Home</string>
     <string name="tab_products">Products</string>
     <string name="tab_stock">Stock (Opname)</string>
+    <string name="tab_stoking">Stoking</string>
+    <string name="tab_stock_opname">Stock Opname</string>
     <string name="tab_sales">Sales</string>
     <string name="tab_payment">Payment</string>
     <string name="tab_resellers">Resellers</string>
@@ -15,6 +17,7 @@
     <string name="screen_home">Main Menu</string>
     <string name="screen_products">Products</string>
     <string name="screen_stock">Stock Operation</string>
+    <string name="screen_stoking">Stoking</string>
     <string name="screen_sales">Sales Order</string>
     <string name="screen_payment">Payment Settlement</string>
     <string name="screen_resellers">Resellers</string>
@@ -24,6 +27,8 @@
     <!-- Home screen menu card descriptions -->
     <string name="home_desc_products">Product catalog &amp; thresholds</string>
     <string name="home_desc_stock">Stock in, out &amp; opname</string>
+    <string name="home_desc_stoking">Add incoming product stock</string>
+    <string name="home_desc_stock_opname">Reconcile physical stock count</string>
     <string name="home_desc_sales">Create sales invoices</string>
     <string name="home_desc_payment">Settle reseller payments</string>
     <string name="home_desc_resellers">Manage reseller contacts</string>
@@ -75,6 +80,10 @@
     <!-- Stock operation screen -->
     <string name="stock_section_current">Current Stock</string>
     <string name="stock_section_record">Record Entry</string>
+    <!-- Stoking screen -->
+    <string name="stoking_section_add">Add Stock</string>
+    <string name="stoking_ref_price">Selling Price: %s</string>
+    <string name="stoking_save_button">Save Stock Entry</string>
     <string name="stock_op_type_label">Operation Type</string>
     <string name="stock_op_product_placeholder">Select a product</string>
     <string name="stock_op_current_stock">Current stock: %1$s %2$s</string>
@@ -243,6 +252,8 @@
     <string name="license_offline_body">Licence could not be verified. Please connect to the internet soon to continue using the app.</string>
     <string name="license_contact_distributor">Contact Distributor</string>
     <string name="license_dismiss">Later</string>
+    <string name="wa_renewal_message">Pengajuan perpanjangan lisensi</string>
+    <string name="wa_contact_unavailable">Contact number not available yet. Try again shortly.</string>
 
     <!-- Home menu layout -->
     <string name="settings_display_section">Display</string>
@@ -290,6 +301,69 @@
     <string name="reset_confirm2_message">This action cannot be undone. Every transaction, invoice, stock entry, and reseller record will be wiped permanently.</string>
     <string name="reset_confirm2_delete">Yes, Delete Everything</string>
     <string name="reset_success">All data has been reset.</string>
+
+    <!-- FAQ / User Guide screen -->
+    <string name="screen_faq">User Guide</string>
+    <string name="tab_faq">Guide</string>
+    <string name="home_desc_faq">How to use the app</string>
+
+    <string name="faq_section_general">General</string>
+    <string name="faq_q_what_is_app">What is Distro-Ku?</string>
+    <string name="faq_a_what_is_app">Distro-Ku is a fully offline distribution management app for small businesses. Record stock, create invoices, manage resellers, and track finances — all stored on your device with no internet required.</string>
+    <string name="faq_q_need_internet">Does it require an internet connection?</string>
+    <string name="faq_a_need_internet">No. All data is stored locally on your device. Internet is only needed for the initial licence activation.</string>
+    <string name="faq_q_data_backup">How do I back up my data?</string>
+    <string name="faq_a_data_backup">Manual backup is not yet available in-app. Avoid clearing app data or factory resetting your device without a device backup to prevent data loss.</string>
+
+    <string name="faq_section_products">Products</string>
+    <string name="faq_q_add_product">How do I add a new product?</string>
+    <string name="faq_a_add_product">Open Products from the home screen, tap the + button in the bottom-right corner, fill in the name, SKU, unit, cost price, and selling price, then tap Save Product.</string>
+    <string name="faq_q_what_is_sku">What is SKU?</string>
+    <string name="faq_a_what_is_sku">SKU (Stock Keeping Unit) is a unique code for each product that distinguishes products with similar names. Example: AQUA-600ML, AQUA-1500ML.</string>
+    <string name="faq_q_threshold">What is the Restock Alert Threshold?</string>
+    <string name="faq_a_threshold">The minimum stock level before a low-stock alert appears. When a product\'s stock reaches or falls below this number, its card turns red on the Stoking and Stock Opname screens.</string>
+
+    <string name="faq_section_stoking">Stoking</string>
+    <string name="faq_q_what_is_stoking">What is Stoking?</string>
+    <string name="faq_a_what_is_stoking">Stoking records incoming stock additions. Select a product, enter the quantity, pick a date, and save. The product\'s stock balance increases immediately.</string>
+    <string name="faq_q_auto_price">Why is the unit price filled automatically?</string>
+    <string name="faq_a_auto_price">The unit price automatically uses the Selling Price set in the Products menu, ensuring consistency across all records. To change the reference price, update the product\'s selling price in Products.</string>
+
+    <string name="faq_section_opname">Stock Opname</string>
+    <string name="faq_q_what_is_opname">What is Stock Opname?</string>
+    <string name="faq_a_what_is_opname">Stock Opname reconciles system stock with the physical count in your warehouse. Enter the physical count for each product, review the discrepancy column, then save to apply all adjustments at once.</string>
+    <string name="faq_q_when_opname">When should I run Stock Opname?</string>
+    <string name="faq_a_when_opname">Run Stock Opname periodically — weekly or monthly — or whenever you notice a discrepancy between physical goods and system records. It keeps your stock data accurate and trustworthy.</string>
+
+    <string name="faq_section_sales">Sales &amp; Invoice</string>
+    <string name="faq_q_create_invoice">How do I create a sales invoice?</string>
+    <string name="faq_a_create_invoice">Open Sales, select a reseller, add products and quantities to the cart, then tap Create Invoice. Stock is immediately deducted and the invoice is saved with an auto-generated number.</string>
+    <string name="faq_q_invoice_status">What do the invoice statuses mean?</string>
+    <string name="faq_a_invoice_status">Unpaid: no payment received yet.\nPartial: payment has been made but the full amount is not yet settled.\nPaid: the invoice is fully settled.</string>
+
+    <string name="faq_section_payment">Payment</string>
+    <string name="faq_q_record_payment">How do I record a payment from a reseller?</string>
+    <string name="faq_a_record_payment">Open Payment, select a reseller, enter the payment amount and method, then tap Payment. The system uses FIFO — oldest invoices are settled first. A preview of the allocation is shown before you confirm.</string>
+    <string name="faq_q_share_receipt">How do I share a payment receipt?</string>
+    <string name="faq_a_share_receipt">After recording a payment, a Share option appears. The app generates a PDF receipt which you can send directly via WhatsApp or any other app.</string>
+
+    <string name="faq_section_reseller">Resellers &amp; Returns</string>
+    <string name="faq_q_add_reseller">How do I register a reseller?</string>
+    <string name="faq_a_add_reseller">Open Resellers, tap + to create a new entry. Fill in the name, phone number, and optional address. You can also import contact details directly from your phone\'s contacts with one tap.</string>
+    <string name="faq_q_return">How do I process a product return?</string>
+    <string name="faq_a_return">Open Returns from the home screen, select a reseller, add return items with quantities and a reason (Unsold, Defect, or Other), then submit. Return values are automatically deducted from revenue in the Ledger.</string>
+
+    <string name="faq_section_ledger">Ledger</string>
+    <string name="faq_q_what_is_ledger">What is shown in the Ledger?</string>
+    <string name="faq_a_what_is_ledger">The Ledger shows a financial summary: Revenue (total invoiced), Collected (payments received), Outstanding (unpaid balance), and Gross Profit. Filter by Today, This Week, This Month, This Year, or All Time.</string>
+    <string name="faq_q_gross_profit">How is Gross Profit calculated?</string>
+    <string name="faq_a_gross_profit">Gross Profit = Total revenue − Cost of goods sold − Return values. It is an estimated profit margin before other operating costs such as transport or overheads.</string>
+
+    <string name="faq_section_settings">Settings</string>
+    <string name="faq_q_pin_lock">What is PIN Lock?</string>
+    <string name="faq_a_pin_lock">PIN Lock adds a 4-digit security lock to the app. Enable it in Settings → Security → App PIN Lock. Once set, the PIN is required every time the app is opened.</string>
+    <string name="faq_q_reset_data">What happens when I Reset All Data?</string>
+    <string name="faq_a_reset_data">All products, resellers, transactions, stock records, and payment history are permanently deleted. Business settings and company info are kept. This action cannot be undone — use it only when absolutely necessary.</string>
 
     <!-- Ledger PDF export -->
     <string name="ledger_period_year">This Year</string>

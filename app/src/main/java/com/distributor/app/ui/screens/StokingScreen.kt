@@ -12,7 +12,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
@@ -54,25 +53,17 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.distributor.app.R
 import com.distributor.app.data.entity.ProductEntity
-import com.distributor.app.data.entity.StockLedgerEntity
 import com.distributor.app.ui.components.LanguageMenuIcon
-import com.distributor.app.ui.viewmodel.StockOperationViewModel
+import com.distributor.app.ui.viewmodel.StokingViewModel
+import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-private val OPERATION_TYPES: List<Pair<String, Int>> = listOf(
-    StockLedgerEntity.TYPE_IN         to R.string.stock_type_in,
-    StockLedgerEntity.TYPE_OUT        to R.string.stock_type_out,
-    StockLedgerEntity.TYPE_ADJUST_IN  to R.string.stock_type_adjust_in,
-    StockLedgerEntity.TYPE_ADJUST_OUT to R.string.stock_type_adjust_out
-)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StockOperationScreen(
-    onNavigateToOpname: () -> Unit = {},
-    viewModel: StockOperationViewModel = viewModel()
+fun StokingScreen(
+    viewModel: StokingViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -80,7 +71,6 @@ fun StockOperationScreen(
         initialSelectedDateMillis = uiState.selectedDateMillis
     )
     var productDropdownExpanded by remember { mutableStateOf(false) }
-    var typeDropdownExpanded by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState.snackbarMessage) {
         uiState.snackbarMessage?.let {
@@ -108,13 +98,8 @@ fun StockOperationScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.screen_stock)) },
-                actions = {
-                    IconButton(onClick = onNavigateToOpname) {
-                        Icon(Icons.Default.Checklist, contentDescription = "Stock Opname")
-                    }
-                    LanguageMenuIcon()
-                }
+                title = { Text(stringResource(R.string.screen_stoking)) },
+                actions = { LanguageMenuIcon() }
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
@@ -128,60 +113,26 @@ fun StockOperationScreen(
         ) {
             Spacer(modifier = Modifier.height(4.dp))
 
-            // ── Stok Saat Ini ────────────────────────────────────────────────
             Text(
                 text  = stringResource(R.string.stock_section_current),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            StockSummaryGrid(
+            StokingSummaryGrid(
                 products  = uiState.products,
                 allStocks = uiState.allStocks
             )
 
             HorizontalDivider()
 
-            // ── Catat Entri ───────────────────────────────────────────────────
             Text(
-                text  = stringResource(R.string.stock_section_record),
+                text  = stringResource(R.string.stoking_section_add),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            // Operation type
-            ExposedDropdownMenuBox(
-                expanded = typeDropdownExpanded,
-                onExpandedChange = { typeDropdownExpanded = it }
-            ) {
-                OutlinedTextField(
-                    value = OPERATION_TYPES.find { it.first == uiState.typeSelection }
-                        ?.second?.let { stringResource(it) } ?: "",
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text(stringResource(R.string.stock_op_type_label)) },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = typeDropdownExpanded) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .menuAnchor(MenuAnchorType.PrimaryNotEditable)
-                )
-                ExposedDropdownMenu(
-                    expanded = typeDropdownExpanded,
-                    onDismissRequest = { typeDropdownExpanded = false }
-                ) {
-                    OPERATION_TYPES.forEach { (type, labelRes) ->
-                        DropdownMenuItem(
-                            text = { Text(stringResource(labelRes)) },
-                            onClick = {
-                                viewModel.onTypeSelected(type)
-                                typeDropdownExpanded = false
-                            }
-                        )
-                    }
-                }
-            }
-
-            // Product
+            // Product selector
             ExposedDropdownMenuBox(
                 expanded = productDropdownExpanded,
                 onExpandedChange = { productDropdownExpanded = it }
@@ -214,25 +165,36 @@ fun StockOperationScreen(
             }
 
             if (uiState.selectedProduct != null) {
+                val product = uiState.selectedProduct!!
+                // Current stock info
                 Card(
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.secondaryContainer
                     ),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(
-                        text = stringResource(
-                            R.string.stock_op_current_stock,
-                            uiState.currentStock.toString(),
-                            uiState.selectedProduct!!.unit
-                        ),
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+                    Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
+                        Text(
+                            text = stringResource(
+                                R.string.stock_op_current_stock,
+                                formatStockValue(uiState.currentStock),
+                                product.unit
+                            ),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Text(
+                            text = stringResource(
+                                R.string.stoking_ref_price,
+                                formatPrice(product.sellingPrice)
+                            ),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
                 }
             }
 
-            // Quantity
+            // Quantity input
             OutlinedTextField(
                 value = uiState.quantityInput,
                 onValueChange = viewModel::onQuantityChanged,
@@ -243,20 +205,7 @@ fun StockOperationScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // Unit cost — only shown for inbound operations
-            if (uiState.typeSelection in StockLedgerEntity.INBOUND_TYPES) {
-                OutlinedTextField(
-                    value = uiState.unitCostInput,
-                    onValueChange = viewModel::onUnitCostChanged,
-                    label = { Text(stringResource(R.string.stock_op_unit_cost_label)) },
-                    isError = uiState.unitCostError != null,
-                    supportingText = uiState.unitCostError?.let { error -> { Text(error) } },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-
-            // Date
+            // Date picker
             OutlinedTextField(
                 value = formatDate(uiState.selectedDateMillis),
                 onValueChange = {},
@@ -289,7 +238,7 @@ fun StockOperationScreen(
                 if (uiState.isSubmitting) {
                     CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
                 } else {
-                    Text(stringResource(R.string.stock_op_save_button))
+                    Text(stringResource(R.string.stoking_save_button))
                 }
             }
 
@@ -299,8 +248,8 @@ fun StockOperationScreen(
 }
 
 @Composable
-private fun StockSummaryGrid(
-    products: List<ProductEntity>,
+private fun StokingSummaryGrid(
+    products:  List<ProductEntity>,
     allStocks: Map<Long, Double>
 ) {
     if (products.isEmpty()) {
@@ -320,7 +269,7 @@ private fun StockSummaryGrid(
             ) {
                 rowItems.forEach { product ->
                     val stock = allStocks[product.id] ?: 0.0
-                    StockCard(
+                    StokingStockCard(
                         product  = product,
                         stock    = stock,
                         modifier = Modifier.weight(1f)
@@ -335,7 +284,7 @@ private fun StockSummaryGrid(
 }
 
 @Composable
-private fun StockCard(
+private fun StokingStockCard(
     product:  ProductEntity,
     stock:    Double,
     modifier: Modifier = Modifier
@@ -371,7 +320,7 @@ private fun StockCard(
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    text       = formatStock(stock),
+                    text       = formatStockValue(stock),
                     style      = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )
@@ -403,9 +352,15 @@ private fun StockCard(
     }
 }
 
-private fun formatStock(value: Double): String =
+private fun formatStockValue(value: Double): String =
     if (value == value.toLong().toDouble()) value.toLong().toString()
     else value.toString()
+
+private fun formatPrice(value: Double): String {
+    val nf = NumberFormat.getNumberInstance(Locale.getDefault())
+    nf.maximumFractionDigits = 0
+    return "Rp ${nf.format(value)}"
+}
 
 private fun formatDate(millis: Long): String =
     SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(Date(millis))

@@ -12,7 +12,7 @@ import java.util.Locale
 import java.util.TimeZone
 
 // Ganti dengan URL deployment Apps Script Anda setelah deploy
-const val LICENSE_API_URL = "https://script.google.com/macros/s/AKfycbz8NmWor-KZSqSY0SajpkleF5nyH8uXnYKPAt-b3S21PL7Ja8gcFR6NakWN3hD4W676Cw/exec"
+const val LICENSE_API_URL = "https://script.google.com/macros/s/AKfycbwVFREcQSE1FDRT1QHSEZQp-3Qv5VvE_rcd5zr9Avv2gfOJ1g6f40Qv24D0q13zPHeuTA/exec"
 
 // Hari grace period offline sebelum muncul peringatan
 const val OFFLINE_GRACE_DAYS = 14
@@ -66,7 +66,32 @@ object LicenseService {
         } catch (_: Exception) { 0L }
     }
 
+    var lastWaFetchDebug: String = ""
+
+    suspend fun fetchContactWa(): String? = withContext(Dispatchers.IO) {
+        val (j, raw) = postJsonWithRaw(JSONObject().apply { put("action", "getContactWa") })
+        lastWaFetchDebug = raw ?: "null response (network/HTTP error)"
+        if (j == null) return@withContext null
+        if (!j.optBoolean("success", false)) {
+            lastWaFetchDebug = "success=false · error=${j.optString("error")} · raw=$raw"
+            return@withContext null
+        }
+        j.optString("wa_number", null).takeIf { !it.isNullOrBlank() }
+    }
+
     private fun post(body: JSONObject): LicenseResponse? {
+        val (j, _) = postJsonWithRaw(body)
+        j ?: return null
+        return LicenseResponse(
+            success       = j.optBoolean("success", false),
+            status        = j.optString("status", ""),
+            daysRemaining = j.optInt("days_remaining", 0),
+            expiryDate    = j.optString("expiry_date", ""),
+            error         = j.optString("error", "")
+        )
+    }
+
+    private fun postJsonWithRaw(body: JSONObject): Pair<JSONObject?, String?> {
         return try {
             val conn = URL(LICENSE_API_URL).openConnection() as HttpURLConnection
             conn.requestMethod           = "POST"
@@ -77,17 +102,16 @@ object LicenseService {
             conn.setRequestProperty("Content-Type", "application/json")
             conn.setRequestProperty("User-Agent",   "DistributorApp/1.0")
             OutputStreamWriter(conn.outputStream).use { it.write(body.toString()) }
-            if (conn.responseCode != HttpURLConnection.HTTP_OK) { conn.disconnect(); return null }
+            val code = conn.responseCode
+            if (code != HttpURLConnection.HTTP_OK) {
+                conn.disconnect()
+                return Pair(null, "HTTP $code")
+            }
             val raw = conn.inputStream.bufferedReader().use { it.readText() }
             conn.disconnect()
-            val j = JSONObject(raw)
-            LicenseResponse(
-                success       = j.optBoolean("success", false),
-                status        = j.optString("status", ""),
-                daysRemaining = j.optInt("days_remaining", 0),
-                expiryDate    = j.optString("expiry_date", ""),
-                error         = j.optString("error", "")
-            )
-        } catch (_: Exception) { null }
+            Pair(JSONObject(raw), raw)
+        } catch (e: Exception) {
+            Pair(null, "${e.javaClass.simpleName}: ${e.message}")
+        }
     }
 }
