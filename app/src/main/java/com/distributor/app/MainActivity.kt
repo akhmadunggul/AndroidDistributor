@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
@@ -39,6 +40,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.distributor.app.ui.screens.AboutScreen
 import com.distributor.app.ui.screens.FaqScreen
+import com.distributor.app.ui.screens.LicensePaymentScreen
 import com.distributor.app.ui.screens.DashboardScreen
 import com.distributor.app.ui.screens.HomeScreen
 import com.distributor.app.ui.screens.LedgerScreen
@@ -104,6 +106,7 @@ private object Routes {
     const val PIN_LOCK        = "pin_lock"
     const val PIN_SETUP       = "pin_setup"
     const val FAQ             = "faq"
+    const val LICENSE_PAYMENT = "license_payment"
 }
 
 // ── Bottom-nav tab descriptors ──────────────────────────────────────────────
@@ -160,7 +163,8 @@ private fun DistributorNavHost() {
         currentRoute != Routes.ACTIVATION &&
         currentRoute != Routes.PIN_LOCK &&
         currentRoute != Routes.PIN_SETUP &&
-        currentRoute != Routes.FAQ
+        currentRoute != Routes.FAQ &&
+        currentRoute != Routes.LICENSE_PAYMENT
 
     // ── Version check ──────────────────────────────────────────────────────
     val context = LocalContext.current
@@ -245,7 +249,13 @@ private fun DistributorNavHost() {
             title = { Text(stringResource(R.string.license_expired_title)) },
             text  = { Text(stringResource(R.string.license_expired_body)) },
             confirmButton = {
-                ContactWaButton(isLoadingWa = isLoadingWa, onClick = ::openContactWa)
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Button(
+                        onClick  = { navController.navigate(Routes.LICENSE_PAYMENT); licenseState = LicenseState.Idle },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text(stringResource(R.string.license_buy_button)) }
+                    ContactWaButton(isLoadingWa = isLoadingWa, onClick = ::openContactWa)
+                }
             }
         )
         is LicenseState.Revoked -> AlertDialog(
@@ -261,7 +271,13 @@ private fun DistributorNavHost() {
             title = { Text(stringResource(R.string.license_trial_warning_title)) },
             text  = { Text(stringResource(R.string.license_trial_warning_body, ls.days)) },
             confirmButton = {
-                ContactWaButton(isLoadingWa = isLoadingWa, onClick = ::openContactWa)
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Button(
+                        onClick  = { navController.navigate(Routes.LICENSE_PAYMENT); licenseState = LicenseState.Idle },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text(stringResource(R.string.license_buy_button)) }
+                    ContactWaButton(isLoadingWa = isLoadingWa, onClick = ::openContactWa)
+                }
             },
             dismissButton = {
                 TextButton(onClick = { licenseState = LicenseState.Idle }) {
@@ -445,6 +461,15 @@ private fun DistributorNavHost() {
             }
             composable(Routes.FAQ) {
                 FaqScreen(onNavigateBack = { navController.popBackStack() })
+            }
+            composable(Routes.LICENSE_PAYMENT) {
+                LicensePaymentScreen(
+                    onNavigateBack   = { navController.popBackStack() },
+                    onPaymentSuccess = {
+                        licenseState = LicenseState.Idle
+                        navController.popBackStack()
+                    }
+                )
             }
         }
     }

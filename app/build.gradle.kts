@@ -84,4 +84,7 @@ dependencies {
 
     // Coroutines
     implementation(libs.kotlinx.coroutines.android)
+
+    // QR code generation for QRIS payment
+    implementation("com.google.zxing:core:3.5.3")
 }
