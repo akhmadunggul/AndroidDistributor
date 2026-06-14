@@ -248,10 +248,9 @@
     <string name="license_trial_warning_body">Tersisa %d hari masa trial Anda. Segera hubungi distributor untuk perpanjangan.</string>
     <string name="license_offline_title">Verifikasi Diperlukan</string>
     <string name="license_offline_body">Lisensi belum dapat diverifikasi. Pastikan terhubung ke internet dalam waktu dekat.</string>
-    <string name="license_contact_distributor">Hubungi Distributor</string>
+    <string name="license_contact_distributor">Hubungi Distro-Ku</string>
     <string name="license_dismiss">Nanti</string>
-    <string name="wa_renewal_message">Pengajuan perpanjangan lisensi</string>
-    <string name="wa_contact_unavailable">Nomor kontak belum tersedia. Coba lagi sesaat.</string>
+<string name="wa_contact_unavailable">Nomor kontak belum tersedia. Coba lagi sesaat.</string>
 
     <!-- Tampilan menu utama -->
     <string name="settings_display_section">Tampilan</string>
@@ -362,6 +361,29 @@
     <string name="faq_a_pin_lock">Kunci PIN menambahkan keamanan 4 digit pada aplikasi. Aktifkan di Pengaturan → Keamanan → Kunci PIN Aplikasi. Setelah diatur, PIN diminta setiap kali aplikasi dibuka.</string>
     <string name="faq_q_reset_data">Apa yang terjadi saat Reset Semua Data?</string>
     <string name="faq_a_reset_data">Semua produk, reseller, transaksi, catatan stok, dan riwayat pembayaran dihapus permanen. Pengaturan bisnis dan info perusahaan tetap tersimpan. Tindakan ini tidak dapat dibatalkan — gunakan hanya jika benar-benar diperlukan.</string>
+
+    <!-- Pembayaran lisensi -->
+    <string name="screen_license_payment">Beli Lisensi</string>
+    <string name="payment_license_packages_title">Pilih Paket</string>
+    <string name="payment_license_buy">Beli</string>
+    <string name="payment_loading_packages">Memuat paket…</string>
+    <string name="payment_creating_payment">Menyiapkan pembayaran…</string>
+    <string name="payment_method_title">Pilih Metode Pembayaran</string>
+    <string name="payment_method_qris_desc">Scan QR Code dengan e-wallet atau m-banking apapun</string>
+    <string name="payment_method_gopay_desc">Bayar langsung via aplikasi Gojek / GoPay</string>
+    <string name="payment_method_shopeepay_desc">Bayar langsung via aplikasi Shopee</string>
+    <string name="payment_open_wallet">Buka %s</string>
+    <string name="payment_wallet_waiting">Menunggu konfirmasi dari %s…</string>
+    <string name="payment_qr_title">Scan QRIS untuk Bayar</string>
+    <string name="payment_qr_expires">Berlaku: %s</string>
+    <string name="payment_qr_waiting">Menunggu konfirmasi pembayaran…</string>
+    <string name="payment_qr_success_title">Pembayaran Berhasil!</string>
+    <string name="payment_qr_success_body">Lisensi Anda telah diperpanjang. Terima kasih!</string>
+    <string name="payment_qr_expired_title">Waktu Pembayaran Habis</string>
+    <string name="payment_qr_expired_body">QR code telah kedaluwarsa. Silakan coba lagi.</string>
+    <string name="payment_qr_retry">Coba Lagi</string>
+    <string name="payment_error_title">Terjadi Kesalahan</string>
+    <string name="license_buy_button">Beli Lisensi</string>
 
     <!-- Ekspor PDF Buku Kas -->
     <string name="ledger_period_year">Tahun Ini</string>

@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
@@ -39,6 +40,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.distributor.app.ui.screens.AboutScreen
 import com.distributor.app.ui.screens.FaqScreen
+import com.distributor.app.ui.screens.LicensePaymentScreen
 import com.distributor.app.ui.screens.DashboardScreen
 import com.distributor.app.ui.screens.HomeScreen
 import com.distributor.app.ui.screens.LedgerScreen
@@ -60,6 +62,7 @@ import com.distributor.app.utils.LicenseService
 import com.distributor.app.utils.LicenseState
 import com.distributor.app.utils.LicenseStore
 import com.distributor.app.utils.OFFLINE_GRACE_DAYS
+import com.distributor.app.utils.BusinessConfigStore
 import com.distributor.app.utils.UpdateCheckState
 import com.distributor.app.utils.VERSION_CHECK_URL
 import com.distributor.app.utils.VersionCheckService
@@ -104,6 +107,7 @@ private object Routes {
     const val PIN_LOCK        = "pin_lock"
     const val PIN_SETUP       = "pin_setup"
     const val FAQ             = "faq"
+    const val LICENSE_PAYMENT = "license_payment"
 }
 
 // ── Bottom-nav tab descriptors ──────────────────────────────────────────────
@@ -160,7 +164,8 @@ private fun DistributorNavHost() {
         currentRoute != Routes.ACTIVATION &&
         currentRoute != Routes.PIN_LOCK &&
         currentRoute != Routes.PIN_SETUP &&
-        currentRoute != Routes.FAQ
+        currentRoute != Routes.FAQ &&
+        currentRoute != Routes.LICENSE_PAYMENT
 
     // ── Version check ──────────────────────────────────────────────────────
     val context = LocalContext.current
@@ -177,7 +182,24 @@ private fun DistributorNavHost() {
     }
 
     // ── License check ──────────────────────────────────────────────────────
-    var licenseState by remember { mutableStateOf<LicenseState>(LicenseState.Idle) }
+    // Inisialisasi dari cache agar block langsung aktif sebelum network check selesai
+    var licenseState by remember {
+        val initial: LicenseState = if (!LicenseStore.isActivated(context)) {
+            LicenseState.Idle
+        } else {
+            val expiryMs = LicenseStore.getExpiryMs(context)
+            val daysLeft = if (expiryMs > 0)
+                ((expiryMs - System.currentTimeMillis()) / 86_400_000L).toInt()
+            else
+                LicenseStore.getDaysRemaining(context)
+            when {
+                daysLeft <= 0       -> LicenseState.Expired
+                daysLeft in 1..7    -> LicenseState.TrialWarning(daysLeft)
+                else                -> LicenseState.Idle
+            }
+        }
+        mutableStateOf(initial)
+    }
 
     LaunchedEffect(Unit) {
         if (!LicenseStore.isActivated(context)) return@LaunchedEffect
@@ -204,8 +226,10 @@ private fun DistributorNavHost() {
             LicenseService.parseExpiryDate(response.expiryDate),
             response.daysRemaining
         )
-        if (response.status == "TRIAL" && response.daysRemaining in 1..3) {
-            licenseState = LicenseState.TrialWarning(response.daysRemaining)
+        licenseState = when {
+            response.daysRemaining <= 0    -> LicenseState.Expired
+            response.daysRemaining in 1..7 -> LicenseState.TrialWarning(response.daysRemaining)
+            else                           -> LicenseState.Idle
         }
     }
 
@@ -223,29 +247,67 @@ private fun DistributorNavHost() {
         isLoadingWa = false
     }
 
-    val waMessage = stringResource(R.string.wa_renewal_message)
     val waUnavailableMsg = stringResource(R.string.wa_contact_unavailable)
-    fun openContactWa() {
-        val number = contactWa
-        if (number != null) {
-            val cleaned = number.replace("[^0-9]".toRegex(), "")
-            val encoded = Uri.encode(waMessage)
-            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://wa.me/$cleaned?text=$encoded")))
-        } else {
-            val debug = LicenseService.lastWaFetchDebug.ifBlank { waUnavailableMsg }
-            android.widget.Toast.makeText(context, debug, android.widget.Toast.LENGTH_LONG).show()
+    var showRenewalPeriodDialog by remember { mutableStateOf(false) }
+
+    fun openContactWa(period: String) {
+        val number = contactWa ?: run {
+            android.widget.Toast.makeText(context, waUnavailableMsg, android.widget.Toast.LENGTH_LONG).show()
+            return
         }
+        val businessName = BusinessConfigStore.get(context).businessName.ifBlank { "-" }
+        val licenseKey   = LicenseStore.getLicenseKey(context).ifBlank { "-" }
+        val message = "Halo Admin Distro-Ku,\n\n" +
+            "Saya ingin mengajukan perpanjangan lisensi aplikasi Distro-Ku.\n\n" +
+            "Nama UMKM: $businessName\n" +
+            "ID Lisensi: $licenseKey\n" +
+            "Periode Perpanjangan: $period\n\n" +
+            "Mohon informasi proses selanjutnya.\n" +
+            "Terima kasih."
+        val cleaned = number.replace("[^0-9]".toRegex(), "")
+        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://wa.me/$cleaned?text=${Uri.encode(message)}")))
+    }
+
+    if (showRenewalPeriodDialog) {
+        AlertDialog(
+            onDismissRequest = { showRenewalPeriodDialog = false },
+            title = { Text("Pilih Periode Perpanjangan") },
+            text  = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(
+                        onClick  = { showRenewalPeriodDialog = false; openContactWa("1 Bulan") },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text("1 Bulan") }
+                    Button(
+                        onClick  = { showRenewalPeriodDialog = false; openContactWa("1 Tahun") },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text("1 Tahun") }
+                }
+            },
+            confirmButton  = {},
+            dismissButton  = {
+                TextButton(onClick = { showRenewalPeriodDialog = false }) { Text(stringResource(R.string.action_cancel)) }
+            }
+        )
     }
 
     BackHandler(enabled = licenseState is LicenseState.Expired || licenseState is LicenseState.Revoked) {}
 
-    when (val ls = licenseState) {
+    val suppressLicenseDialog = currentRoute == Routes.LICENSE_PAYMENT
+
+    if (!suppressLicenseDialog) when (val ls = licenseState) {
         is LicenseState.Expired -> AlertDialog(
             onDismissRequest = {},
             title = { Text(stringResource(R.string.license_expired_title)) },
             text  = { Text(stringResource(R.string.license_expired_body)) },
             confirmButton = {
-                ContactWaButton(isLoadingWa = isLoadingWa, onClick = ::openContactWa)
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Button(
+                        onClick  = { navController.navigate(Routes.LICENSE_PAYMENT) },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text(stringResource(R.string.license_buy_button)) }
+                    ContactWaButton(isLoadingWa = isLoadingWa, onClick = { showRenewalPeriodDialog = true })
+                }
             }
         )
         is LicenseState.Revoked -> AlertDialog(
@@ -253,7 +315,7 @@ private fun DistributorNavHost() {
             title = { Text(stringResource(R.string.license_revoked_title)) },
             text  = { Text(stringResource(R.string.license_revoked_body)) },
             confirmButton = {
-                ContactWaButton(isLoadingWa = isLoadingWa, onClick = ::openContactWa)
+                ContactWaButton(isLoadingWa = isLoadingWa, onClick = { showRenewalPeriodDialog = true })
             }
         )
         is LicenseState.TrialWarning -> AlertDialog(
@@ -261,7 +323,13 @@ private fun DistributorNavHost() {
             title = { Text(stringResource(R.string.license_trial_warning_title)) },
             text  = { Text(stringResource(R.string.license_trial_warning_body, ls.days)) },
             confirmButton = {
-                ContactWaButton(isLoadingWa = isLoadingWa, onClick = ::openContactWa)
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Button(
+                        onClick  = { navController.navigate(Routes.LICENSE_PAYMENT) },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text(stringResource(R.string.license_buy_button)) }
+                    ContactWaButton(isLoadingWa = isLoadingWa, onClick = { showRenewalPeriodDialog = true })
+                }
             },
             dismissButton = {
                 TextButton(onClick = { licenseState = LicenseState.Idle }) {
@@ -445,6 +513,15 @@ private fun DistributorNavHost() {
             }
             composable(Routes.FAQ) {
                 FaqScreen(onNavigateBack = { navController.popBackStack() })
+            }
+            composable(Routes.LICENSE_PAYMENT) {
+                LicensePaymentScreen(
+                    onNavigateBack   = { navController.popBackStack() },
+                    onPaymentSuccess = {
+                        licenseState = LicenseState.Idle
+                        navController.popBackStack()
+                    }
+                )
             }
         }
     }

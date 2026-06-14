@@ -250,10 +250,9 @@
     <string name="license_trial_warning_body">%d day(s) remaining in your trial. Contact your distributor to renew.</string>
     <string name="license_offline_title">Verification Required</string>
     <string name="license_offline_body">Licence could not be verified. Please connect to the internet soon to continue using the app.</string>
-    <string name="license_contact_distributor">Contact Distributor</string>
+    <string name="license_contact_distributor">Contact Distro-Ku</string>
     <string name="license_dismiss">Later</string>
-    <string name="wa_renewal_message">Pengajuan perpanjangan lisensi</string>
-    <string name="wa_contact_unavailable">Contact number not available yet. Try again shortly.</string>
+<string name="wa_contact_unavailable">Contact number not available yet. Try again shortly.</string>
 
     <!-- Home menu layout -->
     <string name="settings_display_section">Display</string>
@@ -364,6 +363,29 @@
     <string name="faq_a_pin_lock">PIN Lock adds a 4-digit security lock to the app. Enable it in Settings → Security → App PIN Lock. Once set, the PIN is required every time the app is opened.</string>
     <string name="faq_q_reset_data">What happens when I Reset All Data?</string>
     <string name="faq_a_reset_data">All products, resellers, transactions, stock records, and payment history are permanently deleted. Business settings and company info are kept. This action cannot be undone — use it only when absolutely necessary.</string>
+
+    <!-- License payment -->
+    <string name="screen_license_payment">Purchase License</string>
+    <string name="payment_license_packages_title">Choose Package</string>
+    <string name="payment_license_buy">Buy</string>
+    <string name="payment_loading_packages">Loading packages…</string>
+    <string name="payment_creating_payment">Preparing payment…</string>
+    <string name="payment_method_title">Choose Payment Method</string>
+    <string name="payment_method_qris_desc">Scan QR Code with any e-wallet or m-banking</string>
+    <string name="payment_method_gopay_desc">Pay directly via Gojek / GoPay app</string>
+    <string name="payment_method_shopeepay_desc">Pay directly via Shopee app</string>
+    <string name="payment_open_wallet">Open %s</string>
+    <string name="payment_wallet_waiting">Waiting for confirmation from %s…</string>
+    <string name="payment_qr_title">Scan QRIS to Pay</string>
+    <string name="payment_qr_expires">Expires in: %s</string>
+    <string name="payment_qr_waiting">Waiting for payment confirmation…</string>
+    <string name="payment_qr_success_title">Payment Successful!</string>
+    <string name="payment_qr_success_body">Your licence has been extended. Thank you!</string>
+    <string name="payment_qr_expired_title">Payment Time Expired</string>
+    <string name="payment_qr_expired_body">The QR code has expired. Please try again.</string>
+    <string name="payment_qr_retry">Try Again</string>
+    <string name="payment_error_title">An Error Occurred</string>
+    <string name="license_buy_button">Buy Licence</string>
 
     <!-- Ledger PDF export -->
     <string name="ledger_period_year">This Year</string>
