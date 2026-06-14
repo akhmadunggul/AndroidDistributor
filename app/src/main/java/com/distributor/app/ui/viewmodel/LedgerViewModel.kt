@@ -55,6 +55,7 @@ sealed class LedgerEntry {
     ) : LedgerEntry()
 
     data class Payment(
+        val id: Long,
         val resellerName: String,
         val amount: Double,
         val paymentMethod: String,
@@ -203,6 +204,7 @@ class LedgerViewModel(application: Application) : AndroidViewModel(application) 
     )
 
     private fun PaymentLedgerEntry.toLedgerEntry() = LedgerEntry.Payment(
+        id             = id,
         resellerName   = resellerName,
         amount         = amount,
         paymentMethod  = paymentMethod,

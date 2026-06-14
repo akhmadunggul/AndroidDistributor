@@ -284,7 +284,7 @@ fun LedgerScreen(
                 items(uiState.entries, key = { entry ->
                     when (entry) {
                         is LedgerEntry.Sale    -> "sale_${entry.invoiceNumber}"
-                        is LedgerEntry.Payment -> "pay_${entry.timestampMillis}_${entry.resellerName}"
+                        is LedgerEntry.Payment -> "pay_${entry.id}"
                         is LedgerEntry.Return  -> "rtn_${entry.returnNumber}"
                     }
                 }) { entry ->

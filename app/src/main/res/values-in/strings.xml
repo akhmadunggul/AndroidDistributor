@@ -163,6 +163,7 @@
     <string name="share_whatsapp_business">WhatsApp Business</string>
     <string name="share_other_apps">Aplikasi Lainnya</string>
     <string name="share_not_now">Nanti</string>
+    <string name="share_confirm_button">Konfirmasi &amp; Kirim</string>
     <string name="share_generating">Membuat PDF…</string>
     <string name="share_error">Gagal membuat struk</string>
 

@@ -165,6 +165,7 @@
     <string name="share_whatsapp_business">WhatsApp Business</string>
     <string name="share_other_apps">Other Apps</string>
     <string name="share_not_now">Not Now</string>
+    <string name="share_confirm_button">Confirm &amp; Send</string>
     <string name="share_generating">Generating PDF…</string>
     <string name="share_error">Failed to generate receipt</string>
 

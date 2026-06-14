@@ -26,6 +26,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -77,9 +78,11 @@ internal fun PdfPreviewSheet(
     var renderedPages by remember { mutableStateOf(emptyList<Bitmap>()) }
     var renderError by remember { mutableStateOf(false) }
     var scale by remember { mutableFloatStateOf(1f) }
+    var confirmed by remember { mutableStateOf(false) }
 
     LaunchedEffect(file) {
         if (file == null) return@LaunchedEffect
+        confirmed = false
         renderError = false
         renderedPages = emptyList()
         scale = 1f
@@ -209,38 +212,49 @@ internal fun PdfPreviewSheet(
                 }
             }
 
-            // ── Share actions (compact row) ───────────────────────────────────
+            // ── Share actions ─────────────────────────────────────────────────
             HorizontalDivider()
             if (!isLoading && !renderError) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp, vertical = 6.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    PdfShareOption(
-                        icon    = Icons.AutoMirrored.Filled.Send,
-                        label   = stringResource(R.string.share_whatsapp),
-                        enabled = file != null
+                if (confirmed) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp, vertical = 6.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        file?.let { ReceiptShareHandler.shareToWhatsApp(context, it) }
-                        onDismiss()
+                        PdfShareOption(
+                            icon    = Icons.AutoMirrored.Filled.Send,
+                            label   = stringResource(R.string.share_whatsapp),
+                            enabled = file != null
+                        ) {
+                            file?.let { ReceiptShareHandler.shareToWhatsApp(context, it) }
+                            onDismiss()
+                        }
+                        PdfShareOption(
+                            icon    = Icons.Default.Business,
+                            label   = stringResource(R.string.share_whatsapp_business),
+                            enabled = file != null
+                        ) {
+                            file?.let { ReceiptShareHandler.shareToWhatsAppBusiness(context, it) }
+                            onDismiss()
+                        }
+                        PdfShareOption(
+                            icon    = Icons.Default.Share,
+                            label   = stringResource(R.string.share_other_apps),
+                            enabled = file != null
+                        ) {
+                            file?.let { ReceiptShareHandler.shareViaSystemSheet(context, it) }
+                            onDismiss()
+                        }
                     }
-                    PdfShareOption(
-                        icon    = Icons.Default.Business,
-                        label   = stringResource(R.string.share_whatsapp_business),
-                        enabled = file != null
+                } else {
+                    Button(
+                        onClick  = { confirmed = true },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 4.dp)
                     ) {
-                        file?.let { ReceiptShareHandler.shareToWhatsAppBusiness(context, it) }
-                        onDismiss()
-                    }
-                    PdfShareOption(
-                        icon    = Icons.Default.Share,
-                        label   = stringResource(R.string.share_other_apps),
-                        enabled = file != null
-                    ) {
-                        file?.let { ReceiptShareHandler.shareViaSystemSheet(context, it) }
-                        onDismiss()
+                        Text(stringResource(R.string.share_confirm_button))
                     }
                 }
             }

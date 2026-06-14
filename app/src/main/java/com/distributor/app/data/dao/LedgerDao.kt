@@ -14,6 +14,7 @@ data class SaleLedgerEntry(
 )
 
 data class PaymentLedgerEntry(
+    val id: Long,
     val amount: Double,
     val resellerName: String,
     val paymentMethod: String,
@@ -74,7 +75,8 @@ interface LedgerDao {
     fun getSaleEntriesFlow(from: Long, to: Long): Flow<List<SaleLedgerEntry>>
 
     @Query("""
-        SELECT pl.amount         AS amount,
+        SELECT pl.id             AS id,
+               pl.amount         AS amount,
                r.name            AS resellerName,
                pl.payment_method AS paymentMethod,
                pl.created_at     AS timestampMillis
