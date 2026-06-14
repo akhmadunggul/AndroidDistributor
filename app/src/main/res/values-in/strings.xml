@@ -248,10 +248,9 @@
     <string name="license_trial_warning_body">Tersisa %d hari masa trial Anda. Segera hubungi distributor untuk perpanjangan.</string>
     <string name="license_offline_title">Verifikasi Diperlukan</string>
     <string name="license_offline_body">Lisensi belum dapat diverifikasi. Pastikan terhubung ke internet dalam waktu dekat.</string>
-    <string name="license_contact_distributor">Hubungi Distributor</string>
+    <string name="license_contact_distributor">Hubungi Distro-Ku</string>
     <string name="license_dismiss">Nanti</string>
-    <string name="wa_renewal_message">Pengajuan perpanjangan lisensi</string>
-    <string name="wa_contact_unavailable">Nomor kontak belum tersedia. Coba lagi sesaat.</string>
+<string name="wa_contact_unavailable">Nomor kontak belum tersedia. Coba lagi sesaat.</string>
 
     <!-- Tampilan menu utama -->
     <string name="settings_display_section">Tampilan</string>

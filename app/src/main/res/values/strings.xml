@@ -250,10 +250,9 @@
     <string name="license_trial_warning_body">%d day(s) remaining in your trial. Contact your distributor to renew.</string>
     <string name="license_offline_title">Verification Required</string>
     <string name="license_offline_body">Licence could not be verified. Please connect to the internet soon to continue using the app.</string>
-    <string name="license_contact_distributor">Contact Distributor</string>
+    <string name="license_contact_distributor">Contact Distro-Ku</string>
     <string name="license_dismiss">Later</string>
-    <string name="wa_renewal_message">Pengajuan perpanjangan lisensi</string>
-    <string name="wa_contact_unavailable">Contact number not available yet. Try again shortly.</string>
+<string name="wa_contact_unavailable">Contact number not available yet. Try again shortly.</string>
 
     <!-- Home menu layout -->
     <string name="settings_display_section">Display</string>
