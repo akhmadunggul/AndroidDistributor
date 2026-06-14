@@ -244,6 +244,10 @@
     <string name="activation_error_generic">Activation failed. Please try again.</string>
     <string name="license_expired_title">Trial Expired</string>
     <string name="license_expired_body">Your trial period has ended. Contact your distributor to renew your licence.</string>
+    <string name="license_registered_expired_title">Licence Expired</string>
+    <string name="license_registered_expired_body">Your licence has expired. Please renew to continue using the app.</string>
+    <string name="license_registered_warning_title">Licence Expiring Soon</string>
+    <string name="license_registered_warning_body">Your licence expires in %d day(s). Renew now to avoid interruption.</string>
     <string name="license_revoked_title">Licence Revoked</string>
     <string name="license_revoked_body">Your licence has been revoked by the administrator. Contact your distributor.</string>
     <string name="license_trial_warning_title">Trial Expiring Soon</string>

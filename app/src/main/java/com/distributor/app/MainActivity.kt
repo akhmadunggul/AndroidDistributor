@@ -187,15 +187,16 @@ private fun DistributorNavHost() {
         val initial: LicenseState = if (!LicenseStore.isActivated(context)) {
             LicenseState.Idle
         } else {
-            val expiryMs = LicenseStore.getExpiryMs(context)
-            val daysLeft = if (expiryMs > 0)
+            val expiryMs   = LicenseStore.getExpiryMs(context)
+            val daysLeft   = if (expiryMs > 0)
                 ((expiryMs - System.currentTimeMillis()) / 86_400_000L).toInt()
             else
                 LicenseStore.getDaysRemaining(context)
+            val registered = LicenseStore.isRegistered(context)
             when {
-                daysLeft <= 0       -> LicenseState.Expired
-                daysLeft in 1..7    -> LicenseState.TrialWarning(daysLeft)
-                else                -> LicenseState.Idle
+                daysLeft <= 0    -> LicenseState.Expired(registered)
+                daysLeft in 1..7 -> LicenseState.TrialWarning(daysLeft, registered)
+                else             -> LicenseState.Idle
             }
         }
         mutableStateOf(initial)
@@ -215,7 +216,7 @@ private fun DistributorNavHost() {
         }
         if (!response.success) {
             licenseState = when (response.error) {
-                "EXPIRED" -> LicenseState.Expired
+                "EXPIRED" -> LicenseState.Expired(LicenseStore.isRegistered(context))
                 "REVOKED" -> LicenseState.Revoked
                 else      -> LicenseState.Idle
             }
@@ -224,11 +225,13 @@ private fun DistributorNavHost() {
         LicenseStore.updateCheck(
             context, response.status,
             LicenseService.parseExpiryDate(response.expiryDate),
-            response.daysRemaining
+            response.daysRemaining,
+            label = response.label
         )
+        val registered = response.label.ifBlank { LicenseStore.getLabel(context) } == "Terdaftar"
         licenseState = when {
-            response.daysRemaining <= 0    -> LicenseState.Expired
-            response.daysRemaining in 1..7 -> LicenseState.TrialWarning(response.daysRemaining)
+            response.daysRemaining <= 0    -> LicenseState.Expired(registered)
+            response.daysRemaining in 1..7 -> LicenseState.TrialWarning(response.daysRemaining, registered)
             else                           -> LicenseState.Idle
         }
     }
@@ -298,8 +301,8 @@ private fun DistributorNavHost() {
     if (!suppressLicenseDialog) when (val ls = licenseState) {
         is LicenseState.Expired -> AlertDialog(
             onDismissRequest = {},
-            title = { Text(stringResource(R.string.license_expired_title)) },
-            text  = { Text(stringResource(R.string.license_expired_body)) },
+            title = { Text(stringResource(if (ls.registered) R.string.license_registered_expired_title else R.string.license_expired_title)) },
+            text  = { Text(stringResource(if (ls.registered) R.string.license_registered_expired_body  else R.string.license_expired_body)) },
             confirmButton = {
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Button(
@@ -320,8 +323,8 @@ private fun DistributorNavHost() {
         )
         is LicenseState.TrialWarning -> AlertDialog(
             onDismissRequest = { licenseState = LicenseState.Idle },
-            title = { Text(stringResource(R.string.license_trial_warning_title)) },
-            text  = { Text(stringResource(R.string.license_trial_warning_body, ls.days)) },
+            title = { Text(stringResource(if (ls.registered) R.string.license_registered_warning_title else R.string.license_trial_warning_title)) },
+            text  = { Text(stringResource(if (ls.registered) R.string.license_registered_warning_body  else R.string.license_trial_warning_body, ls.days)) },
             confirmButton = {
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Button(

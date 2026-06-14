@@ -242,6 +242,10 @@
     <string name="activation_error_generic">Aktivasi gagal. Coba lagi.</string>
     <string name="license_expired_title">Masa Trial Habis</string>
     <string name="license_expired_body">Masa trial Anda telah berakhir. Hubungi distributor untuk memperpanjang lisensi.</string>
+    <string name="license_registered_expired_title">Lisensi Kedaluarsa</string>
+    <string name="license_registered_expired_body">Lisensi Anda telah kedaluarsa. Silakan perpanjang untuk melanjutkan menggunakan aplikasi.</string>
+    <string name="license_registered_warning_title">Lisensi Hampir Kedaluarsa</string>
+    <string name="license_registered_warning_body">Lisensi Anda akan kedaluarsa dalam %d hari. Segera perpanjang agar tidak terputus.</string>
     <string name="license_revoked_title">Lisensi Dicabut</string>
     <string name="license_revoked_body">Lisensi Anda telah dicabut oleh administrator. Hubungi distributor Anda.</string>
     <string name="license_trial_warning_title">Trial Hampir Habis</string>

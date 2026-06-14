@@ -43,17 +43,18 @@ data class PaymentCheckResult(
 data class LicenseResponse(
     val success: Boolean,
     val status: String      = "",
+    val label: String       = "",
     val daysRemaining: Int  = 0,
     val expiryDate: String  = "",
     val error: String       = ""
 )
 
 sealed class LicenseState {
-    object Idle                             : LicenseState()
-    data class TrialWarning(val days: Int)  : LicenseState()
-    object Expired                          : LicenseState()
-    object Revoked                          : LicenseState()
-    object OfflineWarning                   : LicenseState()
+    object Idle                                                        : LicenseState()
+    data class TrialWarning(val days: Int, val registered: Boolean = false) : LicenseState()
+    data class Expired(val registered: Boolean = false)                : LicenseState()
+    object Revoked                                                     : LicenseState()
+    object OfflineWarning                                              : LicenseState()
 }
 
 object LicenseService {
@@ -155,6 +156,7 @@ object LicenseService {
         return LicenseResponse(
             success       = j.optBoolean("success", false),
             status        = j.optString("status", ""),
+            label         = j.optString("label", ""),
             daysRemaining = j.optInt("days_remaining", 0),
             expiryDate    = j.optString("expiry_date", ""),
             error         = j.optString("error", "")

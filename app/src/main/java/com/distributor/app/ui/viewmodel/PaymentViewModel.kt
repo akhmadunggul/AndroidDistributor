@@ -143,7 +143,8 @@ class PaymentViewModel(app: Application) : AndroidViewModel(app) {
                             ctx,
                             result.licenseStatus,
                             LicenseService.parseExpiryDate(result.expiryDate),
-                            result.daysRemaining
+                            result.daysRemaining,
+                            label = "Terdaftar"
                         )
                         stopJobs()
                         _state.value = PaymentUiState.PaymentSuccess
