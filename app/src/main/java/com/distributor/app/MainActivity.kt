@@ -70,6 +70,7 @@ import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -304,11 +305,13 @@ private fun DistributorNavHost() {
             title = { Text(stringResource(if (ls.registered) R.string.license_registered_expired_title else R.string.license_expired_title)) },
             text  = { Text(stringResource(if (ls.registered) R.string.license_registered_expired_body  else R.string.license_expired_body)) },
             confirmButton = {
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Button(
-                        onClick  = { navController.navigate(Routes.LICENSE_PAYMENT) },
-                        modifier = Modifier.fillMaxWidth()
-                    ) { Text(stringResource(R.string.license_buy_button)) }
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Button(onClick = { navController.navigate(Routes.LICENSE_PAYMENT) }) {
+                        Text(stringResource(R.string.license_buy_button))
+                    }
                     ContactWaButton(isLoadingWa = isLoadingWa, onClick = { showRenewalPeriodDialog = true })
                 }
             }
@@ -326,11 +329,13 @@ private fun DistributorNavHost() {
             title = { Text(stringResource(if (ls.registered) R.string.license_registered_warning_title else R.string.license_trial_warning_title)) },
             text  = { Text(stringResource(if (ls.registered) R.string.license_registered_warning_body  else R.string.license_trial_warning_body, ls.days)) },
             confirmButton = {
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Button(
-                        onClick  = { navController.navigate(Routes.LICENSE_PAYMENT) },
-                        modifier = Modifier.fillMaxWidth()
-                    ) { Text(stringResource(R.string.license_buy_button)) }
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Button(onClick = { navController.navigate(Routes.LICENSE_PAYMENT) }) {
+                        Text(stringResource(R.string.license_buy_button))
+                    }
                     ContactWaButton(isLoadingWa = isLoadingWa, onClick = { showRenewalPeriodDialog = true })
                 }
             },

@@ -12,7 +12,7 @@ import java.util.Locale
 import java.util.TimeZone
 
 // Ganti dengan URL deployment Apps Script Anda setelah deploy
-const val LICENSE_API_URL = "https://script.google.com/macros/s/AKfycbyYbI__DWC0i9KPvTK2Qcpf-9Eu3DQmwTTXpIK7rX1dmT8FHpjHTWphfKCauAMsRtGHOA/exec"
+const val LICENSE_API_URL = "https://script.google.com/macros/s/AKfycbxVceXNdZnYFcm7ShmwxltFh3Z8ImjsO8nJZ10nqKci8YAHWDFQnmnkJTeojt130jqCOQ/exec"
 
 // Hari grace period offline sebelum muncul peringatan
 const val OFFLINE_GRACE_DAYS = 14
