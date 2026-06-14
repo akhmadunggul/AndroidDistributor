@@ -208,8 +208,10 @@ private fun DistributorNavHost() {
             LicenseService.parseExpiryDate(response.expiryDate),
             response.daysRemaining
         )
-        if (response.status == "TRIAL" && response.daysRemaining in 1..3) {
-            licenseState = LicenseState.TrialWarning(response.daysRemaining)
+        licenseState = when {
+            response.daysRemaining <= 0    -> LicenseState.Expired
+            response.daysRemaining in 1..7 -> LicenseState.TrialWarning(response.daysRemaining)
+            else                           -> LicenseState.Idle
         }
     }
 
