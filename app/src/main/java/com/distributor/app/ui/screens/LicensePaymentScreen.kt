@@ -307,9 +307,9 @@ private fun PaymentMethodContent(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         PaymentMethodCard(
-            label       = "QRIS",
-            description = stringResource(R.string.payment_method_qris_desc),
-            onClick     = { onSelect("qris") }
+            label       = "ShopeePay",
+            description = stringResource(R.string.payment_method_shopeepay_desc),
+            onClick     = { onSelect("shopeepay") }
         )
         PaymentMethodCard(
             label       = "GoPay",
@@ -317,9 +317,9 @@ private fun PaymentMethodContent(
             onClick     = { onSelect("gopay") }
         )
         PaymentMethodCard(
-            label       = "ShopeePay",
-            description = stringResource(R.string.payment_method_shopeepay_desc),
-            onClick     = { onSelect("shopeepay") }
+            label       = "QRIS",
+            description = stringResource(R.string.payment_method_qris_desc),
+            onClick     = { onSelect("qris") }
         )
         OutlinedButton(onClick = onBack, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.action_cancel))
