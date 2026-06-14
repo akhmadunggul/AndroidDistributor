@@ -57,7 +57,7 @@ class PaymentViewModel(app: Application) : AndroidViewModel(app) {
             val pkgs = LicenseService.fetchPackages()
             _state.value = if (pkgs.isNullOrEmpty()) {
                 PaymentUiState.Error(
-                    "Gagal memuat paket.\n\n${LicenseService.lastPackagesFetchDebug}",
+                    "Gagal memuat paket. Periksa koneksi internet dan coba lagi.",
                     retryPackages = true
                 )
             } else {
@@ -81,7 +81,7 @@ class PaymentViewModel(app: Application) : AndroidViewModel(app) {
             val order = LicenseService.createPayment(pkg.id, pkg.price, deviceId, deviceModel, method)
             if (order == null) {
                 _state.value = PaymentUiState.Error(
-                    "Gagal membuat pembayaran.\n\n${LicenseService.lastCreatePaymentDebug}",
+                    "Gagal membuat pembayaran. Periksa koneksi internet dan coba lagi.",
                     retryPackages = false
                 )
                 return@launch

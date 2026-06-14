@@ -89,16 +89,9 @@ object LicenseService {
         } catch (_: Exception) { 0L }
     }
 
-    var lastPackagesFetchDebug: String = ""
-
     suspend fun fetchPackages(): List<LicensePackage>? = withContext(Dispatchers.IO) {
-        val (j, raw) = postJsonWithRaw(JSONObject().apply { put("action", "getPackages") })
-        lastPackagesFetchDebug = raw ?: "null response (network/HTTP error)"
-        if (j == null) return@withContext null
-        if (!j.optBoolean("success", false)) {
-            lastPackagesFetchDebug = "success=false · error=${j.optString("error")} · raw=$raw"
-            return@withContext null
-        }
+        val (j, _) = postJsonWithRaw(JSONObject().apply { put("action", "getPackages") })
+        if (j == null || !j.optBoolean("success", false)) return@withContext null
         val arr = j.optJSONArray("packages") ?: return@withContext null
         (0 until arr.length()).map { i ->
             val pkg = arr.getJSONObject(i)
@@ -111,13 +104,11 @@ object LicenseService {
         }
     }
 
-    var lastCreatePaymentDebug: String = ""
-
     suspend fun createPayment(
         packageId: String, amount: Long, deviceId: String, deviceModel: String,
         paymentType: String = "qris"
     ): PaymentOrder? = withContext(Dispatchers.IO) {
-        val (j, raw) = postJsonWithRaw(JSONObject().apply {
+        val (j, _) = postJsonWithRaw(JSONObject().apply {
             put("action",       "createPayment")
             put("package_id",   packageId)
             put("amount",       amount)
@@ -125,12 +116,7 @@ object LicenseService {
             put("device_model", deviceModel)
             put("payment_type", paymentType)
         })
-        lastCreatePaymentDebug = raw ?: "null response (network/HTTP error)"
-        if (j == null) return@withContext null
-        if (!j.optBoolean("success", false)) {
-            lastCreatePaymentDebug = "success=false · error=${j.optString("error")} · raw=$raw"
-            return@withContext null
-        }
+        if (j == null || !j.optBoolean("success", false)) return@withContext null
         PaymentOrder(
             orderId     = j.getString("order_id"),
             qrString    = j.optString("qr_string", ""),
@@ -157,16 +143,9 @@ object LicenseService {
             )
         }
 
-    var lastWaFetchDebug: String = ""
-
     suspend fun fetchContactWa(): String? = withContext(Dispatchers.IO) {
-        val (j, raw) = postJsonWithRaw(JSONObject().apply { put("action", "getContactWa") })
-        lastWaFetchDebug = raw ?: "null response (network/HTTP error)"
-        if (j == null) return@withContext null
-        if (!j.optBoolean("success", false)) {
-            lastWaFetchDebug = "success=false · error=${j.optString("error")} · raw=$raw"
-            return@withContext null
-        }
+        val (j, _) = postJsonWithRaw(JSONObject().apply { put("action", "getContactWa") })
+        if (j == null || !j.optBoolean("success", false)) return@withContext null
         j.optString("wa_number", null).takeIf { !it.isNullOrBlank() }
     }
 

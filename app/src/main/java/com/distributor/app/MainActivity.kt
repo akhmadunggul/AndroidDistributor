@@ -238,8 +238,7 @@ private fun DistributorNavHost() {
             val encoded = Uri.encode(waMessage)
             context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://wa.me/$cleaned?text=$encoded")))
         } else {
-            val debug = LicenseService.lastWaFetchDebug.ifBlank { waUnavailableMsg }
-            android.widget.Toast.makeText(context, debug, android.widget.Toast.LENGTH_LONG).show()
+            android.widget.Toast.makeText(context, waUnavailableMsg, android.widget.Toast.LENGTH_LONG).show()
         }
     }
 
