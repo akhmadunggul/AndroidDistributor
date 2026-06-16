@@ -293,12 +293,6 @@
     <string name="license_dismiss">Nanti</string>
 <string name="wa_contact_unavailable">Nomor kontak belum tersedia. Coba lagi sesaat.</string>
 
-    <!-- Tampilan menu utama -->
-    <string name="settings_display_section">Tampilan</string>
-    <string name="home_layout_label">Tampilan Menu Utama</string>
-    <string name="home_layout_card">Kartu</string>
-    <string name="home_layout_icon_grid">Ikon</string>
-
     <!-- Pratinjau PDF -->
     <string name="preview_share_via">Bagikan via:</string>
 

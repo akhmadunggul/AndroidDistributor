@@ -9,6 +9,8 @@ import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
 import java.security.MessageDigest
+import java.util.zip.GZIPInputStream
+import java.util.zip.GZIPOutputStream
 import javax.crypto.Cipher
 import javax.crypto.CipherInputStream
 import javax.crypto.CipherOutputStream
@@ -46,7 +48,11 @@ object DriveBackupManager {
         cipher.init(Cipher.ENCRYPT_MODE, deriveKey(email))
         dst.outputStream().use { out ->
             out.write(cipher.iv)
-            CipherOutputStream(out, cipher).use { src.inputStream().copyTo(it) }
+            CipherOutputStream(out, cipher).use { cOut ->
+                GZIPOutputStream(cOut).use { gOut ->
+                    src.inputStream().use { it.copyTo(gOut) }
+                }
+            }
         }
     }
 
@@ -55,7 +61,11 @@ object DriveBackupManager {
             val iv = ByteArray(16).also { input.read(it) }
             val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
             cipher.init(Cipher.DECRYPT_MODE, deriveKey(email), IvParameterSpec(iv))
-            CipherInputStream(input, cipher).use { dst.outputStream().use { o -> it.copyTo(o) } }
+            CipherInputStream(input, cipher).use { cIn ->
+                GZIPInputStream(cIn).use { gIn ->
+                    dst.outputStream().use { gIn.copyTo(it) }
+                }
+            }
         }
     }
 
