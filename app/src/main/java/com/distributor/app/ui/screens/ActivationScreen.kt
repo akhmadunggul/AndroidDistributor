@@ -32,6 +32,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.distributor.app.R
@@ -41,16 +42,21 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun ActivationScreen(onActivated: () -> Unit) {
-    var keyInput  by remember { mutableStateOf("") }
-    var isLoading by remember { mutableStateOf(false) }
-    var errorMsg  by remember { mutableStateOf("") }
-    val context   = LocalContext.current
-    val scope     = rememberCoroutineScope()
-    val keyboard  = LocalSoftwareKeyboardController.current
+    var keyInput   by remember { mutableStateOf("") }
+    var emailInput by remember { mutableStateOf("") }
+    var isLoading  by remember { mutableStateOf(false) }
+    var errorMsg   by remember { mutableStateOf("") }
+    val context    = LocalContext.current
+    val scope      = rememberCoroutineScope()
+    val keyboard   = LocalSoftwareKeyboardController.current
 
     fun activate() {
-        val key = keyInput.trim()
+        val key   = keyInput.trim()
+        val email = emailInput.trim()
         if (key.isBlank()) { errorMsg = context.getString(R.string.activation_error_empty); return }
+        if (!email.contains("@") || !email.contains(".")) {
+            errorMsg = context.getString(R.string.activation_email_error_invalid); return
+        }
         keyboard?.hide()
         scope.launch {
             isLoading = true
@@ -71,6 +77,7 @@ fun ActivationScreen(onActivated: () -> Unit) {
                         LicenseService.parseExpiryDate(resp.expiryDate),
                         resp.daysRemaining
                     )
+                    LicenseStore.saveEmail(context, email)
                     onActivated()
                 }
             }
@@ -112,12 +119,25 @@ fun ActivationScreen(onActivated: () -> Unit) {
                 placeholder   = { Text("DIST-XXXX-XXXX") },
                 singleLine    = true,
                 isError       = errorMsg.isNotBlank(),
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.Characters,
+                    imeAction      = ImeAction.Next
+                ),
+                modifier = Modifier.fillMaxWidth()
+            )
+            OutlinedTextField(
+                value         = emailInput,
+                onValueChange = { emailInput = it; errorMsg = "" },
+                label         = { Text(stringResource(R.string.activation_email_label)) },
+                placeholder   = { Text("contoh@email.com") },
+                singleLine    = true,
+                isError       = errorMsg.isNotBlank(),
                 supportingText = if (errorMsg.isNotBlank()) {
                     { Text(errorMsg, color = MaterialTheme.colorScheme.error) }
                 } else null,
                 keyboardOptions = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.Characters,
-                    imeAction      = ImeAction.Done
+                    keyboardType = KeyboardType.Email,
+                    imeAction    = ImeAction.Done
                 ),
                 keyboardActions = KeyboardActions(onDone = { activate() }),
                 modifier = Modifier.fillMaxWidth()

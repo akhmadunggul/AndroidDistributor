@@ -1,10 +1,5 @@
 package com.distributor.app.ui.screens
 
-import android.app.Activity
-import android.content.Intent
-import android.provider.ContactsContract
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,10 +17,17 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import android.app.Activity
+import android.content.Intent
+import android.provider.ContactsContract
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Contacts
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -49,8 +51,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -58,14 +60,15 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.distributor.app.R
-import com.distributor.app.data.entity.ResellerEntity
+import com.distributor.app.data.entity.SupplierEntity
 import com.distributor.app.ui.components.LanguageMenuIcon
-import com.distributor.app.ui.viewmodel.ResellerViewModel
+import com.distributor.app.ui.viewmodel.SupplierViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ResellerListScreen(
-    viewModel: ResellerViewModel = viewModel()
+fun SupplierListScreen(
+    onNavigateBack: () -> Unit = {},
+    viewModel: SupplierViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -80,39 +83,42 @@ fun ResellerListScreen(
 
     if (uiState.isFormOpen) {
         ModalBottomSheet(
-            onDismissRequest = { viewModel.closeForm() },
+            onDismissRequest = viewModel::closeForm,
             sheetState = sheetState
         ) {
-            ResellerForm(viewModel = viewModel)
+            SupplierForm(viewModel = viewModel)
         }
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.screen_resellers)) },
+                title = { Text(stringResource(R.string.screen_suppliers)) },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                    }
+                },
                 actions = { LanguageMenuIcon() }
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
-            FloatingActionButton(onClick = { viewModel.openForm() }) {
-                Icon(Icons.Default.Add, contentDescription = "Add reseller")
+            FloatingActionButton(onClick = viewModel::openForm) {
+                Icon(Icons.Default.Add, contentDescription = "Add supplier")
             }
         }
     ) { padding ->
-        if (uiState.resellers.isEmpty()) {
+        if (uiState.suppliers.isEmpty()) {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
+                modifier = Modifier.fillMaxSize().padding(padding),
                 contentAlignment = Alignment.Center
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(stringResource(R.string.resellers_empty_title), style = MaterialTheme.typography.titleMedium)
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(stringResource(R.string.suppliers_empty_title), style = MaterialTheme.typography.titleMedium)
+                    Spacer(Modifier.height(8.dp))
                     Text(
-                        text = stringResource(R.string.resellers_empty_hint),
+                        text = stringResource(R.string.suppliers_empty_hint),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -120,30 +126,25 @@ fun ResellerListScreen(
             }
         } else {
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .padding(horizontal = 16.dp),
+                modifier = Modifier.fillMaxSize().padding(padding).padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                item { Spacer(modifier = Modifier.height(4.dp)) }
-
-                items(uiState.resellers, key = { it.id }) { reseller ->
-                    ResellerCard(
-                        reseller = reseller,
-                        onEdit   = { viewModel.openFormForEdit(reseller) },
-                        onDelete = { viewModel.deleteReseller(reseller) }
+                item { Spacer(Modifier.height(4.dp)) }
+                items(uiState.suppliers, key = { it.id }) { supplier ->
+                    SupplierCard(
+                        supplier = supplier,
+                        onEdit   = { viewModel.openFormForEdit(supplier) },
+                        onDelete = { viewModel.deleteSupplier(supplier) }
                     )
                 }
-
-                item { Spacer(modifier = Modifier.height(88.dp)) }
+                item { Spacer(Modifier.height(88.dp)) }
             }
         }
     }
 }
 
 @Composable
-private fun ResellerCard(reseller: ResellerEntity, onEdit: () -> Unit, onDelete: () -> Unit) {
+private fun SupplierCard(supplier: SupplierEntity, onEdit: () -> Unit, onDelete: () -> Unit) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
@@ -152,72 +153,63 @@ private fun ResellerCard(reseller: ResellerEntity, onEdit: () -> Unit, onDelete:
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(reseller.name, fontWeight = FontWeight.SemiBold)
-                Text(
-                    text = reseller.phoneNumber,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                if (reseller.address.isNotBlank()) {
+                Text(supplier.name, fontWeight = FontWeight.SemiBold)
+                if (supplier.phoneNumber.isNotBlank()) {
                     Text(
-                        text = reseller.address,
+                        text = supplier.phoneNumber,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+                if (supplier.address.isNotBlank()) {
+                    Text(
+                        text = supplier.address,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                if (reseller.email.isNotBlank()) {
+                if (supplier.email.isNotBlank()) {
                     Text(
-                        text = reseller.email,
+                        text = supplier.email,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                if (supplier.notes.isNotBlank()) {
+                    Text(
+                        text = supplier.notes,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
             IconButton(onClick = onEdit) {
-                Icon(
-                    Icons.Default.Edit,
-                    contentDescription = "Edit ${reseller.name}",
-                    tint = MaterialTheme.colorScheme.primary
-                )
+                Icon(Icons.Default.Edit, contentDescription = "Edit ${supplier.name}", tint = MaterialTheme.colorScheme.primary)
             }
             IconButton(onClick = onDelete) {
-                Icon(
-                    Icons.Default.Delete,
-                    contentDescription = "Delete ${reseller.name}",
-                    tint = MaterialTheme.colorScheme.error
-                )
+                Icon(Icons.Default.Delete, contentDescription = "Delete ${supplier.name}", tint = MaterialTheme.colorScheme.error)
             }
         }
     }
 }
 
 @Composable
-private fun ResellerForm(viewModel: ResellerViewModel) {
+private fun SupplierForm(viewModel: SupplierViewModel) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
-    val contactLauncher = rememberLauncherForActivityResult(
+    val contactPickerLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             result.data?.data?.let { uri ->
                 context.contentResolver.query(
                     uri,
-                    arrayOf(
-                        ContactsContract.CommonDataKinds.Phone.NUMBER,
-                        ContactsContract.Contacts.DISPLAY_NAME
-                    ),
+                    arrayOf(ContactsContract.CommonDataKinds.Phone.NUMBER),
                     null, null, null
                 )?.use { cursor ->
                     if (cursor.moveToFirst()) {
-                        val phoneIdx = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
-                        val nameIdx  = cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)
-                        val phone = if (phoneIdx >= 0) cursor.getString(phoneIdx) ?: "" else ""
-                        val name  = if (nameIdx  >= 0) cursor.getString(nameIdx)  ?: "" else ""
-                        viewModel.onPhoneChanged(phone)
-                        if (uiState.nameInput.isBlank() && name.isNotBlank()) {
-                            viewModel.onNameChanged(name)
-                        }
+                        viewModel.onPhoneChanged(cursor.getString(0))
                     }
                 }
             }
@@ -234,8 +226,8 @@ private fun ResellerForm(viewModel: ResellerViewModel) {
     ) {
         Text(
             text = stringResource(
-                if (uiState.editingReseller != null) R.string.reseller_edit_form_title
-                else R.string.reseller_form_title
+                if (uiState.editingSupplier != null) R.string.supplier_edit_form_title
+                else R.string.supplier_form_title
             ),
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold
@@ -246,7 +238,7 @@ private fun ResellerForm(viewModel: ResellerViewModel) {
         OutlinedTextField(
             value = uiState.nameInput,
             onValueChange = viewModel::onNameChanged,
-            label = { Text(stringResource(R.string.reseller_name_label)) },
+            label = { Text(stringResource(R.string.supplier_name_label)) },
             isError = uiState.nameError != null,
             supportingText = uiState.nameError?.let { e -> { Text(e) } },
             modifier = Modifier.fillMaxWidth()
@@ -255,21 +247,15 @@ private fun ResellerForm(viewModel: ResellerViewModel) {
         OutlinedTextField(
             value = uiState.phoneInput,
             onValueChange = viewModel::onPhoneChanged,
-            label = { Text(stringResource(R.string.reseller_phone_label)) },
-            placeholder = { Text(stringResource(R.string.reseller_phone_placeholder)) },
-            isError = uiState.phoneError != null,
-            supportingText = uiState.phoneError?.let { e -> { Text(e) } },
+            label = { Text(stringResource(R.string.supplier_phone_label)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
             trailingIcon = {
                 IconButton(onClick = {
-                    contactLauncher.launch(
+                    contactPickerLauncher.launch(
                         Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Phone.CONTENT_URI)
                     )
                 }) {
-                    Icon(
-                        Icons.Default.Contacts,
-                        contentDescription = stringResource(R.string.cd_pick_contact)
-                    )
+                    Icon(Icons.Default.Contacts, contentDescription = "Pilih dari kontak")
                 }
             },
             modifier = Modifier.fillMaxWidth()
@@ -278,7 +264,7 @@ private fun ResellerForm(viewModel: ResellerViewModel) {
         OutlinedTextField(
             value = uiState.addressInput,
             onValueChange = viewModel::onAddressChanged,
-            label = { Text(stringResource(R.string.reseller_address_label)) },
+            label = { Text(stringResource(R.string.supplier_address_label)) },
             minLines = 2,
             modifier = Modifier.fillMaxWidth()
         )
@@ -286,21 +272,26 @@ private fun ResellerForm(viewModel: ResellerViewModel) {
         OutlinedTextField(
             value = uiState.emailInput,
             onValueChange = viewModel::onEmailChanged,
-            label = { Text(stringResource(R.string.reseller_email_label)) },
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Email,
-                imeAction = ImeAction.Done
-            ),
+            label = { Text(stringResource(R.string.supplier_email_label)) },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        OutlinedTextField(
+            value = uiState.notesInput,
+            onValueChange = viewModel::onNotesChanged,
+            label = { Text(stringResource(R.string.supplier_notes_label)) },
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             modifier = Modifier.fillMaxWidth()
         )
 
         OutlinedButton(
-            onClick = { viewModel.closeForm() },
+            onClick = viewModel::closeForm,
             modifier = Modifier.fillMaxWidth()
         ) { Text(stringResource(R.string.action_cancel)) }
 
-        androidx.compose.material3.Button(
-            onClick = { viewModel.saveReseller() },
+        Button(
+            onClick = viewModel::saveSupplier,
             enabled = !uiState.isSubmitting,
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -309,13 +300,13 @@ private fun ResellerForm(viewModel: ResellerViewModel) {
             } else {
                 Text(
                     stringResource(
-                        if (uiState.editingReseller != null) R.string.reseller_save_changes_button
-                        else R.string.reseller_register_button
+                        if (uiState.editingSupplier != null) R.string.supplier_save_changes_button
+                        else R.string.supplier_register_button
                     )
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(Modifier.height(16.dp))
     }
 }

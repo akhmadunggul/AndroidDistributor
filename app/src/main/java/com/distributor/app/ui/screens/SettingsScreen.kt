@@ -3,6 +3,9 @@ package com.distributor.app.ui.screens
 import android.graphics.BitmapFactory
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -35,9 +38,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -64,7 +64,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.distributor.app.BuildConfig
 import com.distributor.app.utils.BusinessConfigStore
-import com.distributor.app.utils.HomeLayoutStyle
 import com.distributor.app.R
 import com.distributor.app.ui.viewmodel.SettingsViewModel
 import kotlinx.coroutines.Dispatchers
@@ -82,12 +81,17 @@ fun SettingsScreen(
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val ctx = LocalContext.current
-    var homeLayout by remember { mutableStateOf(BusinessConfigStore.getHomeLayoutStyle(ctx)) }
 
     val savedMessage  = stringResource(R.string.settings_saved)
     val logoErrKey    = "logo_error"
     val logoErrMsg    = stringResource(R.string.settings_logo_error)
     val resetSuccess  = stringResource(R.string.reset_success)
+    val backupSuccess      = stringResource(R.string.settings_backup_success)
+    val backupFailed       = stringResource(R.string.settings_backup_failed)
+    val backupEmailSaved   = stringResource(R.string.settings_backup_email_saved)
+    val backupEmailReq     = stringResource(R.string.backup_email_required)
+    val restoreNotFound    = stringResource(R.string.settings_restore_not_found)
+    val restoreFailed      = stringResource(R.string.settings_restore_failed)
 
     var showResetConfirm1 by remember { mutableStateOf(false) }
     var showResetConfirm2 by remember { mutableStateOf(false) }
@@ -96,7 +100,17 @@ fun SettingsScreen(
 
     LaunchedEffect(uiState.snackbarMessage) {
         uiState.snackbarMessage?.let { msg ->
-            snackbarHostState.showSnackbar(if (msg == logoErrKey) logoErrMsg else msg)
+            val display = when (msg) {
+                logoErrKey       -> logoErrMsg
+                "backup_success"        -> backupSuccess
+                "backup_failed"         -> backupFailed
+                "backup_email_saved"    -> backupEmailSaved
+                "backup_email_required" -> backupEmailReq
+                "restore_not_found"     -> restoreNotFound
+                "restore_failed"        -> restoreFailed
+                else             -> msg
+            }
+            snackbarHostState.showSnackbar(display)
             viewModel.clearSnackbar()
         }
     }
@@ -196,38 +210,6 @@ fun SettingsScreen(
 
             HorizontalDivider()
 
-            // ── Display ───────────────────────────────────────────────────────
-            Text(
-                text  = stringResource(R.string.settings_display_section),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Text(
-                text  = stringResource(R.string.home_layout_label),
-                style = MaterialTheme.typography.bodyMedium
-            )
-            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-                HomeLayoutStyle.entries.forEachIndexed { index, style ->
-                    SegmentedButton(
-                        selected = homeLayout == style,
-                        onClick  = {
-                            homeLayout = style
-                            BusinessConfigStore.saveHomeLayoutStyle(ctx, style)
-                        },
-                        shape = SegmentedButtonDefaults.itemShape(index = index, count = 2)
-                    ) {
-                        Text(
-                            stringResource(
-                                if (style == HomeLayoutStyle.CARD) R.string.home_layout_card
-                                else R.string.home_layout_icon_grid
-                            )
-                        )
-                    }
-                }
-            }
-
-            HorizontalDivider()
-
             // ── Security ──────────────────────────────────────────────────────
             Text(
                 text = stringResource(R.string.settings_security_section),
@@ -239,6 +221,59 @@ fun SettingsScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(stringResource(R.string.settings_pin_setup))
+            }
+
+            HorizontalDivider()
+
+            // ── Backup & Restore ──────────────────────────────────────────────
+            Text(
+                text  = stringResource(R.string.settings_backup_section),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            OutlinedTextField(
+                value         = uiState.backupEmail,
+                onValueChange = viewModel::onBackupEmailChanged,
+                label         = { Text(stringResource(R.string.settings_backup_email_label)) },
+                singleLine    = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                modifier = Modifier.fillMaxWidth()
+            )
+            TextButton(
+                onClick  = viewModel::saveBackupEmail,
+                modifier = Modifier.align(Alignment.End)
+            ) {
+                Text(stringResource(R.string.settings_backup_email_save))
+            }
+
+            val lastFmt = if (uiState.lastBackupMs > 0L)
+                SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault())
+                    .format(Date(uiState.lastBackupMs))
+            else stringResource(R.string.settings_backup_never)
+
+            Text(
+                text  = stringResource(R.string.settings_last_backup, lastFmt),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Button(
+                onClick  = { viewModel.triggerBackupNow() },
+                enabled  = !uiState.isBackingUp,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                if (uiState.isBackingUp) {
+                    CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
+                } else {
+                    Text(stringResource(R.string.settings_backup_now))
+                }
+            }
+            OutlinedButton(
+                onClick  = { viewModel.showRestoreConfirm() },
+                enabled  = !uiState.isBackingUp,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(stringResource(R.string.settings_restore_button))
             }
 
             HorizontalDivider()
@@ -359,6 +394,30 @@ fun SettingsScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showDemoConfirm = false }) {
+                    Text(stringResource(R.string.action_cancel))
+                }
+            }
+        )
+    }
+
+    // ── Restore confirmation ───────────────────────────────────────────────
+    if (uiState.showRestoreConfirm) {
+        AlertDialog(
+            onDismissRequest = viewModel::dismissRestoreConfirm,
+            title   = { Text(stringResource(R.string.restore_confirm_title)) },
+            text    = { Text(stringResource(R.string.restore_confirm_message)) },
+            confirmButton = {
+                Button(
+                    onClick = { viewModel.restoreFromDrive() },
+                    colors  = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Text(stringResource(R.string.restore_confirm_proceed))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = viewModel::dismissRestoreConfirm) {
                     Text(stringResource(R.string.action_cancel))
                 }
             }

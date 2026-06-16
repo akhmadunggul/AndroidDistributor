@@ -1,5 +1,6 @@
 package com.distributor.app.ui.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -38,8 +39,12 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -58,11 +63,16 @@ import com.distributor.app.ui.viewmodel.LedgerPdfState
 import com.distributor.app.ui.viewmodel.LedgerPeriod
 import com.distributor.app.ui.viewmodel.LedgerViewModel
 import com.distributor.app.ui.viewmodel.ReportPeriod
+import com.distributor.app.utils.PaymentReceiptData
+import com.distributor.app.utils.ReceiptData
+import com.distributor.app.utils.ReceiptPdfGenerator
 import com.distributor.app.utils.ReceiptShareHandler
 import com.distributor.app.utils.formatRupiah
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,6 +83,10 @@ fun LedgerScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val dateRangePickerState = rememberDateRangePickerState()
+
+    // ── Reshare sheets ─────────────────────────────────────────────────────
+    uiState.pendingReshareReceipt?.let { ReshareInvoiceSheet(it) { viewModel.clearReshare() } }
+    uiState.pendingResharePayment?.let { ResharePaymentSheet(it) { viewModel.clearReshare() } }
 
     // ── PDF dialogs ────────────────────────────────────────────────────────
     when (val pdf = uiState.pdfState) {
@@ -224,25 +238,35 @@ fun LedgerScreen(
                 }
             }
 
-            // Summary cards — row 2: Outstanding / Gross Profit
+            // Summary cards — row 2: Purchases / Gross Profit
             item {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     StatCard(
-                        label          = stringResource(R.string.ledger_outstanding),
-                        amount         = uiState.outstandingBalance,
-                        containerColor = if (uiState.outstandingBalance > 0.0)
-                            MaterialTheme.colorScheme.errorContainer
-                        else
-                            MaterialTheme.colorScheme.surfaceVariant,
-                        modifier = Modifier.weight(1f)
+                        label          = stringResource(R.string.purchase_total_paid),
+                        amount         = uiState.totalPurchased,
+                        containerColor = MaterialTheme.colorScheme.errorContainer,
+                        modifier       = Modifier.weight(1f)
                     )
                     StatCard(
                         label          = stringResource(R.string.ledger_gross_profit),
                         amount         = uiState.grossProfit,
                         containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        modifier = Modifier.weight(1f)
+                        modifier       = Modifier.weight(1f)
                     )
                 }
+            }
+
+            // Summary cards — row 3: Outstanding (full width)
+            item {
+                StatCard(
+                    label          = stringResource(R.string.ledger_outstanding),
+                    amount         = uiState.outstandingBalance,
+                    containerColor = if (uiState.outstandingBalance > 0.0)
+                        MaterialTheme.colorScheme.errorContainer
+                    else
+                        MaterialTheme.colorScheme.surfaceVariant,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
 
             // Top buyers section
@@ -284,13 +308,13 @@ fun LedgerScreen(
                 items(uiState.entries, key = { entry ->
                     when (entry) {
                         is LedgerEntry.Sale    -> "sale_${entry.invoiceNumber}"
-                        is LedgerEntry.Payment -> "pay_${entry.timestampMillis}_${entry.resellerName}"
+                        is LedgerEntry.Payment -> "pay_${entry.id}"
                         is LedgerEntry.Return  -> "rtn_${entry.returnNumber}"
                     }
                 }) { entry ->
                     when (entry) {
-                        is LedgerEntry.Sale    -> SaleEntryRow(entry)
-                        is LedgerEntry.Payment -> PaymentEntryRow(entry)
+                        is LedgerEntry.Sale    -> SaleEntryRow(entry) { viewModel.reshareInvoice(entry.invoiceNumber) }
+                        is LedgerEntry.Payment -> PaymentEntryRow(entry) { viewModel.resharePayment(entry.id) }
                         is LedgerEntry.Return  -> ReturnEntryRow(entry)
                     }
                     HorizontalDivider()
@@ -330,10 +354,11 @@ private fun StatCard(
 }
 
 @Composable
-private fun SaleEntryRow(entry: LedgerEntry.Sale) {
+private fun SaleEntryRow(entry: LedgerEntry.Sale, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable(onClick = onClick)
             .padding(vertical = 10.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment     = Alignment.CenterVertically
@@ -383,10 +408,11 @@ private fun SaleEntryRow(entry: LedgerEntry.Sale) {
 }
 
 @Composable
-private fun PaymentEntryRow(entry: LedgerEntry.Payment) {
+private fun PaymentEntryRow(entry: LedgerEntry.Payment, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable(onClick = onClick)
             .padding(vertical = 10.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment     = Alignment.CenterVertically
@@ -554,6 +580,45 @@ private fun TopPerProductCard(entries: List<ProductResellerSales>) {
             }
         }
     }
+}
+
+@Composable
+private fun ReshareInvoiceSheet(receiptData: ReceiptData, onDismiss: () -> Unit) {
+    val context = LocalContext.current
+    var pdfFile by remember { mutableStateOf<java.io.File?>(null) }
+    var isGenerating by remember { mutableStateOf(true) }
+    LaunchedEffect(receiptData) {
+        try { pdfFile = withContext(Dispatchers.IO) { ReceiptPdfGenerator(context).generate(receiptData) } }
+        catch (_: Exception) { onDismiss() }
+        finally { isGenerating = false }
+    }
+    PdfPreviewSheet(
+        file           = pdfFile,
+        isGenerating   = isGenerating,
+        title          = stringResource(R.string.share_receipt_title),
+        subtitle       = receiptData.transaction.invoiceNumber,
+        resellerEmail  = receiptData.resellerEmail,
+        onDismiss      = onDismiss
+    )
+}
+
+@Composable
+private fun ResharePaymentSheet(receiptData: PaymentReceiptData, onDismiss: () -> Unit) {
+    val context = LocalContext.current
+    var pdfFile by remember { mutableStateOf<java.io.File?>(null) }
+    var isGenerating by remember { mutableStateOf(true) }
+    LaunchedEffect(receiptData) {
+        try { pdfFile = withContext(Dispatchers.IO) { ReceiptPdfGenerator(context).generatePaymentReceipt(receiptData) } }
+        catch (_: Exception) { onDismiss() }
+        finally { isGenerating = false }
+    }
+    PdfPreviewSheet(
+        file          = pdfFile,
+        isGenerating  = isGenerating,
+        title         = stringResource(R.string.payment_receipt_title),
+        resellerEmail = receiptData.resellerEmail,
+        onDismiss     = onDismiss
+    )
 }
 
 private fun LedgerPeriod.labelRes(): Int = when (this) {

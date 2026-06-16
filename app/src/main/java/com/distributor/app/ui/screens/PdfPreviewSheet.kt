@@ -25,7 +25,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Business
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -37,6 +39,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -70,16 +73,23 @@ internal fun PdfPreviewSheet(
     isGenerating: Boolean,
     title: String,
     subtitle: String = "",
+    resellerEmail: String = "",
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    // Prevent sheet from being dismissed by swipe/overscroll — only buttons can close it
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true,
+        confirmValueChange = { it != SheetValue.Hidden }
+    )
     var renderedPages by remember { mutableStateOf(emptyList<Bitmap>()) }
     var renderError by remember { mutableStateOf(false) }
     var scale by remember { mutableFloatStateOf(1f) }
+    var confirmed by remember { mutableStateOf(false) }
 
     LaunchedEffect(file) {
         if (file == null) return@LaunchedEffect
+        confirmed = false
         renderError = false
         renderedPages = emptyList()
         scale = 1f
@@ -115,8 +125,9 @@ internal fun PdfPreviewSheet(
     }
 
     ModalBottomSheet(
-        onDismissRequest = { if (!isLoading) onDismiss() },
+        onDismissRequest = {},
         sheetState = sheetState,
+        dragHandle = {},
         modifier = Modifier.fillMaxHeight(0.95f)
     ) {
         Column(Modifier.fillMaxSize()) {
@@ -125,7 +136,7 @@ internal fun PdfPreviewSheet(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 10.dp),
+                    .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(Modifier.weight(1f)) {
@@ -143,9 +154,79 @@ internal fun PdfPreviewSheet(
                     }
                 }
             }
+
+            // ── Actions (above PDF so they stay visible when scrolling) ───────
+            HorizontalDivider()
+            if (!isLoading && !renderError) {
+                if (confirmed) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp, vertical = 6.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        PdfShareOption(
+                            icon    = Icons.AutoMirrored.Filled.Send,
+                            label   = stringResource(R.string.share_whatsapp),
+                            enabled = file != null
+                        ) {
+                            file?.let { ReceiptShareHandler.shareToWhatsApp(context, it) }
+                            onDismiss()
+                        }
+                        PdfShareOption(
+                            icon    = Icons.Default.Business,
+                            label   = stringResource(R.string.share_whatsapp_business),
+                            enabled = file != null
+                        ) {
+                            file?.let { ReceiptShareHandler.shareToWhatsAppBusiness(context, it) }
+                            onDismiss()
+                        }
+                        PdfShareOption(
+                            icon    = Icons.Default.Email,
+                            label   = stringResource(R.string.share_via_email),
+                            enabled = file != null
+                        ) {
+                            file?.let {
+                                ReceiptShareHandler.shareViaEmail(
+                                    context  = context,
+                                    file     = it,
+                                    toEmail  = resellerEmail,
+                                    subject  = subtitle.ifBlank { title }
+                                )
+                            }
+                            onDismiss()
+                        }
+                        PdfShareOption(
+                            icon    = Icons.Default.Share,
+                            label   = stringResource(R.string.share_other_apps),
+                            enabled = file != null
+                        ) {
+                            file?.let { ReceiptShareHandler.shareViaSystemSheet(context, it) }
+                            onDismiss()
+                        }
+                    }
+                } else {
+                    Button(
+                        onClick  = { confirmed = true },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 4.dp)
+                    ) {
+                        Text(stringResource(R.string.share_confirm_button))
+                    }
+                }
+            }
+            OutlinedButton(
+                onClick  = onDismiss,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 16.dp, top = 2.dp, bottom = 8.dp)
+            ) {
+                Text(stringResource(R.string.share_not_now))
+            }
             HorizontalDivider()
 
-            // ── PDF preview ──────────────────────────────────────────────────
+            // ── PDF preview (fills remaining space, scrollable) ───────────────
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -204,53 +285,8 @@ internal fun PdfPreviewSheet(
                                 }
                             }
                         }
-
                     }
                 }
-            }
-
-            // ── Share actions (compact row) ───────────────────────────────────
-            HorizontalDivider()
-            if (!isLoading && !renderError) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp, vertical = 6.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    PdfShareOption(
-                        icon    = Icons.AutoMirrored.Filled.Send,
-                        label   = stringResource(R.string.share_whatsapp),
-                        enabled = file != null
-                    ) {
-                        file?.let { ReceiptShareHandler.shareToWhatsApp(context, it) }
-                        onDismiss()
-                    }
-                    PdfShareOption(
-                        icon    = Icons.Default.Business,
-                        label   = stringResource(R.string.share_whatsapp_business),
-                        enabled = file != null
-                    ) {
-                        file?.let { ReceiptShareHandler.shareToWhatsAppBusiness(context, it) }
-                        onDismiss()
-                    }
-                    PdfShareOption(
-                        icon    = Icons.Default.Share,
-                        label   = stringResource(R.string.share_other_apps),
-                        enabled = file != null
-                    ) {
-                        file?.let { ReceiptShareHandler.shareViaSystemSheet(context, it) }
-                        onDismiss()
-                    }
-                }
-            }
-            OutlinedButton(
-                onClick  = onDismiss,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 16.dp, end = 16.dp, top = 2.dp, bottom = 8.dp)
-            ) {
-                Text(stringResource(R.string.share_not_now))
             }
         }
     }

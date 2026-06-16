@@ -66,6 +66,22 @@ object ReceiptShareHandler {
         launchSystemChooser(context, uri)
     }
 
+    /**
+     * Opens an email chooser with the PDF attached and the To/Subject pre-filled.
+     * If [toEmail] is blank the email client opens without a pre-filled recipient.
+     */
+    fun shareViaEmail(context: Context, file: File, toEmail: String, subject: String = "") {
+        val uri: Uri = buildContentUri(context, file)
+        val intent = buildShareIntent(uri).apply {
+            if (toEmail.isNotBlank()) putExtra(Intent.EXTRA_EMAIL, arrayOf(toEmail))
+            if (subject.isNotBlank())  putExtra(Intent.EXTRA_SUBJECT, subject)
+        }
+        val chooser = Intent.createChooser(intent, "Send via Email").apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        context.startActivity(chooser)
+    }
+
     // ── Private helpers ───────────────────────────────────────────────────────
 
     /**

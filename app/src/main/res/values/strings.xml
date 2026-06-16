@@ -71,11 +71,14 @@
     <string name="resellers_empty_title">No resellers yet</string>
     <string name="resellers_empty_hint">Tap + to register your first reseller</string>
     <string name="reseller_form_title">New Reseller</string>
+    <string name="reseller_edit_form_title">Edit Reseller</string>
     <string name="reseller_name_label">Full Name *</string>
     <string name="reseller_phone_label">Phone Number *</string>
     <string name="reseller_phone_placeholder">e.g. 08123456789</string>
     <string name="reseller_address_label">Address (optional)</string>
+    <string name="reseller_email_label">Email (optional)</string>
     <string name="reseller_register_button">Register Reseller</string>
+    <string name="reseller_save_changes_button">Save Changes</string>
 
     <!-- Stock operation screen -->
     <string name="stock_section_current">Current Stock</string>
@@ -164,9 +167,41 @@
     <string name="share_whatsapp">WhatsApp</string>
     <string name="share_whatsapp_business">WhatsApp Business</string>
     <string name="share_other_apps">Other Apps</string>
+    <string name="share_via_email">Email</string>
     <string name="share_not_now">Not Now</string>
+    <string name="share_confirm_button">Confirm &amp; Send</string>
     <string name="share_generating">Generating PDF…</string>
     <string name="share_error">Failed to generate receipt</string>
+
+    <!-- Suppliers screen -->
+    <string name="screen_suppliers">Suppliers</string>
+    <string name="tab_suppliers">Suppliers</string>
+    <string name="home_desc_suppliers">Manage supplier contacts</string>
+    <string name="suppliers_empty_title">No suppliers yet</string>
+    <string name="suppliers_empty_hint">Tap + to register your first supplier</string>
+    <string name="supplier_form_title">New Supplier</string>
+    <string name="supplier_edit_form_title">Edit Supplier</string>
+    <string name="supplier_name_label">Supplier Name *</string>
+    <string name="supplier_phone_label">Phone Number</string>
+    <string name="supplier_address_label">Address (optional)</string>
+    <string name="supplier_email_label">Email (optional)</string>
+    <string name="supplier_notes_label">Notes (optional)</string>
+    <string name="supplier_register_button">Register Supplier</string>
+    <string name="supplier_save_changes_button">Save Changes</string>
+
+    <!-- Purchase payment screen -->
+    <string name="screen_purchase">Purchase Payment</string>
+    <string name="tab_purchase">Purchase</string>
+    <string name="home_desc_purchase">Record payments to suppliers</string>
+    <string name="purchase_select_supplier">Select Supplier</string>
+    <string name="purchase_amount_label">Payment Amount *</string>
+    <string name="purchase_method_label">Payment Method</string>
+    <string name="purchase_date_label">Purchase Date</string>
+    <string name="purchase_notes_label">Notes (optional)</string>
+    <string name="purchase_submit_button">Record Payment</string>
+    <string name="purchase_history_title">Purchase History</string>
+    <string name="purchase_empty">No purchase payments recorded yet.</string>
+    <string name="purchase_total_paid">Total Purchases</string>
 
     <!-- Reseller contact picker -->
     <string name="cd_pick_contact">Pick from contacts</string>
@@ -242,6 +277,8 @@
     <string name="activation_error_revoked">This licence has been revoked.</string>
     <string name="activation_error_other_device">This key is already activated on another device.</string>
     <string name="activation_error_generic">Activation failed. Please try again.</string>
+    <string name="activation_email_label">Email Address</string>
+    <string name="activation_email_error_invalid">Please enter a valid email address.</string>
     <string name="license_expired_title">Trial Expired</string>
     <string name="license_expired_body">Your trial period has ended. Contact your distributor to renew your licence.</string>
     <string name="license_registered_expired_title">Licence Expired</string>
@@ -257,12 +294,6 @@
     <string name="license_contact_distributor">Contact Distro-Ku</string>
     <string name="license_dismiss">Later</string>
 <string name="wa_contact_unavailable">Contact number not available yet. Try again shortly.</string>
-
-    <!-- Home menu layout -->
-    <string name="settings_display_section">Display</string>
-    <string name="home_layout_label">Main Menu Layout</string>
-    <string name="home_layout_card">Card</string>
-    <string name="home_layout_icon_grid">Icon Grid</string>
 
     <!-- PDF preview sheet -->
     <string name="preview_share_via">Share via:</string>
@@ -296,6 +327,28 @@
     <string name="demo_confirm_message">All existing data will be cleared and replaced with sample data for demonstration purposes.</string>
     <string name="demo_confirm_load">Load Demo Data</string>
     <string name="demo_data_loaded">Demo data loaded successfully.</string>
+    <!-- Backup & Restore -->
+    <string name="settings_backup_section">Backup &amp; Restore</string>
+    <string name="settings_backup_hint">Connect your Google Drive to automatically back up your data every day. You can restore your data on a new device using the same Google account.</string>
+    <string name="settings_backup_connect">Connect Google Drive</string>
+    <string name="settings_backup_connected">Connected: %s</string>
+    <string name="settings_backup_disconnect">Disconnect</string>
+    <string name="settings_backup_now">Backup Now</string>
+    <string name="settings_backup_email_label">Backup Email</string>
+    <string name="settings_backup_email_save">Save</string>
+    <string name="settings_backup_email_saved">Backup email saved.</string>
+    <string name="backup_email_required">Set your backup email above before backing up.</string>
+    <string name="settings_restore_button">Restore from Cloud</string>
+    <string name="settings_last_backup">Last backup: %s</string>
+    <string name="settings_backup_never">Never</string>
+    <string name="settings_backup_success">Backup successful.</string>
+    <string name="settings_backup_failed">Backup failed. Check your internet connection and try again.</string>
+    <string name="settings_restore_not_found">No backup found. Make sure you use the same email as the original device.</string>
+    <string name="settings_restore_failed">Restore failed. Check your connection and try again.</string>
+    <string name="restore_confirm_title">Restore from Cloud?</string>
+    <string name="restore_confirm_message">This will replace ALL local data with the cloud backup. This action cannot be undone. The app will restart automatically after restoring.</string>
+    <string name="restore_confirm_proceed">Restore</string>
+
     <string name="settings_reset_button">Reset All Data</string>
     <string name="reset_confirm1_title">Reset All Data?</string>
     <string name="reset_confirm1_message">This will permanently delete all products, resellers, transactions, stock records, and payment history. Settings and business info will be kept.</string>
@@ -313,10 +366,22 @@
     <string name="faq_section_general">General</string>
     <string name="faq_q_what_is_app">What is Distro-Ku?</string>
     <string name="faq_a_what_is_app">Distro-Ku is a fully offline distribution management app for small businesses. Record stock, create invoices, manage resellers, and track finances — all stored on your device with no internet required.</string>
+    <string name="faq_q_paperless">Is this app paperless?</string>
+    <string name="faq_a_paperless">Yes. Distro-Ku is designed to manage all distribution transactions digitally — without a single sheet of paper. Invoices, payment receipts, and financial summaries are all available in digital format and can be shared instantly via WhatsApp or email.</string>
     <string name="faq_q_need_internet">Does it require an internet connection?</string>
-    <string name="faq_a_need_internet">No. All data is stored locally on your device. Internet is only needed for the initial licence activation.</string>
-    <string name="faq_q_data_backup">How do I back up my data?</string>
-    <string name="faq_a_data_backup">Manual backup is not yet available in-app. Avoid clearing app data or factory resetting your device without a device backup to prevent data loss.</string>
+    <string name="faq_a_need_internet">No. All data is stored locally on your device. Internet is only needed for licence activation and Google Drive backup.</string>
+    <string name="faq_q_data_backup">How do I back up and restore my data?</string>
+    <string name="faq_a_data_backup">Connect your Google Drive in Settings → Backup Data. Once connected, the app automatically backs up your database to Google Drive every day. If you factory reset your phone or switch to a new device, install the app, connect the same Google account, then tap Restore from Drive — your data will be fully recovered.</string>
+
+    <string name="faq_section_license">Licence</string>
+    <string name="faq_q_how_activate">How do I activate my licence?</string>
+    <string name="faq_a_how_activate">When you first open the app, enter the licence key you received after purchase. Activation requires an internet connection and binds the licence to one device.</string>
+    <string name="faq_q_license_duration">How long does a licence last?</string>
+    <string name="faq_a_license_duration">Licences are available in 1-month and 1-year packages. Your remaining days are shown on the activation screen. A warning is displayed 7 days before expiry so you can renew in time.</string>
+    <string name="faq_q_license_expired">What happens when my licence expires?</string>
+    <string name="faq_a_license_expired">When the licence expires the app is locked and all features become inaccessible until you renew. Your data is safe and will not be deleted. Contact the admin via WhatsApp to renew.</string>
+    <string name="faq_q_license_multidevice">Can I use one licence on multiple devices?</string>
+    <string name="faq_a_license_multidevice">No. Each licence is bound to a single device. If you need to move to a new device, contact the admin — migration to a new device can be arranged.</string>
 
     <string name="faq_section_products">Products</string>
     <string name="faq_q_add_product">How do I add a new product?</string>
@@ -347,20 +412,28 @@
     <string name="faq_section_payment">Payment</string>
     <string name="faq_q_record_payment">How do I record a payment from a reseller?</string>
     <string name="faq_a_record_payment">Open Payment, select a reseller, enter the payment amount and method, then tap Payment. The system uses FIFO — oldest invoices are settled first. A preview of the allocation is shown before you confirm.</string>
-    <string name="faq_q_share_receipt">How do I share a payment receipt?</string>
-    <string name="faq_a_share_receipt">After recording a payment, a Share option appears. The app generates a PDF receipt which you can send directly via WhatsApp or any other app.</string>
+    <string name="faq_q_share_receipt">How do I share an invoice or receipt?</string>
+    <string name="faq_a_share_receipt">After creating an invoice or recording a payment, a Share option appears. The app generates a PDF which you can send via WhatsApp, WhatsApp Business, Email (auto-fills the reseller\'s email address if saved), or any other app. You can also reshare past invoices and receipts directly from the Ledger by tapping any entry.</string>
 
     <string name="faq_section_reseller">Resellers &amp; Returns</string>
-    <string name="faq_q_add_reseller">How do I register a reseller?</string>
-    <string name="faq_a_add_reseller">Open Resellers, tap + to create a new entry. Fill in the name, phone number, and optional address. You can also import contact details directly from your phone\'s contacts with one tap.</string>
+    <string name="faq_q_add_reseller">How do I register or edit a reseller?</string>
+    <string name="faq_a_add_reseller">Open Resellers, tap + to add a new reseller or the pencil icon on an existing card to edit. Fill in the name, phone number, address, and email. The email address is used to auto-fill the recipient when sharing an invoice via email. You can import the phone number from your phone\'s contacts with one tap.</string>
     <string name="faq_q_return">How do I process a product return?</string>
     <string name="faq_a_return">Open Returns from the home screen, select a reseller, add return items with quantities and a reason (Unsold, Defect, or Other), then submit. Return values are automatically deducted from revenue in the Ledger.</string>
 
     <string name="faq_section_ledger">Ledger</string>
     <string name="faq_q_what_is_ledger">What is shown in the Ledger?</string>
-    <string name="faq_a_what_is_ledger">The Ledger shows a financial summary: Revenue (total invoiced), Collected (payments received), Outstanding (unpaid balance), and Gross Profit. Filter by Today, This Week, This Month, This Year, or All Time.</string>
+    <string name="faq_a_what_is_ledger">The Ledger shows a financial summary for the selected period: Revenue (total invoiced), Collected (payments received), Total Purchases (payments made to suppliers), Gross Profit, and Outstanding (unpaid balance). Filter by Today, This Week, This Month, This Year, or All Time.</string>
     <string name="faq_q_gross_profit">How is Gross Profit calculated?</string>
-    <string name="faq_a_gross_profit">Gross Profit = Total revenue − Cost of goods sold − Return values. It is an estimated profit margin before other operating costs such as transport or overheads.</string>
+    <string name="faq_a_gross_profit">Gross Profit = Total revenue − Cost of goods sold − Return values. It is an estimated margin before other operational costs such as transport or overheads. Supplier purchase payments are tracked separately in the Total Purchases card.</string>
+
+    <string name="faq_section_supplier">Suppliers &amp; Purchases</string>
+    <string name="faq_q_what_is_supplier">What is the Supplier menu?</string>
+    <string name="faq_a_what_is_supplier">The Supplier menu lets you register producers or suppliers from whom you purchase goods. Store their name, phone number, address, email, and notes. Tap the contact icon on the phone field to import a number directly from your phone\'s contacts.</string>
+    <string name="faq_q_record_purchase">How do I record a purchase payment to a supplier?</string>
+    <string name="faq_a_record_purchase">Open Purchase Payment from the home screen, select a supplier, enter the amount, pick a date, choose the payment method (Cash / Transfer / Other), add optional notes, then tap Submit. All entries appear in the history list below the form.</string>
+    <string name="faq_q_purchase_in_ledger">Where do supplier payments appear in the Ledger?</string>
+    <string name="faq_a_purchase_in_ledger">Total purchase payments for the selected period appear in the Total Purchases card in the Ledger. This gives you a quick view of outgoing vs. incoming cash flow alongside revenue and profit figures.</string>
 
     <string name="faq_section_settings">Settings</string>
     <string name="faq_q_pin_lock">What is PIN Lock?</string>

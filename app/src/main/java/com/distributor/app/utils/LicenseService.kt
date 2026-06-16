@@ -2,7 +2,10 @@ package com.distributor.app.utils
 
 import com.distributor.app.BuildConfig
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.runInterruptible
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import org.json.JSONObject
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
@@ -61,25 +64,21 @@ object LicenseService {
 
     suspend fun activate(
         key: String, deviceId: String, deviceModel: String
-    ): LicenseResponse? = withContext(Dispatchers.IO) {
-        post(JSONObject().apply {
-            put("action",       "activate")
-            put("key",          key)
-            put("device_id",    deviceId)
-            put("device_model", deviceModel)
-            put("app_version",  BuildConfig.VERSION_NAME)
-        })
-    }
+    ): LicenseResponse? = post(JSONObject().apply {
+        put("action",       "activate")
+        put("key",          key)
+        put("device_id",    deviceId)
+        put("device_model", deviceModel)
+        put("app_version",  BuildConfig.VERSION_NAME)
+    })
 
     suspend fun check(key: String, deviceId: String): LicenseResponse? =
-        withContext(Dispatchers.IO) {
-            post(JSONObject().apply {
-                put("action",      "check")
-                put("key",         key)
-                put("device_id",   deviceId)
-                put("app_version", BuildConfig.VERSION_NAME)
-            })
-        }
+        post(JSONObject().apply {
+            put("action",      "check")
+            put("key",         key)
+            put("device_id",   deviceId)
+            put("app_version", BuildConfig.VERSION_NAME)
+        })
 
     fun parseExpiryDate(isoStr: String): Long {
         if (isoStr.isBlank()) return 0L
@@ -90,11 +89,11 @@ object LicenseService {
         } catch (_: Exception) { 0L }
     }
 
-    suspend fun fetchPackages(): List<LicensePackage>? = withContext(Dispatchers.IO) {
+    suspend fun fetchPackages(): List<LicensePackage>? {
         val (j, _) = postJsonWithRaw(JSONObject().apply { put("action", "getPackages") })
-        if (j == null || !j.optBoolean("success", false)) return@withContext null
-        val arr = j.optJSONArray("packages") ?: return@withContext null
-        (0 until arr.length()).map { i ->
+        if (j == null || !j.optBoolean("success", false)) return null
+        val arr = j.optJSONArray("packages") ?: return null
+        return (0 until arr.length()).map { i ->
             val pkg = arr.getJSONObject(i)
             LicensePackage(
                 id           = pkg.getString("id"),
@@ -108,7 +107,7 @@ object LicenseService {
     suspend fun createPayment(
         packageId: String, amount: Long, deviceId: String, deviceModel: String,
         paymentType: String = "qris"
-    ): PaymentOrder? = withContext(Dispatchers.IO) {
+    ): PaymentOrder? {
         val (j, _) = postJsonWithRaw(JSONObject().apply {
             put("action",       "createPayment")
             put("package_id",   packageId)
@@ -117,8 +116,8 @@ object LicenseService {
             put("device_model", deviceModel)
             put("payment_type", paymentType)
         })
-        if (j == null || !j.optBoolean("success", false)) return@withContext null
-        PaymentOrder(
+        if (j == null || !j.optBoolean("success", false)) return null
+        return PaymentOrder(
             orderId     = j.getString("order_id"),
             qrString    = j.optString("qr_string", ""),
             expiryMs    = j.getLong("expiry_ms"),
@@ -128,29 +127,28 @@ object LicenseService {
         )
     }
 
-    suspend fun checkPayment(orderId: String, deviceId: String): PaymentCheckResult? =
-        withContext(Dispatchers.IO) {
-            val (j, _) = postJsonWithRaw(JSONObject().apply {
-                put("action",    "checkPayment")
-                put("order_id",  orderId)
-                put("device_id", deviceId)
-            })
-            if (j == null || !j.optBoolean("success", false)) return@withContext null
-            PaymentCheckResult(
-                status        = j.optString("payment_status", "PENDING"),
-                licenseStatus = j.optString("license_status", ""),
-                daysRemaining = j.optInt("days_remaining", 0),
-                expiryDate    = j.optString("expiry_date", "")
-            )
-        }
-
-    suspend fun fetchContactWa(): String? = withContext(Dispatchers.IO) {
-        val (j, _) = postJsonWithRaw(JSONObject().apply { put("action", "getContactWa") })
-        if (j == null || !j.optBoolean("success", false)) return@withContext null
-        j.optString("wa_number", null).takeIf { !it.isNullOrBlank() }
+    suspend fun checkPayment(orderId: String, deviceId: String): PaymentCheckResult? {
+        val (j, _) = postJsonWithRaw(JSONObject().apply {
+            put("action",    "checkPayment")
+            put("order_id",  orderId)
+            put("device_id", deviceId)
+        })
+        if (j == null || !j.optBoolean("success", false)) return null
+        return PaymentCheckResult(
+            status        = j.optString("payment_status", "PENDING"),
+            licenseStatus = j.optString("license_status", ""),
+            daysRemaining = j.optInt("days_remaining", 0),
+            expiryDate    = j.optString("expiry_date", "")
+        )
     }
 
-    private fun post(body: JSONObject): LicenseResponse? {
+    suspend fun fetchContactWa(): String? {
+        val (j, _) = postJsonWithRaw(JSONObject().apply { put("action", "getContactWa") })
+        if (j == null || !j.optBoolean("success", false)) return null
+        return j.optString("wa_number", null).takeIf { !it.isNullOrBlank() }
+    }
+
+    private suspend fun post(body: JSONObject): LicenseResponse? {
         val (j, _) = postJsonWithRaw(body)
         j ?: return null
         return LicenseResponse(
@@ -163,27 +161,43 @@ object LicenseService {
         )
     }
 
-    private fun postJsonWithRaw(body: JSONObject): Pair<JSONObject?, String?> {
-        return try {
-            val conn = URL(LICENSE_API_URL).openConnection() as HttpURLConnection
-            conn.requestMethod           = "POST"
-            conn.connectTimeout          = 8_000
-            conn.readTimeout             = 8_000
-            conn.doOutput                = true
-            conn.instanceFollowRedirects = true
-            conn.setRequestProperty("Content-Type", "application/json")
-            conn.setRequestProperty("User-Agent",   "DistributorApp/1.0")
-            OutputStreamWriter(conn.outputStream).use { it.write(body.toString()) }
-            val code = conn.responseCode
-            if (code != HttpURLConnection.HTTP_OK) {
-                conn.disconnect()
-                return Pair(null, "HTTP $code")
+    // Hard 12-second deadline per request. Google Apps Script always issues an HTTP
+    // redirect, and HttpURLConnection does NOT carry connectTimeout/readTimeout to the
+    // redirected connection (known JDK bug), so the second leg can hang forever.
+    // runInterruptible makes blocking I/O respond to thread interrupts, and withTimeout
+    // fires the interrupt when the deadline is reached.
+    private suspend fun postJsonWithRaw(body: JSONObject): Pair<JSONObject?, String?> =
+        withContext(Dispatchers.IO) {
+            try {
+                withTimeout(12_000L) {
+                    runInterruptible {
+                        val conn = URL(LICENSE_API_URL).openConnection() as HttpURLConnection
+                        conn.requestMethod           = "POST"
+                        conn.connectTimeout          = 5_000
+                        conn.readTimeout             = 8_000
+                        conn.doOutput                = true
+                        conn.instanceFollowRedirects = true
+                        conn.setRequestProperty("Content-Type", "application/json")
+                        conn.setRequestProperty("User-Agent",   "DistributorApp/1.0")
+                        try {
+                            OutputStreamWriter(conn.outputStream).use { it.write(body.toString()) }
+                            val code = conn.responseCode
+                            if (code != HttpURLConnection.HTTP_OK) {
+                                conn.disconnect()
+                                return@runInterruptible Pair(null, "HTTP $code")
+                            }
+                            val raw = conn.inputStream.bufferedReader().use { it.readText() }
+                            conn.disconnect()
+                            Pair(JSONObject(raw), raw)
+                        } finally {
+                            conn.disconnect()
+                        }
+                    }
+                }
+            } catch (_: TimeoutCancellationException) {
+                Pair(null, "Timeout")
+            } catch (e: Exception) {
+                Pair(null, "${e.javaClass.simpleName}: ${e.message}")
             }
-            val raw = conn.inputStream.bufferedReader().use { it.readText() }
-            conn.disconnect()
-            Pair(JSONObject(raw), raw)
-        } catch (e: Exception) {
-            Pair(null, "${e.javaClass.simpleName}: ${e.message}")
         }
-    }
 }
