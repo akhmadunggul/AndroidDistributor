@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -26,6 +27,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Contacts
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -41,13 +43,16 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -70,6 +75,7 @@ fun ResellerListScreen(
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var resellerToDelete by remember { mutableStateOf<ResellerEntity?>(null) }
 
     LaunchedEffect(uiState.snackbarMessage) {
         uiState.snackbarMessage?.let {
@@ -132,13 +138,37 @@ fun ResellerListScreen(
                     ResellerCard(
                         reseller = reseller,
                         onEdit   = { viewModel.openFormForEdit(reseller) },
-                        onDelete = { viewModel.deleteReseller(reseller) }
+                        onDelete = { resellerToDelete = reseller }
                     )
                 }
 
                 item { Spacer(modifier = Modifier.height(88.dp)) }
             }
         }
+    }
+
+    resellerToDelete?.let { reseller ->
+        AlertDialog(
+            onDismissRequest = { resellerToDelete = null },
+            title = { Text(stringResource(R.string.reseller_delete_confirm_title)) },
+            text  = { Text(stringResource(R.string.reseller_delete_confirm_message, reseller.name)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.deleteReseller(reseller)
+                    resellerToDelete = null
+                }) {
+                    Text(
+                        stringResource(R.string.reseller_delete_confirm_yes),
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { resellerToDelete = null }) {
+                    Text(stringResource(R.string.action_cancel))
+                }
+            }
+        )
     }
 }
 
@@ -180,6 +210,7 @@ private fun ResellerCard(reseller: ResellerEntity, onEdit: () -> Unit, onDelete:
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
+            Spacer(modifier = Modifier.width(8.dp))
             IconButton(onClick = onDelete) {
                 Icon(
                     Icons.Default.Delete,

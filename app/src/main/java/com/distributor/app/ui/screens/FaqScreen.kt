@@ -1,4 +1,4 @@
-package com.distributor.app.ui.screens
+﻿package com.distributor.app.ui.screens
 
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
@@ -145,7 +145,7 @@ fun FaqScreen(onNavigateBack: () -> Unit = {}) {
                 title = { Text(stringResource(R.string.screen_faq)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cd_navigate_back))
                     }
                 },
                 actions = { LanguageMenuIcon() }
@@ -225,3 +225,4 @@ private fun FaqItemCard(item: FaqItem) {
         }
     }
 }
+

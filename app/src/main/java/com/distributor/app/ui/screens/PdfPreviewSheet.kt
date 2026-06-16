@@ -171,7 +171,6 @@ internal fun PdfPreviewSheet(
                             enabled = file != null
                         ) {
                             file?.let { ReceiptShareHandler.shareToWhatsApp(context, it) }
-                            onDismiss()
                         }
                         PdfShareOption(
                             icon    = Icons.Default.Business,
@@ -179,7 +178,6 @@ internal fun PdfPreviewSheet(
                             enabled = file != null
                         ) {
                             file?.let { ReceiptShareHandler.shareToWhatsAppBusiness(context, it) }
-                            onDismiss()
                         }
                         PdfShareOption(
                             icon    = Icons.Default.Email,
@@ -194,7 +192,6 @@ internal fun PdfPreviewSheet(
                                     subject  = subtitle.ifBlank { title }
                                 )
                             }
-                            onDismiss()
                         }
                         PdfShareOption(
                             icon    = Icons.Default.Share,
@@ -202,7 +199,6 @@ internal fun PdfPreviewSheet(
                             enabled = file != null
                         ) {
                             file?.let { ReceiptShareHandler.shareViaSystemSheet(context, it) }
-                            onDismiss()
                         }
                     }
                 } else {
@@ -222,7 +218,7 @@ internal fun PdfPreviewSheet(
                     .fillMaxWidth()
                     .padding(start = 16.dp, end = 16.dp, top = 2.dp, bottom = 8.dp)
             ) {
-                Text(stringResource(R.string.share_not_now))
+                Text(stringResource(if (confirmed) R.string.share_done else R.string.share_not_now))
             }
             HorizontalDivider()
 

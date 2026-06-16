@@ -104,9 +104,9 @@ fun HomeScreen(
     ) { padding ->
         LazyVerticalGrid(
             columns               = GridCells.Fixed(4),
-            contentPadding        = PaddingValues(horizontal = 12.dp, vertical = 20.dp),
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-            verticalArrangement   = Arrangement.spacedBy(16.dp),
+            contentPadding        = PaddingValues(horizontal = 12.dp, vertical = 24.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement   = Arrangement.spacedBy(20.dp),
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
@@ -136,13 +136,13 @@ private fun HomeIconItem(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(vertical = 8.dp, horizontal = 2.dp),
+            .padding(vertical = 12.dp, horizontal = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(6.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Box(
             modifier = Modifier
-                .size(52.dp)
+                .size(60.dp)
                 .background(iconColor.copy(alpha = 0.15f), CircleShape),
             contentAlignment = Alignment.Center
         ) {
@@ -150,12 +150,12 @@ private fun HomeIconItem(
                 imageVector        = icon,
                 contentDescription = null,
                 tint               = iconColor,
-                modifier           = Modifier.size(26.dp)
+                modifier           = Modifier.size(28.dp)
             )
         }
         Text(
             text       = stringResource(titleRes),
-            style      = MaterialTheme.typography.labelSmall,
+            style      = MaterialTheme.typography.bodySmall,
             fontWeight = FontWeight.Medium,
             textAlign  = TextAlign.Center,
             maxLines   = 2,

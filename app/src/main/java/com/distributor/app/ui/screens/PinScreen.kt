@@ -1,4 +1,4 @@
-package com.distributor.app.ui.screens
+﻿package com.distributor.app.ui.screens
 
 import android.app.Activity
 import androidx.activity.compose.BackHandler
@@ -201,7 +201,7 @@ fun PinSetupScreen(onComplete: () -> Unit) {
                             onComplete()
                         }
                     }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cd_navigate_back))
                     }
                 }
             )
@@ -366,3 +366,4 @@ private fun PinKeypad(
         }
     }
 }
+

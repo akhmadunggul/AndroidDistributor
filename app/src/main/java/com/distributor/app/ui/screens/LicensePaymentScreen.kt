@@ -1,4 +1,4 @@
-package com.distributor.app.ui.screens
+﻿package com.distributor.app.ui.screens
 
 import android.content.Intent
 import android.net.Uri
@@ -69,7 +69,7 @@ fun LicensePaymentScreen(
                 navigationIcon = {
                     if (state !is PaymentUiState.AwaitingPayment) {
                         IconButton(onClick = onNavigateBack) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cd_navigate_back))
                         }
                     }
                 }
@@ -429,3 +429,4 @@ private fun StatusContent(
         }
     }
 }
+
