@@ -12,6 +12,7 @@ object LicenseStore {
     private const val K_DAYS       = "days"
     private const val K_LAST_CHECK = "last_check_ms"
     private const val K_CONTACT_WA = "contact_wa"
+    private const val K_EMAIL      = "backup_email"
 
     fun getDeviceId(ctx: Context): String =
         Settings.Secure.getString(ctx.contentResolver, Settings.Secure.ANDROID_ID) ?: "unknown"
@@ -52,6 +53,10 @@ object LicenseStore {
     fun saveContactWa(ctx: Context, number: String) {
         prefs(ctx).edit().putString(K_CONTACT_WA, number).apply()
     }
+
+    fun getEmail(ctx: Context): String = prefs(ctx).getString(K_EMAIL, "") ?: ""
+    fun saveEmail(ctx: Context, email: String) =
+        prefs(ctx).edit().putString(K_EMAIL, email.trim().lowercase(java.util.Locale.ROOT)).apply()
 
     fun clear(ctx: Context) = prefs(ctx).edit().clear().apply()
 

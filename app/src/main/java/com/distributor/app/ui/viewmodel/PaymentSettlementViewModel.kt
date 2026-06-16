@@ -253,6 +253,7 @@ class PaymentSettlementViewModel(application: Application) : AndroidViewModel(ap
                     resellerName    = reseller.name,
                     resellerPhone   = reseller.phoneNumber,
                     resellerAddress = reseller.address,
+                    resellerEmail   = reseller.email,
                     paymentAmount   = paymentAmount,
                     paymentMethod   = state.paymentMethod,
                     notes           = state.notesInput,

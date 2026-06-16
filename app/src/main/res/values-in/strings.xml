@@ -71,11 +71,14 @@
     <string name="resellers_empty_title">Belum ada reseller</string>
     <string name="resellers_empty_hint">Ketuk + untuk mendaftarkan reseller pertama</string>
     <string name="reseller_form_title">Reseller Baru</string>
+    <string name="reseller_edit_form_title">Edit Reseller</string>
     <string name="reseller_name_label">Nama Lengkap *</string>
     <string name="reseller_phone_label">Nomor HP *</string>
     <string name="reseller_phone_placeholder">mis. 08123456789</string>
     <string name="reseller_address_label">Alamat (opsional)</string>
+    <string name="reseller_email_label">Email (opsional)</string>
     <string name="reseller_register_button">Daftarkan Reseller</string>
+    <string name="reseller_save_changes_button">Simpan Perubahan</string>
 
     <!-- Stock operation screen -->
     <string name="stock_section_current">Stok Saat Ini</string>
@@ -162,10 +165,41 @@
     <string name="share_whatsapp">WhatsApp</string>
     <string name="share_whatsapp_business">WhatsApp Business</string>
     <string name="share_other_apps">Aplikasi Lainnya</string>
+    <string name="share_via_email">Email</string>
     <string name="share_not_now">Nanti</string>
     <string name="share_confirm_button">Konfirmasi &amp; Kirim</string>
     <string name="share_generating">Membuat PDF…</string>
     <string name="share_error">Gagal membuat struk</string>
+
+    <!-- Suppliers screen -->
+    <string name="screen_suppliers">Suplier</string>
+    <string name="tab_suppliers">Suplier</string>
+    <string name="home_desc_suppliers">Kelola kontak suplier</string>
+    <string name="suppliers_empty_title">Belum ada suplier</string>
+    <string name="suppliers_empty_hint">Ketuk + untuk mendaftarkan suplier pertama</string>
+    <string name="supplier_form_title">Suplier Baru</string>
+    <string name="supplier_edit_form_title">Edit Suplier</string>
+    <string name="supplier_name_label">Nama Suplier *</string>
+    <string name="supplier_phone_label">Nomor HP</string>
+    <string name="supplier_address_label">Alamat (opsional)</string>
+    <string name="supplier_email_label">Email (opsional)</string>
+    <string name="supplier_notes_label">Catatan (opsional)</string>
+    <string name="supplier_register_button">Daftarkan Suplier</string>
+    <string name="supplier_save_changes_button">Simpan Perubahan</string>
+
+    <!-- Purchase payment screen -->
+    <string name="screen_purchase">Pembayaran Pembelian</string>
+    <string name="tab_purchase">Pembelian</string>
+    <string name="home_desc_purchase">Catat pembayaran ke suplier</string>
+    <string name="purchase_select_supplier">Pilih Suplier</string>
+    <string name="purchase_amount_label">Jumlah Pembayaran *</string>
+    <string name="purchase_method_label">Metode Pembayaran</string>
+    <string name="purchase_date_label">Tanggal Pembelian</string>
+    <string name="purchase_notes_label">Catatan (opsional)</string>
+    <string name="purchase_submit_button">Catat Pembayaran</string>
+    <string name="purchase_history_title">Riwayat Pembelian</string>
+    <string name="purchase_empty">Belum ada pembayaran pembelian yang dicatat.</string>
+    <string name="purchase_total_paid">Total Pembelian</string>
 
     <!-- Reseller contact picker -->
     <string name="cd_pick_contact">Pilih dari kontak</string>
@@ -241,6 +275,8 @@
     <string name="activation_error_revoked">Lisensi ini telah dicabut.</string>
     <string name="activation_error_other_device">Kode sudah diaktifkan di perangkat lain.</string>
     <string name="activation_error_generic">Aktivasi gagal. Coba lagi.</string>
+    <string name="activation_email_label">Alamat Email</string>
+    <string name="activation_email_error_invalid">Masukkan alamat email yang valid.</string>
     <string name="license_expired_title">Masa Trial Habis</string>
     <string name="license_expired_body">Masa trial Anda telah berakhir. Hubungi distributor untuk memperpanjang lisensi.</string>
     <string name="license_registered_expired_title">Lisensi Kedaluarsa</string>
@@ -295,6 +331,28 @@
     <string name="demo_confirm_message">Semua data yang ada akan dihapus dan diganti dengan data contoh untuk keperluan demonstrasi.</string>
     <string name="demo_confirm_load">Muat Data Demo</string>
     <string name="demo_data_loaded">Data demo berhasil dimuat.</string>
+    <!-- Backup & Pulihkan -->
+    <string name="settings_backup_section">Backup &amp; Pulihkan</string>
+    <string name="settings_backup_hint">Hubungkan Google Drive untuk mencadangkan data secara otomatis setiap hari. Data bisa dipulihkan di HP baru menggunakan akun Google yang sama.</string>
+    <string name="settings_backup_connect">Hubungkan Google Drive</string>
+    <string name="settings_backup_connected">Terhubung: %s</string>
+    <string name="settings_backup_disconnect">Putus Koneksi</string>
+    <string name="settings_backup_now">Backup Sekarang</string>
+    <string name="settings_backup_email_label">Email Backup</string>
+    <string name="settings_backup_email_save">Simpan</string>
+    <string name="settings_backup_email_saved">Email backup disimpan.</string>
+    <string name="backup_email_required">Isi email backup di atas sebelum melakukan backup.</string>
+    <string name="settings_restore_button">Pulihkan dari Cloud</string>
+    <string name="settings_last_backup">Backup terakhir: %s</string>
+    <string name="settings_backup_never">Belum pernah</string>
+    <string name="settings_backup_success">Backup berhasil.</string>
+    <string name="settings_backup_failed">Backup gagal. Periksa koneksi internet dan coba lagi.</string>
+    <string name="settings_restore_not_found">Backup tidak ditemukan. Pastikan menggunakan email yang sama dengan perangkat asal.</string>
+    <string name="settings_restore_failed">Pemulihan gagal. Periksa koneksi dan coba lagi.</string>
+    <string name="restore_confirm_title">Pulihkan dari Cloud?</string>
+    <string name="restore_confirm_message">Ini akan menggantikan SEMUA data lokal dengan backup dari cloud. Tindakan ini tidak bisa dibatalkan. Aplikasi akan otomatis restart setelah pemulihan selesai.</string>
+    <string name="restore_confirm_proceed">Pulihkan</string>
+
     <string name="settings_reset_button">Reset Semua Data</string>
     <string name="reset_confirm1_title">Reset Semua Data?</string>
     <string name="reset_confirm1_message">Ini akan menghapus semua produk, reseller, transaksi, catatan stok, dan riwayat pembayaran secara permanen. Pengaturan dan info bisnis akan tetap tersimpan.</string>
@@ -312,10 +370,22 @@
     <string name="faq_section_general">Umum</string>
     <string name="faq_q_what_is_app">Apa itu Distro-Ku?</string>
     <string name="faq_a_what_is_app">Distro-Ku adalah aplikasi manajemen distribusi offline untuk usaha kecil. Catat stok, buat invoice, kelola reseller, dan pantau keuangan — semuanya tersimpan di perangkat Anda tanpa memerlukan internet.</string>
+    <string name="faq_q_paperless">Apakah aplikasi ini paperless?</string>
+    <string name="faq_a_paperless">Ya. Distro-Ku dirancang untuk mengelola seluruh transaksi distribusi secara digital tanpa selembar kertas pun. Invoice, struk pembayaran, dan laporan keuangan semuanya tersedia dalam format digital dan dapat dibagikan langsung via WhatsApp atau email.</string>
     <string name="faq_q_need_internet">Apakah perlu koneksi internet?</string>
-    <string name="faq_a_need_internet">Tidak. Seluruh data disimpan secara lokal di perangkat Anda. Koneksi internet hanya diperlukan pada saat aktivasi lisensi pertama kali.</string>
-    <string name="faq_q_data_backup">Bagaimana cara mencadangkan data?</string>
-    <string name="faq_a_data_backup">Cadangan manual belum tersedia di dalam aplikasi. Hindari menghapus data aplikasi atau melakukan factory reset perangkat tanpa pencadangan untuk mencegah kehilangan data.</string>
+    <string name="faq_a_need_internet">Tidak. Seluruh data disimpan secara lokal di perangkat Anda. Koneksi internet hanya diperlukan saat aktivasi lisensi dan backup Google Drive.</string>
+    <string name="faq_q_data_backup">Bagaimana cara mencadangkan dan memulihkan data?</string>
+    <string name="faq_a_data_backup">Hubungkan Google Drive di Pengaturan → Backup &amp; Pulihkan. Setelah terhubung, aplikasi otomatis mencadangkan database ke Google Drive setiap hari. Jika HP factory reset atau ganti HP baru, instal aplikasi, hubungkan akun Google yang sama, lalu ketuk Pulihkan dari Drive — data Anda akan pulih sepenuhnya.</string>
+
+    <string name="faq_section_license">Lisensi</string>
+    <string name="faq_q_how_activate">Cara mengaktifkan lisensi?</string>
+    <string name="faq_a_how_activate">Saat pertama membuka aplikasi, masukkan kunci lisensi yang diterima setelah pembelian. Aktivasi memerlukan koneksi internet dan mengikat lisensi ke satu perangkat.</string>
+    <string name="faq_q_license_duration">Berapa lama masa berlaku lisensi?</string>
+    <string name="faq_a_license_duration">Tersedia paket 1 bulan dan 1 tahun. Sisa hari ditampilkan di layar aktivasi. Peringatan muncul 7 hari sebelum habis agar Anda bisa memperpanjang tepat waktu.</string>
+    <string name="faq_q_license_expired">Apa yang terjadi saat lisensi habis?</string>
+    <string name="faq_a_license_expired">Saat lisensi habis, aplikasi terkunci dan semua fitur tidak bisa diakses sampai diperbarui. Data Anda tetap aman dan tidak akan dihapus. Hubungi admin via WhatsApp untuk memperpanjang.</string>
+    <string name="faq_q_license_multidevice">Bisakah satu lisensi dipakai di beberapa HP?</string>
+    <string name="faq_a_license_multidevice">Tidak. Setiap lisensi hanya berlaku untuk satu perangkat. Jika perlu pindah ke HP baru, hubungi admin — migrasi ke perangkat baru dapat diatur.</string>
 
     <string name="faq_section_products">Produk</string>
     <string name="faq_q_add_product">Cara menambah produk baru?</string>
@@ -346,20 +416,28 @@
     <string name="faq_section_payment">Pembayaran</string>
     <string name="faq_q_record_payment">Cara mencatat pembayaran dari reseller?</string>
     <string name="faq_a_record_payment">Buka menu Pembayaran, pilih reseller, masukkan jumlah dan metode pembayaran, lalu ketuk Pembayaran. Sistem menggunakan FIFO — invoice terlama dilunasi terlebih dahulu. Pratinjau alokasi ditampilkan sebelum konfirmasi.</string>
-    <string name="faq_q_share_receipt">Bagaimana cara berbagi struk pembayaran?</string>
-    <string name="faq_a_share_receipt">Setelah mencatat pembayaran, pilih opsi Bagikan. Aplikasi membuat struk PDF yang bisa dikirim langsung via WhatsApp atau aplikasi lainnya.</string>
+    <string name="faq_q_share_receipt">Cara berbagi invoice atau struk pembayaran?</string>
+    <string name="faq_a_share_receipt">Setelah membuat invoice atau mencatat pembayaran, pilih opsi Bagikan. Aplikasi membuat PDF yang bisa dikirim via WhatsApp, WhatsApp Business, Email (alamat email reseller terisi otomatis jika sudah disimpan), atau aplikasi lain. Invoice dan struk lama juga bisa dibagikan ulang langsung dari Buku Kas dengan mengetuk baris transaksinya.</string>
 
     <string name="faq_section_reseller">Reseller &amp; Retur</string>
-    <string name="faq_q_add_reseller">Cara mendaftarkan reseller?</string>
-    <string name="faq_a_add_reseller">Buka menu Reseller, ketuk + untuk menambah baru. Isi nama, nomor HP, dan alamat opsional. Anda juga bisa mengimpor data kontak langsung dari daftar kontak HP hanya dengan satu ketukan.</string>
+    <string name="faq_q_add_reseller">Cara mendaftarkan atau mengedit reseller?</string>
+    <string name="faq_a_add_reseller">Buka menu Reseller, ketuk + untuk menambah baru atau ikon pensil pada kartu yang sudah ada untuk mengedit. Isi nama, nomor HP, alamat, dan email. Alamat email digunakan untuk mengisi otomatis penerima saat berbagi invoice via email. Nomor HP bisa diimpor dari kontak HP hanya dengan satu ketukan.</string>
     <string name="faq_q_return">Cara memproses retur produk?</string>
     <string name="faq_a_return">Buka menu Retur dari halaman utama, pilih reseller, tambahkan item retur beserta jumlah dan alasan (Tidak Terjual, Cacat/Rusak, atau Lainnya), lalu kirim. Nilai retur otomatis dikurangi dari omzet di Buku Kas.</string>
 
     <string name="faq_section_ledger">Buku Kas</string>
     <string name="faq_q_what_is_ledger">Apa yang ditampilkan di Buku Kas?</string>
-    <string name="faq_a_what_is_ledger">Buku Kas menampilkan ringkasan keuangan: Omzet (total tagihan), Diterima (pembayaran terkumpul), Piutang (saldo belum dibayar), dan Laba Kotor. Tersedia filter: Hari Ini, Minggu Ini, Bulan Ini, Tahun Ini, dan Semua.</string>
+    <string name="faq_a_what_is_ledger">Buku Kas menampilkan ringkasan keuangan untuk periode yang dipilih: Omzet (total tagihan), Diterima (pembayaran terkumpul), Total Pembelian (pembayaran ke suplier), Laba Kotor, dan Piutang (saldo belum dibayar). Tersedia filter: Hari Ini, Minggu Ini, Bulan Ini, Tahun Ini, dan Semua.</string>
     <string name="faq_q_gross_profit">Bagaimana Laba Kotor dihitung?</string>
-    <string name="faq_a_gross_profit">Laba Kotor = Total omzet − Harga modal produk terjual − Nilai retur. Ini adalah estimasi margin keuntungan sebelum biaya operasional lain seperti ongkos kirim atau overhead.</string>
+    <string name="faq_a_gross_profit">Laba Kotor = Total omzet − Harga modal produk terjual − Nilai retur. Ini adalah estimasi margin keuntungan sebelum biaya operasional lain. Pembayaran ke suplier dicatat terpisah di kartu Total Pembelian.</string>
+
+    <string name="faq_section_supplier">Suplier &amp; Pembelian</string>
+    <string name="faq_q_what_is_supplier">Apa itu menu Suplier?</string>
+    <string name="faq_a_what_is_supplier">Menu Suplier digunakan untuk mendaftarkan produsen atau pemasok tempat Anda membeli barang. Simpan nama, nomor HP, alamat, email, dan catatan. Ketuk ikon kontak di field nomor HP untuk mengimpor nomor langsung dari daftar kontak.</string>
+    <string name="faq_q_record_purchase">Cara mencatat pembayaran ke suplier?</string>
+    <string name="faq_a_record_purchase">Buka menu Pembayaran Pembelian dari halaman utama, pilih suplier, masukkan jumlah, pilih tanggal, tentukan metode pembayaran (Tunai / Transfer / Lainnya), tambahkan catatan opsional, lalu ketuk Kirim. Semua riwayat tampil di daftar bawah formulir.</string>
+    <string name="faq_q_purchase_in_ledger">Di mana pembayaran ke suplier terlihat di Buku Kas?</string>
+    <string name="faq_a_purchase_in_ledger">Total pembayaran ke suplier untuk periode yang dipilih muncul di kartu Total Pembelian pada Buku Kas. Ini membantu memantau arus kas keluar dibandingkan omzet dan laba secara sekaligus.</string>
 
     <string name="faq_section_settings">Pengaturan</string>
     <string name="faq_q_pin_lock">Apa itu Kunci PIN?</string>

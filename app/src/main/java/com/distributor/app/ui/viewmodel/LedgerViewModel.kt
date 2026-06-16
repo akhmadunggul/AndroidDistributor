@@ -9,9 +9,14 @@ import com.distributor.app.data.dao.ProductResellerSales
 import com.distributor.app.data.dao.ReturnLedgerEntry
 import com.distributor.app.data.dao.SaleLedgerEntry
 import com.distributor.app.data.dao.TopResellerEntry
+import com.distributor.app.data.entity.TransactionEntity
 import com.distributor.app.utils.LedgerPdfGenerator
 import com.distributor.app.utils.LedgerReportData
 import com.distributor.app.utils.LedgerReportEntry
+import com.distributor.app.utils.PaymentAllocationLine
+import com.distributor.app.utils.PaymentReceiptData
+import com.distributor.app.utils.ReceiptData
+import com.distributor.app.utils.ReceiptLineItem
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -77,11 +82,14 @@ data class LedgerUiState(
     val totalCollected: Double = 0.0,
     val outstandingBalance: Double = 0.0,
     val grossProfit: Double = 0.0,
+    val totalPurchased: Double = 0.0,
     val topResellerOverall: TopResellerEntry? = null,
     val topPerProduct: List<ProductResellerSales> = emptyList(),
     val entries: List<LedgerEntry> = emptyList(),
     val isLoading: Boolean = true,
-    val pdfState: LedgerPdfState = LedgerPdfState.Idle
+    val pdfState: LedgerPdfState = LedgerPdfState.Idle,
+    val pendingReshareReceipt: ReceiptData? = null,
+    val pendingResharePayment: PaymentReceiptData? = null
 )
 
 class LedgerViewModel(application: Application) : AndroidViewModel(application) {
@@ -121,9 +129,10 @@ class LedgerViewModel(application: Application) : AndroidViewModel(application) 
                     val revenue      = grossRevenue - totalReturns
                     val collected    = ledgerDao.getTotalCollected(from, to)
                     val outstanding  = ledgerDao.getOutstandingBalance()
-                    val grossProfit  = ledgerDao.getGrossProfit(from, to)
-                    val returnMargin = returnDao.getReturnGrossMargin(from, to)
-                    val profit       = grossProfit - returnMargin
+                    val grossProfit    = ledgerDao.getGrossProfit(from, to)
+                    val returnMargin  = returnDao.getReturnGrossMargin(from, to)
+                    val profit        = grossProfit - returnMargin
+                    val totalPurchased = ledgerDao.getTotalPurchased(from, to)
 
                     val topResellerOverall = ledgerDao.getTopResellerOverall(from, to)
                     // Raw rows are ordered by product_id ASC, totalPurchase DESC —
@@ -143,6 +152,7 @@ class LedgerViewModel(application: Application) : AndroidViewModel(application) 
                         totalCollected     = collected,
                         outstandingBalance = outstanding,
                         grossProfit        = profit,
+                        totalPurchased     = totalPurchased,
                         topResellerOverall = topResellerOverall,
                         topPerProduct      = topPerProduct,
                         entries            = entries,
@@ -384,5 +394,79 @@ class LedgerViewModel(application: Application) : AndroidViewModel(application) 
             set(utc.get(Calendar.YEAR), utc.get(Calendar.MONTH), utc.get(Calendar.DAY_OF_MONTH), 23, 59, 59)
             set(Calendar.MILLISECOND, 999)
         }.timeInMillis
+    }
+
+    // ── Reshare invoice / payment receipt ────────────────────────────────────
+
+    fun reshareInvoice(invoiceNumber: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val header = ledgerDao.getInvoiceReceiptHeader(invoiceNumber) ?: return@launch
+                val details = ledgerDao.getInvoiceDetailLines(header.transactionId)
+                val receiptData = ReceiptData(
+                    transaction = TransactionEntity(
+                        id            = header.transactionId,
+                        resellerId    = header.resellerId,
+                        invoiceNumber = header.invoiceNumber,
+                        status        = header.status,
+                        totalAmount   = header.totalAmount,
+                        amountPaid    = header.amountPaid,
+                        notes         = header.notes,
+                        createdAt     = header.createdAt,
+                        updatedAt     = header.updatedAt
+                    ),
+                    resellerName    = header.resellerName,
+                    resellerPhone   = header.resellerPhone,
+                    resellerAddress = header.resellerAddress,
+                    resellerEmail   = header.resellerEmail,
+                    lineItems       = details.map { d ->
+                        ReceiptLineItem(
+                            productName = d.productName,
+                            unit        = d.unit,
+                            quantity    = d.quantity,
+                            unitPrice   = d.unitPrice,
+                            subtotal    = d.subtotal
+                        )
+                    }
+                )
+                _uiState.update { it.copy(pendingReshareReceipt = receiptData) }
+            } catch (_: Exception) { /* silently ignore */ }
+        }
+    }
+
+    fun resharePayment(paymentLogId: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val rows = ledgerDao.getPaymentGroupRows(paymentLogId)
+                if (rows.isEmpty()) return@launch
+                val first = rows.first()
+                val paymentData = PaymentReceiptData(
+                    resellerName    = first.resellerName,
+                    resellerPhone   = first.resellerPhone,
+                    resellerAddress = first.resellerAddress,
+                    resellerEmail   = first.resellerEmail,
+                    paymentAmount   = rows.sumOf { it.amount },
+                    paymentMethod   = first.paymentMethod,
+                    notes           = first.notes,
+                    paymentDate     = first.createdAt,
+                    allocations     = rows.mapNotNull { row ->
+                        val invNumber = row.invoiceNumber ?: return@mapNotNull null
+                        val invTotal  = row.invoiceTotal  ?: return@mapNotNull null
+                        val invPaid   = row.invoiceAmountPaid ?: 0.0
+                        PaymentAllocationLine(
+                            invoiceNumber = invNumber,
+                            invoiceTotal  = invTotal,
+                            amountApplied = row.amount,
+                            balanceAfter  = maxOf(0.0, invTotal - invPaid)
+                        )
+                    }
+                )
+                _uiState.update { it.copy(pendingResharePayment = paymentData) }
+            } catch (_: Exception) { /* silently ignore */ }
+        }
+    }
+
+    fun clearReshare() {
+        _uiState.update { it.copy(pendingReshareReceipt = null, pendingResharePayment = null) }
     }
 }

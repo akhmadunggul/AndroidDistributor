@@ -21,6 +21,7 @@ data class PaymentReceiptData(
     val resellerName: String,
     val resellerPhone: String,
     val resellerAddress: String,
+    val resellerEmail: String = "",
     val paymentAmount: Double,
     val paymentMethod: String,
     val notes: String,
@@ -42,6 +43,7 @@ data class ReceiptData(
     val resellerName: String,
     val resellerPhone: String,
     val resellerAddress: String,
+    val resellerEmail: String = "",
     val lineItems: List<ReceiptLineItem>
 ) {
     val balanceDue: Double get() = transaction.totalAmount - transaction.amountPaid

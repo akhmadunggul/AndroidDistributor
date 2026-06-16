@@ -390,10 +390,11 @@ private fun SharePaymentReceiptSheet(
     }
 
     PdfPreviewSheet(
-        file         = pdfFile,
-        isGenerating = isGenerating,
-        title        = stringResource(R.string.payment_receipt_title),
-        onDismiss    = onDismiss
+        file          = pdfFile,
+        isGenerating  = isGenerating,
+        title         = stringResource(R.string.payment_receipt_title),
+        resellerEmail = receiptData.resellerEmail,
+        onDismiss     = onDismiss
     )
 }
 

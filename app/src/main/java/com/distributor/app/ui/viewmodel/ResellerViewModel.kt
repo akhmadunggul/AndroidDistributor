@@ -15,9 +15,11 @@ import kotlinx.coroutines.launch
 data class ResellerListUiState(
     val resellers: List<ResellerEntity> = emptyList(),
     val isFormOpen: Boolean = false,
+    val editingReseller: ResellerEntity? = null,
     val nameInput: String = "",
     val phoneInput: String = "",
     val addressInput: String = "",
+    val emailInput: String = "",
     val nameError: String? = null,
     val phoneError: String? = null,
     val isSubmitting: Boolean = false,
@@ -40,14 +42,29 @@ class ResellerViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun openForm() {
-        _uiState.update { it.copy(isFormOpen = true) }
+        _uiState.update { it.copy(isFormOpen = true, editingReseller = null) }
+    }
+
+    fun openFormForEdit(reseller: ResellerEntity) {
+        _uiState.update {
+            it.copy(
+                isFormOpen = true,
+                editingReseller = reseller,
+                nameInput = reseller.name,
+                phoneInput = reseller.phoneNumber,
+                addressInput = reseller.address,
+                emailInput = reseller.email,
+                nameError = null, phoneError = null
+            )
+        }
     }
 
     fun closeForm() {
         _uiState.update {
             it.copy(
                 isFormOpen = false,
-                nameInput = "", phoneInput = "", addressInput = "",
+                editingReseller = null,
+                nameInput = "", phoneInput = "", addressInput = "", emailInput = "",
                 nameError = null, phoneError = null
             )
         }
@@ -56,6 +73,7 @@ class ResellerViewModel(application: Application) : AndroidViewModel(application
     fun onNameChanged(v: String)    = _uiState.update { it.copy(nameInput = v,    nameError  = null) }
     fun onPhoneChanged(v: String)   = _uiState.update { it.copy(phoneInput = v,   phoneError = null) }
     fun onAddressChanged(v: String) = _uiState.update { it.copy(addressInput = v) }
+    fun onEmailChanged(v: String)   = _uiState.update { it.copy(emailInput = v) }
     fun clearSnackbar()             = _uiState.update { it.copy(snackbarMessage = null) }
 
     fun saveReseller() {
@@ -74,17 +92,35 @@ class ResellerViewModel(application: Application) : AndroidViewModel(application
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                resellerDao.insertReseller(
-                    ResellerEntity(
-                        name        = state.nameInput.trim(),
-                        phoneNumber = state.phoneInput.trim(),
-                        address     = state.addressInput.trim()
+                val editing = state.editingReseller
+                if (editing != null) {
+                    resellerDao.updateReseller(
+                        editing.copy(
+                            name        = state.nameInput.trim(),
+                            phoneNumber = state.phoneInput.trim(),
+                            address     = state.addressInput.trim(),
+                            email       = state.emailInput.trim(),
+                            updatedAt   = System.currentTimeMillis()
+                        )
                     )
-                )
-                val savedName = state.nameInput.trim()
-                _uiState.update { it.copy(isSubmitting = false) }
-                closeForm()
-                _uiState.update { it.copy(snackbarMessage = "\"$savedName\" registered") }
+                    val savedName = state.nameInput.trim()
+                    _uiState.update { it.copy(isSubmitting = false) }
+                    closeForm()
+                    _uiState.update { it.copy(snackbarMessage = "\"$savedName\" updated") }
+                } else {
+                    resellerDao.insertReseller(
+                        ResellerEntity(
+                            name        = state.nameInput.trim(),
+                            phoneNumber = state.phoneInput.trim(),
+                            address     = state.addressInput.trim(),
+                            email       = state.emailInput.trim()
+                        )
+                    )
+                    val savedName = state.nameInput.trim()
+                    _uiState.update { it.copy(isSubmitting = false) }
+                    closeForm()
+                    _uiState.update { it.copy(snackbarMessage = "\"$savedName\" registered") }
+                }
             } catch (e: Exception) {
                 val msg = if (e.message?.contains("UNIQUE", ignoreCase = true) == true)
                     "Phone number \"${state.phoneInput.trim()}\" is already registered"

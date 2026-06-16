@@ -50,6 +50,8 @@ import com.distributor.app.ui.screens.ProductListScreen
 import com.distributor.app.ui.screens.ResellerListScreen
 import com.distributor.app.ui.screens.ReturnScreen
 import com.distributor.app.ui.screens.SettingsScreen
+import com.distributor.app.ui.screens.SupplierListScreen
+import com.distributor.app.ui.screens.PurchaseScreen
 import com.distributor.app.ui.screens.StockOpnameScreen
 import com.distributor.app.ui.screens.StokingScreen
 import com.distributor.app.ui.screens.TransactionScreen
@@ -109,6 +111,8 @@ private object Routes {
     const val PIN_SETUP       = "pin_setup"
     const val FAQ             = "faq"
     const val LICENSE_PAYMENT = "license_payment"
+    const val SUPPLIERS       = "suppliers"
+    const val PURCHASE        = "purchase"
 }
 
 // ── Bottom-nav tab descriptors ──────────────────────────────────────────────
@@ -166,7 +170,9 @@ private fun DistributorNavHost() {
         currentRoute != Routes.PIN_LOCK &&
         currentRoute != Routes.PIN_SETUP &&
         currentRoute != Routes.FAQ &&
-        currentRoute != Routes.LICENSE_PAYMENT
+        currentRoute != Routes.LICENSE_PAYMENT &&
+        currentRoute != Routes.SUPPLIERS &&
+        currentRoute != Routes.PURCHASE
 
     // ── Version check ──────────────────────────────────────────────────────
     val context = LocalContext.current
@@ -482,7 +488,9 @@ private fun DistributorNavHost() {
                     onNavigateToReturn    = { navController.navigate(Routes.RETURN)       { launchSingleTop = true } },
                     onNavigateToLedger    = { navController.navigate(Routes.LEDGER)       { launchSingleTop = true } },
                     onNavigateToSettings  = { navController.navigate(Routes.SETTINGS)     { launchSingleTop = true } },
-                    onNavigateToFaq       = { navController.navigate(Routes.FAQ)          { launchSingleTop = true } }
+                    onNavigateToFaq       = { navController.navigate(Routes.FAQ)          { launchSingleTop = true } },
+                    onNavigateToSuppliers = { navController.navigate(Routes.SUPPLIERS)    { launchSingleTop = true } },
+                    onNavigateToPurchase  = { navController.navigate(Routes.PURCHASE)     { launchSingleTop = true } }
                 )
             }
             composable(Routes.RETURN) {
@@ -521,6 +529,12 @@ private fun DistributorNavHost() {
             }
             composable(Routes.FAQ) {
                 FaqScreen(onNavigateBack = { navController.popBackStack() })
+            }
+            composable(Routes.SUPPLIERS) {
+                SupplierListScreen(onNavigateBack = { navController.popBackStack() })
+            }
+            composable(Routes.PURCHASE) {
+                PurchaseScreen(onNavigateBack = { navController.popBackStack() })
             }
             composable(Routes.LICENSE_PAYMENT) {
                 LicensePaymentScreen(

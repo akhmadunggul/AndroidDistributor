@@ -1,8 +1,17 @@
+﻿import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
+}
+
+// Service account credentials are stored in local.properties (not committed to git).
+// Keys: SA_CLIENT_EMAIL, SA_PRIVATE_KEY
+val localProps = Properties().also { props ->
+    rootProject.file("local.properties").takeIf { it.exists() }
+        ?.reader()?.use { props.load(it) }
 }
 
 android {
@@ -17,11 +26,18 @@ android {
         versionName   = "3.3"
 
         buildConfigField("String", "RELEASE_DATE", "\"2026-06-11\"")
+
+        // Supabase credentials from local.properties (never committed to git).
+        val supabaseUrl = localProps.getProperty("SUPABASE_URL", "REPLACE_WITH_SUPABASE_URL")
+        val supabaseKey = localProps.getProperty("SUPABASE_KEY", "REPLACE_WITH_SUPABASE_KEY")
+        buildConfigField("String", "SUPABASE_URL", "\"$supabaseUrl\"")
+        buildConfigField("String", "SUPABASE_KEY", "\"$supabaseKey\"")
     }
 
     buildTypes {
         release {
-            isMinifyEnabled   = false
+            isMinifyEnabled   = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -87,4 +103,7 @@ dependencies {
 
     // QR code generation for QRIS payment
     implementation("com.google.zxing:core:3.5.3")
+
+    // WorkManager (scheduled daily backup)
+    implementation("androidx.work:work-runtime-ktx:2.9.1")
 }

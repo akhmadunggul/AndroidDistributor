@@ -30,6 +30,8 @@ import androidx.compose.material.icons.filled.QueryStats
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Inventory
+import androidx.compose.material.icons.filled.Store
+import androidx.compose.material.icons.filled.LocalAtm
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -71,7 +73,9 @@ fun HomeScreen(
     onNavigateToReturn:    () -> Unit = {},
     onNavigateToLedger:    () -> Unit = {},
     onNavigateToSettings:  () -> Unit = {},
-    onNavigateToFaq:       () -> Unit = {}
+    onNavigateToFaq:       () -> Unit = {},
+    onNavigateToSuppliers: () -> Unit = {},
+    onNavigateToPurchase:  () -> Unit = {}
 ) {
     val primary   = MaterialTheme.colorScheme.primary
     val secondary = MaterialTheme.colorScheme.secondary
@@ -99,6 +103,8 @@ fun HomeScreen(
         MenuItem(Icons.Default.QueryStats,                   tertiary,          R.string.tab_ledger,         R.string.home_desc_ledger,      onNavigateToLedger),
         MenuItem(Icons.Default.Settings,                     outline,           R.string.menu_settings,      R.string.home_desc_settings,    onNavigateToSettings),
         MenuItem(Icons.AutoMirrored.Filled.Help,              Color(0xFF546E7A), R.string.tab_faq,            R.string.home_desc_faq,         onNavigateToFaq),
+        MenuItem(Icons.Default.Store,                         Color(0xFF00695C), R.string.tab_suppliers,      R.string.home_desc_suppliers,   onNavigateToSuppliers),
+        MenuItem(Icons.Default.LocalAtm,                      Color(0xFF6D4C41), R.string.tab_purchase,       R.string.home_desc_purchase,    onNavigateToPurchase),
     )
 
     // ── Reactive layout preference ─────────────────────────────────────────

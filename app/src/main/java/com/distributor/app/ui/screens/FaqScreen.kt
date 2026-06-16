@@ -54,9 +54,19 @@ private val FAQ_SECTIONS: List<FaqSection> = listOf(
     FaqSection(
         titleRes = R.string.faq_section_general,
         items = listOf(
-            FaqItem(R.string.faq_q_what_is_app,      R.string.faq_a_what_is_app),
-            FaqItem(R.string.faq_q_need_internet,    R.string.faq_a_need_internet),
-            FaqItem(R.string.faq_q_data_backup,      R.string.faq_a_data_backup),
+            FaqItem(R.string.faq_q_what_is_app,   R.string.faq_a_what_is_app),
+            FaqItem(R.string.faq_q_paperless,      R.string.faq_a_paperless),
+            FaqItem(R.string.faq_q_need_internet,  R.string.faq_a_need_internet),
+            FaqItem(R.string.faq_q_data_backup,    R.string.faq_a_data_backup),
+        )
+    ),
+    FaqSection(
+        titleRes = R.string.faq_section_license,
+        items = listOf(
+            FaqItem(R.string.faq_q_how_activate,        R.string.faq_a_how_activate),
+            FaqItem(R.string.faq_q_license_duration,    R.string.faq_a_license_duration),
+            FaqItem(R.string.faq_q_license_expired,     R.string.faq_a_license_expired),
+            FaqItem(R.string.faq_q_license_multidevice, R.string.faq_a_license_multidevice),
         )
     ),
     FaqSection(
@@ -107,6 +117,14 @@ private val FAQ_SECTIONS: List<FaqSection> = listOf(
         items = listOf(
             FaqItem(R.string.faq_q_what_is_ledger,   R.string.faq_a_what_is_ledger),
             FaqItem(R.string.faq_q_gross_profit,     R.string.faq_a_gross_profit),
+        )
+    ),
+    FaqSection(
+        titleRes = R.string.faq_section_supplier,
+        items = listOf(
+            FaqItem(R.string.faq_q_what_is_supplier,    R.string.faq_a_what_is_supplier),
+            FaqItem(R.string.faq_q_record_purchase,     R.string.faq_a_record_purchase),
+            FaqItem(R.string.faq_q_purchase_in_ledger,  R.string.faq_a_purchase_in_ledger),
         )
     ),
     FaqSection(

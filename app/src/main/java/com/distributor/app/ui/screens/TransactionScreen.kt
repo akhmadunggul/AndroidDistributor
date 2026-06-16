@@ -347,11 +347,12 @@ private fun ShareReceiptSheet(
     }
 
     PdfPreviewSheet(
-        file         = pdfFile,
-        isGenerating = isGenerating,
-        title        = stringResource(R.string.share_receipt_title),
-        subtitle     = receiptData.transaction.invoiceNumber,
-        onDismiss    = onDismiss
+        file          = pdfFile,
+        isGenerating  = isGenerating,
+        title         = stringResource(R.string.share_receipt_title),
+        subtitle      = receiptData.transaction.invoiceNumber,
+        resellerEmail = receiptData.resellerEmail,
+        onDismiss     = onDismiss
     )
 }
 

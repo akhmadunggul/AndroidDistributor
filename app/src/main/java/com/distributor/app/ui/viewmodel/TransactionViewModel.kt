@@ -272,6 +272,7 @@ class TransactionViewModel(application: Application) : AndroidViewModel(applicat
                     resellerName = state.selectedReseller.name,
                     resellerPhone = state.selectedReseller.phoneNumber,
                     resellerAddress = state.selectedReseller.address,
+                    resellerEmail = state.selectedReseller.email,
                     lineItems = state.cartItems.map { item ->
                         ReceiptLineItem(
                             productName = item.product.name,
