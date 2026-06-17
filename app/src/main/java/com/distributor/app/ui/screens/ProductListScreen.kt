@@ -1,4 +1,4 @@
-package com.distributor.app.ui.screens
+﻿package com.distributor.app.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -91,7 +91,7 @@ fun ProductListScreen(
                 title = { Text(stringResource(R.string.screen_products)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cd_navigate_back))
                     }
                 },
                 actions = { LanguageMenuIcon() }
@@ -409,4 +409,5 @@ private fun LowStockBanner(alerts: List<LowStockAlert>) {
 private fun formatStockQty(qty: Double): String =
     if (qty == qty.toLong().toDouble()) qty.toLong().toString()
     else "%.2f".format(qty)
+
 

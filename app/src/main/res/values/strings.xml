@@ -6,8 +6,8 @@
     <string name="tab_home">Home</string>
     <string name="tab_products">Products</string>
     <string name="tab_stock">Stock (Opname)</string>
-    <string name="tab_stoking">Stoking</string>
-    <string name="tab_stock_opname">Stock Opname</string>
+    <string name="tab_stoking">Add Stock</string>
+    <string name="tab_stock_opname">Stock Count</string>
     <string name="tab_sales">Sales</string>
     <string name="tab_payment">Payment</string>
     <string name="tab_resellers">Resellers</string>
@@ -17,18 +17,18 @@
     <string name="screen_home">Main Menu</string>
     <string name="screen_products">Products</string>
     <string name="screen_stock">Stock Operation</string>
-    <string name="screen_stoking">Stoking</string>
+    <string name="screen_stoking">Add Stock</string>
     <string name="screen_sales">Sales Order</string>
-    <string name="screen_payment">Payment Settlement</string>
+    <string name="screen_payment">Record Payment</string>
     <string name="screen_resellers">Resellers</string>
-    <string name="screen_stock_opname">Stock Opname</string>
+    <string name="screen_stock_opname">Stock Count</string>
     <string name="screen_ledger">Ledger</string>
 
     <!-- Home screen menu card descriptions -->
     <string name="home_desc_products">Product catalog &amp; thresholds</string>
     <string name="home_desc_stock">Stock in, out &amp; opname</string>
     <string name="home_desc_stoking">Add incoming product stock</string>
-    <string name="home_desc_stock_opname">Reconcile physical stock count</string>
+    <string name="home_desc_stock_opname">Count &amp; reconcile physical stock</string>
     <string name="home_desc_sales">Create sales invoices</string>
     <string name="home_desc_payment">Settle reseller payments</string>
     <string name="home_desc_resellers">Manage reseller contacts</string>
@@ -77,8 +77,11 @@
     <string name="reseller_phone_placeholder">e.g. 08123456789</string>
     <string name="reseller_address_label">Address (optional)</string>
     <string name="reseller_email_label">Email (optional)</string>
-    <string name="reseller_register_button">Register Reseller</string>
+    <string name="reseller_register_button">Add Reseller</string>
     <string name="reseller_save_changes_button">Save Changes</string>
+    <string name="reseller_delete_confirm_title">Delete Reseller?</string>
+    <string name="reseller_delete_confirm_message">Are you sure you want to remove %s from your reseller list? Their transaction history will not be deleted.</string>
+    <string name="reseller_delete_confirm_yes">Delete</string>
 
     <!-- Stock operation screen -->
     <string name="stock_section_current">Current Stock</string>
@@ -112,8 +115,8 @@
     </plurals>
 
     <!-- Payment settlement screen -->
-    <string name="payment_outstanding_balance">Outstanding Balance</string>
-    <string name="payment_outstanding_invoices">Outstanding Invoices (oldest first)</string>
+    <string name="payment_outstanding_balance">Total Unpaid</string>
+    <string name="payment_outstanding_invoices">Unpaid Invoices (oldest first)</string>
     <string name="payment_record_title">Record Payment</string>
     <string name="payment_amount_label">Payment Amount</string>
     <string name="payment_method_label">Payment Method</string>
@@ -121,11 +124,14 @@
     <string name="payment_method_transfer">Bank Transfer</string>
     <string name="payment_method_other">Other</string>
     <string name="payment_notes_label">Notes (optional)</string>
-    <string name="payment_allocation_title">Payment Allocation Preview</string>
-    <string name="payment_settle_button">Payment</string>
-    <string name="payment_due_format">Due: %s</string>
+    <string name="payment_allocation_title">Payment Breakdown</string>
+    <string name="payment_settle_button">Record Payment</string>
+    <string name="payment_confirm_title">Confirm Payment</string>
+    <string name="payment_confirm_message">Record a payment of %1$s from %2$s?</string>
+    <string name="payment_confirm_yes">Yes, Record</string>
+    <string name="payment_due_format">Invoice Total: %s</string>
     <string name="payment_of_format">of %s</string>
-    <string name="payment_applied_format">Applied: %s</string>
+    <string name="payment_applied_format">Paid: %s</string>
     <string name="payment_remaining_format">Remaining: %s</string>
     <string name="payment_paid">PAID</string>
     <plurals name="payment_invoice_count">
@@ -169,6 +175,7 @@
     <string name="share_other_apps">Other Apps</string>
     <string name="share_via_email">Email</string>
     <string name="share_not_now">Not Now</string>
+    <string name="share_done">Done</string>
     <string name="share_confirm_button">Confirm &amp; Send</string>
     <string name="share_generating">Generating PDF…</string>
     <string name="share_error">Failed to generate receipt</string>
@@ -186,7 +193,7 @@
     <string name="supplier_address_label">Address (optional)</string>
     <string name="supplier_email_label">Email (optional)</string>
     <string name="supplier_notes_label">Notes (optional)</string>
-    <string name="supplier_register_button">Register Supplier</string>
+    <string name="supplier_register_button">Add Supplier</string>
     <string name="supplier_save_changes_button">Save Changes</string>
 
     <!-- Purchase payment screen -->
@@ -205,6 +212,16 @@
 
     <!-- Reseller contact picker -->
     <string name="cd_pick_contact">Pick from contacts</string>
+    <string name="cd_navigate_back">Navigate back</string>
+
+    <!-- Invoice status labels -->
+    <string name="status_unpaid">Unpaid</string>
+    <string name="status_partial">Partial</string>
+    <string name="status_paid">Paid</string>
+
+    <!-- Transaction date picker -->
+    <string name="transaction_date_label">Invoice Date</string>
+    <string name="transaction_date_today">Today</string>
 
     <!-- Ledger screen -->
     <string name="ledger_period_today">Today</string>
@@ -213,10 +230,15 @@
     <string name="ledger_period_all">All Time</string>
     <string name="ledger_revenue">Revenue</string>
     <string name="ledger_collected">Collected</string>
-    <string name="ledger_outstanding">Outstanding</string>
+    <string name="ledger_outstanding">Unpaid</string>
     <string name="ledger_gross_profit">Gross Profit</string>
     <string name="ledger_entries_title">Entries</string>
     <string name="ledger_empty">No entries for this period.</string>
+    <string name="ledger_action_nota">Invoice</string>
+    <string name="ledger_action_kuitansi">Receipt</string>
+    <string name="ledger_summary_omzet">Sales</string>
+    <string name="ledger_summary_terkumpul">Collected</string>
+    <string name="ledger_summary_piutang">Unpaid</string>
     <string name="stock_low_alert_title">Low Stock Alert (%d products)</string>
     <string name="stock_low_alert_stock_format">%1$s / %2$s (min %3$s)</string>
     <string name="ledger_top_buyers_title">Top Buyers</string>
@@ -312,7 +334,7 @@
     <string name="settings_pin_setup">App PIN Lock</string>
 
     <!-- Dashboard -->
-    <string name="screen_dashboard">Dashboard</string>
+    <string name="screen_dashboard">Summary</string>
     <string name="home_desc_dashboard">Business performance overview</string>
     <string name="dashboard_invoices">Invoices</string>
     <string name="dashboard_top_reseller">Top Buyer</string>
@@ -321,7 +343,7 @@
     <string name="dashboard_outstanding_note">all-time unpaid</string>
 
     <!-- Reset data -->
-    <string name="settings_danger_section">Danger Zone</string>
+    <string name="settings_danger_section">Delete All Data</string>
     <string name="settings_demo_button">Load Demo Data</string>
     <string name="demo_confirm_title">Load Demo Data?</string>
     <string name="demo_confirm_message">All existing data will be cleared and replaced with sample data for demonstration purposes.</string>
@@ -329,7 +351,7 @@
     <string name="demo_data_loaded">Demo data loaded successfully.</string>
     <!-- Backup & Restore -->
     <string name="settings_backup_section">Backup &amp; Restore</string>
-    <string name="settings_backup_hint">Connect your Google Drive to automatically back up your data every day. You can restore your data on a new device using the same Google account.</string>
+    <string name="settings_backup_hint">Automatically back up your data to the cloud every week. You can restore your data on a new device using the same email address.</string>
     <string name="settings_backup_connect">Connect Google Drive</string>
     <string name="settings_backup_connected">Connected: %s</string>
     <string name="settings_backup_disconnect">Disconnect</string>

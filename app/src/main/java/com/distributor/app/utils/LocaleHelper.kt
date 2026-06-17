@@ -10,7 +10,7 @@ object LocaleHelper {
 
     fun getLanguage(context: Context): String =
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .getString(KEY_LANGUAGE, "en") ?: "en"
+            .getString(KEY_LANGUAGE, "id") ?: "id"
 
     fun setLanguage(context: Context, language: String) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)

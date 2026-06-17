@@ -1,4 +1,4 @@
-package com.distributor.app.ui.screens
+﻿package com.distributor.app.ui.screens
 
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -66,7 +66,7 @@ fun DashboardScreen(
                 title = { Text(stringResource(R.string.screen_dashboard)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cd_navigate_back))
                     }
                 }
             )
@@ -408,3 +408,4 @@ private fun DashboardCard(
         }
     }
 }
+

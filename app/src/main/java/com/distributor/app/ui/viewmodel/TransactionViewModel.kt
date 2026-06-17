@@ -37,7 +37,8 @@ data class TransactionUiState(
     val isSubmitting: Boolean = false,
     val snackbarMessage: String? = null,
     val lastCreatedInvoiceNumber: String? = null,
-    val pendingReceiptData: ReceiptData? = null
+    val pendingReceiptData: ReceiptData? = null,
+    val customDateMillis: Long? = null
 )
 
 class TransactionViewModel(application: Application) : AndroidViewModel(application) {
@@ -113,6 +114,14 @@ class TransactionViewModel(application: Application) : AndroidViewModel(applicat
 
     fun clearPendingReceipt() {
         _uiState.update { it.copy(pendingReceiptData = null) }
+    }
+
+    fun onCustomDateSelected(millis: Long) {
+        _uiState.update { it.copy(customDateMillis = millis) }
+    }
+
+    fun onClearCustomDate() {
+        _uiState.update { it.copy(customDateMillis = null) }
     }
 
     fun addToCart() {
@@ -216,7 +225,7 @@ class TransactionViewModel(application: Application) : AndroidViewModel(applicat
                     }
                 }
 
-                val now: Long = System.currentTimeMillis()
+                val now: Long = state.customDateMillis ?: System.currentTimeMillis()
                 val invoiceNumber: String = buildInvoiceNumber(now)
 
                 database.withTransaction {
@@ -289,6 +298,7 @@ class TransactionViewModel(application: Application) : AndroidViewModel(applicat
                     cartItems = emptyList(),
                     cartTotal = 0.0,
                     selectedReseller = null,
+                    customDateMillis = null,
                     lastCreatedInvoiceNumber = invoiceNumber,
                     pendingReceiptData = receiptData,
                     snackbarMessage = "Invoice $invoiceNumber created"

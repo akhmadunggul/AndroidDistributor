@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -36,6 +37,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -86,6 +88,7 @@ fun PaymentSettlementScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     var resellerExpanded by remember { mutableStateOf(false) }
     var methodExpanded by remember { mutableStateOf(false) }
+    var showPaymentConfirm by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState.snackbarMessage) {
         uiState.snackbarMessage?.let {
@@ -313,7 +316,7 @@ fun PaymentSettlementScreen(
                 // Settle button
                 item {
                     Button(
-                        onClick = viewModel::settlePayment,
+                        onClick = { showPaymentConfirm = true },
                         enabled = !uiState.isSubmitting &&
                                   uiState.paymentAmountInput.isNotBlank() &&
                                   uiState.amountError == null,
@@ -332,6 +335,35 @@ fun PaymentSettlementScreen(
 
             item { Spacer(modifier = Modifier.height(16.dp)) }
         }
+    }
+
+    if (showPaymentConfirm) {
+        AlertDialog(
+            onDismissRequest = { showPaymentConfirm = false },
+            title = { Text(stringResource(R.string.payment_confirm_title)) },
+            text  = {
+                Text(
+                    stringResource(
+                        R.string.payment_confirm_message,
+                        formatRupiah(uiState.paymentAmountInput.toDoubleOrNull() ?: 0.0),
+                        uiState.selectedReseller?.name ?: ""
+                    )
+                )
+            },
+            confirmButton = {
+                Button(onClick = {
+                    showPaymentConfirm = false
+                    viewModel.settlePayment()
+                }) {
+                    Text(stringResource(R.string.payment_confirm_yes))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showPaymentConfirm = false }) {
+                    Text(stringResource(R.string.action_cancel))
+                }
+            }
+        )
     }
 }
 

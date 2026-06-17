@@ -1,4 +1,4 @@
-package com.distributor.app.ui.screens
+﻿package com.distributor.app.ui.screens
 
 import android.graphics.BitmapFactory
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -125,7 +125,7 @@ fun SettingsScreen(
                 title = { Text(stringResource(R.string.settings_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cd_navigate_back))
                     }
                 }
             )
@@ -519,3 +519,4 @@ private fun LogoSection(
         }
     }
 }
+

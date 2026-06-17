@@ -1,6 +1,5 @@
 package com.distributor.app.ui.screens
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,11 +15,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.AssignmentReturn
-import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.Print
 import androidx.compose.material.icons.automirrored.filled.ReceiptLong
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -54,8 +54,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.distributor.app.R
-import com.distributor.app.data.dao.ProductResellerSales
-import com.distributor.app.data.dao.TopResellerEntry
 import com.distributor.app.data.entity.TransactionEntity
 import com.distributor.app.ui.components.LanguageMenuIcon
 import com.distributor.app.ui.viewmodel.LedgerEntry
@@ -175,7 +173,7 @@ fun LedgerScreen(
                 title = { Text(stringResource(R.string.screen_ledger)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cd_navigate_back))
                     }
                 },
                 actions = { LanguageMenuIcon() }
@@ -222,69 +220,8 @@ fun LedgerScreen(
                 }
             }
 
-            // Summary cards — row 1: Revenue / Collected
-            item {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    StatCard(
-                        label  = stringResource(R.string.ledger_revenue),
-                        amount = uiState.totalRevenue,
-                        modifier = Modifier.weight(1f)
-                    )
-                    StatCard(
-                        label  = stringResource(R.string.ledger_collected),
-                        amount = uiState.totalCollected,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            }
-
-            // Summary cards — row 2: Purchases / Gross Profit
-            item {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    StatCard(
-                        label          = stringResource(R.string.purchase_total_paid),
-                        amount         = uiState.totalPurchased,
-                        containerColor = MaterialTheme.colorScheme.errorContainer,
-                        modifier       = Modifier.weight(1f)
-                    )
-                    StatCard(
-                        label          = stringResource(R.string.ledger_gross_profit),
-                        amount         = uiState.grossProfit,
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        modifier       = Modifier.weight(1f)
-                    )
-                }
-            }
-
-            // Summary cards — row 3: Outstanding (full width)
-            item {
-                StatCard(
-                    label          = stringResource(R.string.ledger_outstanding),
-                    amount         = uiState.outstandingBalance,
-                    containerColor = if (uiState.outstandingBalance > 0.0)
-                        MaterialTheme.colorScheme.errorContainer
-                    else
-                        MaterialTheme.colorScheme.surfaceVariant,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-
-            // Top buyers section
-            if (uiState.topResellerOverall != null || uiState.topPerProduct.isNotEmpty()) {
-                item {
-                    Text(
-                        text     = stringResource(R.string.ledger_top_buyers_title),
-                        style    = MaterialTheme.typography.titleSmall,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
-                }
-                uiState.topResellerOverall?.let { top ->
-                    item { TopResellerCard(top) }
-                }
-                if (uiState.topPerProduct.isNotEmpty()) {
-                    item { TopPerProductCard(uiState.topPerProduct) }
-                }
-            }
+            // Compact period summary
+            item { PeriodSummaryRow(uiState) }
 
             // Entries section
             item {
@@ -327,52 +264,51 @@ fun LedgerScreen(
 }
 
 @Composable
-private fun StatCard(
-    label: String,
-    amount: Double,
-    modifier: Modifier = Modifier,
-    containerColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.surfaceVariant
-) {
+private fun PeriodSummaryRow(uiState: com.distributor.app.ui.viewmodel.LedgerUiState) {
     Card(
-        modifier = modifier,
-        colors   = CardDefaults.cardColors(containerColor = containerColor)
+        modifier = Modifier.fillMaxWidth(),
+        colors   = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            Text(
-                text  = label,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text       = formatRupiah(amount),
-                style      = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
+        Row(
+            modifier              = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            SummaryCell(label = stringResource(R.string.ledger_summary_omzet),   amount = uiState.totalRevenue,        color = MaterialTheme.colorScheme.primary)
+            SummaryCell(label = stringResource(R.string.ledger_summary_terkumpul), amount = uiState.totalCollected,    color = MaterialTheme.colorScheme.secondary)
+            SummaryCell(label = stringResource(R.string.ledger_summary_piutang),  amount = uiState.outstandingBalance, color = if (uiState.outstandingBalance > 0.0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
 
 @Composable
-private fun SaleEntryRow(entry: LedgerEntry.Sale, onClick: () -> Unit) {
+private fun SummaryCell(label: String, amount: Double, color: androidx.compose.ui.graphics.Color) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(formatRupiah(amount), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold, color = color)
+    }
+}
+
+@Composable
+private fun SaleEntryRow(entry: LedgerEntry.Sale, onViewInvoice: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
             .padding(vertical = 10.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment     = Alignment.CenterVertically
+        verticalAlignment     = Alignment.Top
     ) {
         Row(
-            verticalAlignment     = Alignment.CenterVertically,
+            verticalAlignment     = Alignment.Top,
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             modifier              = Modifier.weight(1f)
         ) {
             Icon(
-                imageVector      = Icons.AutoMirrored.Filled.ReceiptLong,
+                imageVector        = Icons.AutoMirrored.Filled.ReceiptLong,
                 contentDescription = null,
-                tint             = MaterialTheme.colorScheme.primary,
-                modifier         = Modifier.size(20.dp)
+                tint               = MaterialTheme.colorScheme.primary,
+                modifier           = Modifier.size(20.dp).padding(top = 2.dp)
             )
             Column {
                 Text(entry.invoiceNumber, fontWeight = FontWeight.Medium)
@@ -394,8 +330,8 @@ private fun SaleEntryRow(entry: LedgerEntry.Sale, onClick: () -> Unit) {
                 fontWeight = FontWeight.SemiBold
             )
             Text(
-                text  = entry.status,
-                style = MaterialTheme.typography.labelSmall,
+                text  = stringResource(entry.statusLabelRes()),
+                style = MaterialTheme.typography.bodySmall,
                 color = when (entry.status) {
                     TransactionEntity.STATUS_PAID    -> MaterialTheme.colorScheme.primary
                     TransactionEntity.STATUS_PARTIAL -> MaterialTheme.colorScheme.tertiary
@@ -403,30 +339,38 @@ private fun SaleEntryRow(entry: LedgerEntry.Sale, onClick: () -> Unit) {
                 },
                 fontWeight = FontWeight.SemiBold
             )
+            Spacer(Modifier.height(4.dp))
+            AssistChip(
+                onClick = onViewInvoice,
+                label   = { Text(stringResource(R.string.ledger_action_nota), style = MaterialTheme.typography.labelSmall) },
+                leadingIcon = {
+                    Icon(Icons.AutoMirrored.Filled.ReceiptLong, contentDescription = null,
+                        modifier = Modifier.size(AssistChipDefaults.IconSize))
+                }
+            )
         }
     }
 }
 
 @Composable
-private fun PaymentEntryRow(entry: LedgerEntry.Payment, onClick: () -> Unit) {
+private fun PaymentEntryRow(entry: LedgerEntry.Payment, onViewReceipt: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
             .padding(vertical = 10.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment     = Alignment.CenterVertically
+        verticalAlignment     = Alignment.Top
     ) {
         Row(
-            verticalAlignment     = Alignment.CenterVertically,
+            verticalAlignment     = Alignment.Top,
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             modifier              = Modifier.weight(1f)
         ) {
             Icon(
-                imageVector      = Icons.Default.Payments,
+                imageVector        = Icons.Default.Payments,
                 contentDescription = null,
-                tint             = MaterialTheme.colorScheme.secondary,
-                modifier         = Modifier.size(20.dp)
+                tint               = MaterialTheme.colorScheme.secondary,
+                modifier           = Modifier.size(20.dp).padding(top = 2.dp)
             )
             Column {
                 Text(entry.resellerName, fontWeight = FontWeight.Medium)
@@ -445,11 +389,22 @@ private fun PaymentEntryRow(entry: LedgerEntry.Payment, onClick: () -> Unit) {
                 )
             }
         }
-        Text(
-            text       = formatRupiah(entry.amount),
-            fontWeight = FontWeight.SemiBold,
-            color      = MaterialTheme.colorScheme.secondary
-        )
+        Column(horizontalAlignment = Alignment.End) {
+            Text(
+                text       = formatRupiah(entry.amount),
+                fontWeight = FontWeight.SemiBold,
+                color      = MaterialTheme.colorScheme.secondary
+            )
+            Spacer(Modifier.height(4.dp))
+            AssistChip(
+                onClick = onViewReceipt,
+                label   = { Text(stringResource(R.string.ledger_action_kuitansi), style = MaterialTheme.typography.labelSmall) },
+                leadingIcon = {
+                    Icon(Icons.Default.Payments, contentDescription = null,
+                        modifier = Modifier.size(AssistChipDefaults.IconSize))
+                }
+            )
+        }
     }
 }
 
@@ -492,93 +447,6 @@ private fun ReturnEntryRow(entry: LedgerEntry.Return) {
             fontWeight = FontWeight.SemiBold,
             color      = MaterialTheme.colorScheme.error
         )
-    }
-}
-
-@Composable
-private fun TopResellerCard(entry: TopResellerEntry) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors   = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-    ) {
-        Row(
-            modifier              = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment     = Alignment.CenterVertically
-        ) {
-            Row(
-                verticalAlignment     = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                Icon(
-                    imageVector        = Icons.Default.EmojiEvents,
-                    contentDescription = null,
-                    tint               = MaterialTheme.colorScheme.primary,
-                    modifier           = Modifier.size(24.dp)
-                )
-                Column {
-                    Text(
-                        text  = stringResource(R.string.ledger_top_buyer_overall),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text       = entry.resellerName,
-                        style      = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-            Text(
-                text       = formatRupiah(entry.totalPurchase),
-                style      = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold,
-                color      = MaterialTheme.colorScheme.primary
-            )
-        }
-    }
-}
-
-@Composable
-private fun TopPerProductCard(entries: List<ProductResellerSales>) {
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            Text(
-                text       = stringResource(R.string.ledger_top_buyer_by_product),
-                style      = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.SemiBold,
-                color      = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(Modifier.height(8.dp))
-            entries.forEachIndexed { idx, entry ->
-                if (idx > 0) HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
-                Row(
-                    modifier              = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment     = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text       = entry.productName,
-                            style      = MaterialTheme.typography.bodySmall,
-                            fontWeight = FontWeight.Medium
-                        )
-                        Text(
-                            text  = entry.resellerName,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    Text(
-                        text       = formatRupiah(entry.totalPurchase),
-                        style      = MaterialTheme.typography.bodySmall,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
-            }
-        }
     }
 }
 
@@ -635,6 +503,12 @@ private fun ReportPeriod.labelRes(): Int = when (this) {
     ReportPeriod.THIS_YEAR  -> R.string.ledger_period_year
     ReportPeriod.ALL_TIME   -> R.string.ledger_period_all
     ReportPeriod.CUSTOM     -> R.string.ledger_period_custom
+}
+
+private fun LedgerEntry.Sale.statusLabelRes(): Int = when (status) {
+    TransactionEntity.STATUS_PAID    -> R.string.status_paid
+    TransactionEntity.STATUS_PARTIAL -> R.string.status_partial
+    else                             -> R.string.status_unpaid
 }
 
 private fun formatLedgerDate(millis: Long): String =

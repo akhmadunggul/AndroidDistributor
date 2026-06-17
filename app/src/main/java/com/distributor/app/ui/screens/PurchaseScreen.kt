@@ -1,4 +1,4 @@
-package com.distributor.app.ui.screens
+﻿package com.distributor.app.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -112,7 +112,7 @@ fun PurchaseScreen(
                 title = { Text(stringResource(R.string.screen_purchase)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cd_navigate_back))
                     }
                 },
                 actions = { LanguageMenuIcon() }
@@ -337,3 +337,4 @@ private fun PurchaseEntryRow(entry: PurchasePaymentEntry) {
         )
     }
 }
+

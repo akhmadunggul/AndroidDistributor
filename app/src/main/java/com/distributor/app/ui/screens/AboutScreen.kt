@@ -1,4 +1,4 @@
-package com.distributor.app.ui.screens
+﻿package com.distributor.app.ui.screens
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
@@ -67,7 +67,7 @@ fun AboutScreen(onNavigateBack: () -> Unit = {}) {
                 title = { Text(stringResource(R.string.screen_about)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cd_navigate_back))
                     }
                 }
             )
@@ -162,3 +162,4 @@ private fun FeatureSectionCard(section: FeatureSection) {
         }
     }
 }
+

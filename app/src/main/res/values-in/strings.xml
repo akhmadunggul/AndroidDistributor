@@ -6,8 +6,8 @@
     <string name="tab_home">Utama</string>
     <string name="tab_products">Produk</string>
     <string name="tab_stock">Stok (Opname)</string>
-    <string name="tab_stoking">Stoking</string>
-    <string name="tab_stock_opname">Operasi Stok</string>
+    <string name="tab_stoking">Tambah Stok</string>
+    <string name="tab_stock_opname">Cek Stok</string>
     <string name="tab_sales">Penjualan</string>
     <string name="tab_payment">Pembayaran</string>
     <string name="tab_resellers">Reseller</string>
@@ -17,18 +17,18 @@
     <string name="screen_home">Menu Utama</string>
     <string name="screen_products">Produk</string>
     <string name="screen_stock">Operasi Stok</string>
-    <string name="screen_stoking">Stoking</string>
+    <string name="screen_stoking">Tambah Stok</string>
     <string name="screen_sales">Pesanan Penjualan</string>
-    <string name="screen_payment">Pelunasan Pembayaran</string>
+    <string name="screen_payment">Catat Pembayaran</string>
     <string name="screen_resellers">Reseller</string>
-    <string name="screen_stock_opname">Stok Opname</string>
+    <string name="screen_stock_opname">Cek Stok</string>
     <string name="screen_ledger">Buku Kas</string>
 
     <!-- Home screen menu card descriptions -->
     <string name="home_desc_products">Katalog produk &amp; batas stok</string>
     <string name="home_desc_stock">Stok masuk, keluar &amp; opname</string>
     <string name="home_desc_stoking">Tambah stok produk masuk</string>
-    <string name="home_desc_stock_opname">Rekonsiliasi stok fisik</string>
+    <string name="home_desc_stock_opname">Hitung &amp; sesuaikan stok fisik</string>
     <string name="home_desc_sales">Buat faktur penjualan</string>
     <string name="home_desc_payment">Catat pelunasan reseller</string>
     <string name="home_desc_resellers">Kelola data reseller</string>
@@ -77,8 +77,11 @@
     <string name="reseller_phone_placeholder">mis. 08123456789</string>
     <string name="reseller_address_label">Alamat (opsional)</string>
     <string name="reseller_email_label">Email (opsional)</string>
-    <string name="reseller_register_button">Daftarkan Reseller</string>
+    <string name="reseller_register_button">Tambah Reseller</string>
     <string name="reseller_save_changes_button">Simpan Perubahan</string>
+    <string name="reseller_delete_confirm_title">Hapus Reseller?</string>
+    <string name="reseller_delete_confirm_message">Yakin ingin menghapus %s dari daftar reseller? Riwayat transaksinya tidak akan ikut terhapus.</string>
+    <string name="reseller_delete_confirm_yes">Hapus</string>
 
     <!-- Stock operation screen -->
     <string name="stock_section_current">Stok Saat Ini</string>
@@ -105,14 +108,14 @@
     <string name="sales_exceeds_stock">Melebihi stok</string>
     <string name="sales_add_to_cart_button">Tambah ke Keranjang</string>
     <string name="sales_total">Total</string>
-    <string name="sales_create_invoice_button">Buat Invoice</string>
+    <string name="sales_create_invoice_button">Buat Nota</string>
     <plurals name="sales_cart_header">
         <item quantity="other">Keranjang (%d item)</item>
     </plurals>
 
     <!-- Payment settlement screen -->
-    <string name="payment_outstanding_balance">Saldo Tertunggak</string>
-    <string name="payment_outstanding_invoices">Invoice Tertunggak (terlama dulu)</string>
+    <string name="payment_outstanding_balance">Total Hutang</string>
+    <string name="payment_outstanding_invoices">Nota Belum Lunas (terlama dulu)</string>
     <string name="payment_record_title">Catat Pembayaran</string>
     <string name="payment_amount_label">Jumlah Pembayaran</string>
     <string name="payment_method_label">Metode Pembayaran</string>
@@ -120,15 +123,18 @@
     <string name="payment_method_transfer">Transfer Bank</string>
     <string name="payment_method_other">Lainnya</string>
     <string name="payment_notes_label">Catatan (opsional)</string>
-    <string name="payment_allocation_title">Pratinjau Alokasi Pembayaran</string>
-    <string name="payment_settle_button">Pembayaran</string>
-    <string name="payment_due_format">Tagihan: %s</string>
-    <string name="payment_of_format">dari %s</string>
-    <string name="payment_applied_format">Diterapkan: %s</string>
+    <string name="payment_allocation_title">Rincian Pembayaran</string>
+    <string name="payment_settle_button">Catat Pembayaran</string>
+    <string name="payment_confirm_title">Konfirmasi Pembayaran</string>
+    <string name="payment_confirm_message">Catat pembayaran sebesar %1$s dari %2$s?</string>
+    <string name="payment_confirm_yes">Ya, Catat</string>
+    <string name="payment_due_format">Total Nota: %s</string>
+    <string name="payment_of_format">dari total %s</string>
+    <string name="payment_applied_format">Dibayarkan: %s</string>
     <string name="payment_remaining_format">Sisa: %s</string>
     <string name="payment_paid">LUNAS</string>
     <plurals name="payment_invoice_count">
-        <item quantity="other">%d invoice</item>
+        <item quantity="other">%d nota</item>
     </plurals>
 
     <!-- Stock opname screen -->
@@ -167,6 +173,7 @@
     <string name="share_other_apps">Aplikasi Lainnya</string>
     <string name="share_via_email">Email</string>
     <string name="share_not_now">Nanti</string>
+    <string name="share_done">Selesai</string>
     <string name="share_confirm_button">Konfirmasi &amp; Kirim</string>
     <string name="share_generating">Membuat PDF…</string>
     <string name="share_error">Gagal membuat struk</string>
@@ -184,7 +191,7 @@
     <string name="supplier_address_label">Alamat (opsional)</string>
     <string name="supplier_email_label">Email (opsional)</string>
     <string name="supplier_notes_label">Catatan (opsional)</string>
-    <string name="supplier_register_button">Daftarkan Suplier</string>
+    <string name="supplier_register_button">Tambah Suplier</string>
     <string name="supplier_save_changes_button">Simpan Perubahan</string>
 
     <!-- Purchase payment screen -->
@@ -203,6 +210,16 @@
 
     <!-- Reseller contact picker -->
     <string name="cd_pick_contact">Pilih dari kontak</string>
+    <string name="cd_navigate_back">Kembali</string>
+
+    <!-- Label status nota -->
+    <string name="status_unpaid">Belum Bayar</string>
+    <string name="status_partial">Sebagian</string>
+    <string name="status_paid">Lunas</string>
+
+    <!-- Tanggal nota -->
+    <string name="transaction_date_label">Tanggal Nota</string>
+    <string name="transaction_date_today">Hari ini</string>
 
     <!-- Ledger screen -->
     <string name="ledger_period_today">Hari Ini</string>
@@ -211,10 +228,15 @@
     <string name="ledger_period_all">Semua</string>
     <string name="ledger_revenue">Omzet</string>
     <string name="ledger_collected">Diterima</string>
-    <string name="ledger_outstanding">Piutang</string>
+    <string name="ledger_outstanding">Belum Lunas</string>
     <string name="ledger_gross_profit">Laba Kotor</string>
     <string name="ledger_entries_title">Riwayat</string>
     <string name="ledger_empty">Tidak ada entri untuk periode ini.</string>
+    <string name="ledger_action_nota">Nota</string>
+    <string name="ledger_action_kuitansi">Kuitansi</string>
+    <string name="ledger_summary_omzet">Omzet</string>
+    <string name="ledger_summary_terkumpul">Terkumpul</string>
+    <string name="ledger_summary_piutang">Piutang</string>
     <string name="stock_low_alert_title">Peringatan Stok Menipis (%d produk)</string>
     <string name="stock_low_alert_stock_format">%1$s / %2$s (min %3$s)</string>
     <string name="ledger_top_buyers_title">Pembeli Terbanyak</string>
@@ -247,11 +269,11 @@
     <string name="about_feature_products_title">Produk</string>
     <string name="about_feature_products_desc">• Tambah, ubah, dan hapus produk dengan nama, SKU, satuan, harga modal, dan harga jual.\n• Atur batas peringatan restock opsional — produk yang stoknya mencapai atau di bawah batas akan langsung ditandai di layar Produk.</string>
     <string name="about_feature_stock_title">Manajemen Stok</string>
-    <string name="about_feature_stock_desc">• Catat entri Stok Masuk, Stok Keluar, dan Penyesuaian per produk.\n• Sistem mempertahankan saldo stok real-time untuk setiap produk.\n• Stok Opname: bandingkan stok sistem dengan stok fisik secara berdampingan dan simpan semua penyesuaian dalam satu ketukan.</string>
+    <string name="about_feature_stock_desc">• Catat entri Stok Masuk, Stok Keluar, dan Penyesuaian per produk.\n• Sistem mempertahankan saldo stok terkini untuk setiap produk.\n• Cek Stok: bandingkan stok sistem dengan stok fisik secara berdampingan dan simpan semua penyesuaian dalam satu ketukan.</string>
     <string name="about_feature_sales_title">Penjualan &amp; Faktur</string>
-    <string name="about_feature_sales_desc">• Buat keranjang dengan memilih reseller dan menambahkan produk beserta jumlah dan harga satuan.\n• Buat faktur bernomor dengan satu ketukan.\n• Status faktur dilacak otomatis: Belum Bayar, Sebagian, atau Lunas.\n• Stok langsung berkurang saat faktur dibuat.</string>
+    <string name="about_feature_sales_desc">• Buat keranjang dengan memilih reseller dan menambahkan produk beserta jumlah dan harga satuan.\n• Buat nota bernomor dengan satu ketukan.\n• Status nota dilacak otomatis: Belum Bayar, Sebagian, atau Lunas.\n• Stok langsung berkurang saat nota dibuat.</string>
     <string name="about_feature_payment_title">Pelunasan Pembayaran</string>
-    <string name="about_feature_payment_desc">• Pilih reseller dan catat pembayaran terhadap faktur yang masih tertunggak.\n• Pembayaran dialokasikan secara FIFO — faktur terlama dilunasi terlebih dahulu.\n• Pratinjau distribusi pembayaran sebelum dikonfirmasi.\n• Buat struk PDF dan bagikan langsung via WhatsApp atau aplikasi lainnya.</string>
+    <string name="about_feature_payment_desc">• Pilih reseller dan catat pembayaran terhadap nota yang masih belum lunas.\n• Nota terlama otomatis dilunasi terlebih dahulu.\n• Lihat rincian pembayaran sebelum dikonfirmasi.\n• Buat struk PDF dan bagikan langsung via WhatsApp atau aplikasi lainnya.</string>
     <string name="about_feature_resellers_title">Reseller</string>
     <string name="about_feature_resellers_desc">• Daftarkan reseller dengan nama, nomor HP, dan alamat.\n• Impor data kontak langsung dari daftar kontak HP dengan satu ketukan.\n• Setiap faktur, pembayaran, dan retur terhubung ke reseller untuk keterlacakan penuh.</string>
     <string name="about_feature_returns_title">Retur Produk</string>
@@ -310,16 +332,16 @@
     <string name="settings_pin_setup">Kunci PIN Aplikasi</string>
 
     <!-- Dashboard -->
-    <string name="screen_dashboard">Dashboard</string>
+    <string name="screen_dashboard">Ringkasan</string>
     <string name="home_desc_dashboard">Ringkasan performa bisnis</string>
-    <string name="dashboard_invoices">Invoice</string>
+    <string name="dashboard_invoices">Nota</string>
     <string name="dashboard_top_reseller">Pembeli Teratas</string>
     <string name="dashboard_top_products">Produk Terlaris</string>
     <string name="dashboard_low_stock">Stok Menipis (%d produk)</string>
     <string name="dashboard_outstanding_note">total belum lunas</string>
 
     <!-- Reset data -->
-    <string name="settings_danger_section">Zona Berbahaya</string>
+    <string name="settings_danger_section">Hapus Semua Data</string>
     <string name="settings_demo_button">Muat Data Demo</string>
     <string name="demo_confirm_title">Muat Data Demo?</string>
     <string name="demo_confirm_message">Semua data yang ada akan dihapus dan diganti dengan data contoh untuk keperluan demonstrasi.</string>
@@ -327,7 +349,7 @@
     <string name="demo_data_loaded">Data demo berhasil dimuat.</string>
     <!-- Backup & Pulihkan -->
     <string name="settings_backup_section">Backup &amp; Pulihkan</string>
-    <string name="settings_backup_hint">Hubungkan Google Drive untuk mencadangkan data secara otomatis setiap hari. Data bisa dipulihkan di HP baru menggunakan akun Google yang sama.</string>
+    <string name="settings_backup_hint">Simpan data Anda ke cloud secara otomatis setiap minggu. Data bisa dipulihkan di HP baru menggunakan email yang sama.</string>
     <string name="settings_backup_connect">Hubungkan Google Drive</string>
     <string name="settings_backup_connected">Terhubung: %s</string>
     <string name="settings_backup_disconnect">Putus Koneksi</string>
@@ -352,7 +374,7 @@
     <string name="reset_confirm1_message">Ini akan menghapus semua produk, reseller, transaksi, catatan stok, dan riwayat pembayaran secara permanen. Pengaturan dan info bisnis akan tetap tersimpan.</string>
     <string name="reset_confirm1_proceed">Lanjutkan</string>
     <string name="reset_confirm2_title">Anda benar-benar yakin?</string>
-    <string name="reset_confirm2_message">Tindakan ini tidak dapat dibatalkan. Setiap transaksi, invoice, entri stok, dan data reseller akan dihapus permanen.</string>
+    <string name="reset_confirm2_message">Tindakan ini tidak dapat dibatalkan. Setiap transaksi, nota, entri stok, dan data reseller akan dihapus permanen.</string>
     <string name="reset_confirm2_delete">Ya, Hapus Semua</string>
     <string name="reset_success">Semua data berhasil direset.</string>
 
@@ -367,9 +389,9 @@
     <string name="faq_q_paperless">Apakah aplikasi ini paperless?</string>
     <string name="faq_a_paperless">Ya. Distro-Ku dirancang untuk mengelola seluruh transaksi distribusi secara digital tanpa selembar kertas pun. Invoice, struk pembayaran, dan laporan keuangan semuanya tersedia dalam format digital dan dapat dibagikan langsung via WhatsApp atau email.</string>
     <string name="faq_q_need_internet">Apakah perlu koneksi internet?</string>
-    <string name="faq_a_need_internet">Tidak. Seluruh data disimpan secara lokal di perangkat Anda. Koneksi internet hanya diperlukan saat aktivasi lisensi dan backup Google Drive.</string>
+    <string name="faq_a_need_internet">Tidak. Seluruh data disimpan secara lokal di perangkat Anda. Koneksi internet hanya diperlukan saat aktivasi lisensi dan backup data ke cloud.</string>
     <string name="faq_q_data_backup">Bagaimana cara mencadangkan dan memulihkan data?</string>
-    <string name="faq_a_data_backup">Hubungkan Google Drive di Pengaturan → Backup &amp; Pulihkan. Setelah terhubung, aplikasi otomatis mencadangkan database ke Google Drive setiap hari. Jika HP factory reset atau ganti HP baru, instal aplikasi, hubungkan akun Google yang sama, lalu ketuk Pulihkan dari Drive — data Anda akan pulih sepenuhnya.</string>
+    <string name="faq_a_data_backup">Isi email di Pengaturan → Backup &amp; Pulihkan, lalu ketuk Backup Sekarang. Aplikasi otomatis mencadangkan data ke cloud setiap minggu. Jika HP factory reset atau ganti HP baru, instal aplikasi, isi email yang sama, lalu ketuk Pulihkan dari Cloud — data Anda akan pulih sepenuhnya.</string>
 
     <string name="faq_section_license">Lisensi</string>
     <string name="faq_q_how_activate">Cara mengaktifkan lisensi?</string>
@@ -387,35 +409,35 @@
     <string name="faq_q_what_is_sku">Apa itu SKU?</string>
     <string name="faq_a_what_is_sku">SKU (Stock Keeping Unit) adalah kode unik untuk setiap produk yang membedakan produk dengan nama serupa. Contoh: AQUA-600ML, AQUA-1500ML.</string>
     <string name="faq_q_threshold">Apa itu Batas Peringatan Restock?</string>
-    <string name="faq_a_threshold">Angka minimal stok sebelum peringatan muncul. Jika stok produk mencapai atau di bawah angka ini, kartunya akan berwarna merah di layar Stoking dan Operasi Stok.</string>
+    <string name="faq_a_threshold">Angka minimal stok sebelum peringatan muncul. Jika stok produk mencapai atau di bawah angka ini, kartunya akan berwarna merah di layar Tambah Stok dan Cek Stok.</string>
 
-    <string name="faq_section_stoking">Stoking</string>
-    <string name="faq_q_what_is_stoking">Apa itu Stoking?</string>
-    <string name="faq_a_what_is_stoking">Stoking mencatat penambahan stok produk masuk. Pilih produk, masukkan jumlah, pilih tanggal, lalu simpan. Saldo stok produk langsung bertambah.</string>
+    <string name="faq_section_stoking">Tambah Stok</string>
+    <string name="faq_q_what_is_stoking">Apa itu menu Tambah Stok?</string>
+    <string name="faq_a_what_is_stoking">Menu Tambah Stok digunakan untuk mencatat barang yang baru masuk. Pilih produk, masukkan jumlah, pilih tanggal, lalu simpan. Stok produk langsung bertambah.</string>
     <string name="faq_q_auto_price">Mengapa harga satuan terisi otomatis?</string>
     <string name="faq_a_auto_price">Harga satuan otomatis mengacu pada Harga Jual yang ditetapkan di menu Produk, untuk menjaga konsistensi data. Jika perlu mengubah harga referensi, perbarui harga jual produk di menu Produk.</string>
 
-    <string name="faq_section_opname">Operasi Stok</string>
-    <string name="faq_q_what_is_opname">Apa itu Operasi Stok?</string>
-    <string name="faq_a_what_is_opname">Operasi Stok mencocokkan stok di sistem dengan hitungan fisik di gudang. Masukkan jumlah fisik setiap produk, periksa kolom selisih, lalu simpan untuk menerapkan semua penyesuaian sekaligus.</string>
-    <string name="faq_q_when_opname">Kapan sebaiknya melakukan Operasi Stok?</string>
-    <string name="faq_a_when_opname">Lakukan Operasi Stok secara berkala — mingguan atau bulanan — atau saat ada ketidaksesuaian antara barang fisik dengan catatan di sistem. Ini menjaga akurasi data stok.</string>
+    <string name="faq_section_opname">Cek Stok</string>
+    <string name="faq_q_what_is_opname">Apa itu menu Cek Stok?</string>
+    <string name="faq_a_what_is_opname">Menu Cek Stok digunakan untuk mencocokkan jumlah barang di sistem dengan barang fisik yang ada. Masukkan jumlah fisik setiap produk, lihat kolom selisih, lalu simpan untuk memperbarui stok sekaligus.</string>
+    <string name="faq_q_when_opname">Kapan sebaiknya melakukan Cek Stok?</string>
+    <string name="faq_a_when_opname">Lakukan Cek Stok secara rutin — seminggu atau sebulan sekali — atau saat ada perbedaan antara barang fisik dengan catatan di aplikasi. Ini menjaga data stok tetap akurat.</string>
 
-    <string name="faq_section_sales">Penjualan &amp; Invoice</string>
-    <string name="faq_q_create_invoice">Cara membuat invoice penjualan?</string>
-    <string name="faq_a_create_invoice">Buka menu Penjualan, pilih reseller, tambahkan produk dan jumlah ke keranjang, lalu ketuk Buat Invoice. Stok langsung berkurang dan invoice tersimpan dengan nomor otomatis.</string>
-    <string name="faq_q_invoice_status">Apa arti status invoice?</string>
+    <string name="faq_section_sales">Penjualan &amp; Nota</string>
+    <string name="faq_q_create_invoice">Cara membuat nota penjualan?</string>
+    <string name="faq_a_create_invoice">Buka menu Penjualan, pilih pembeli, tambahkan produk dan jumlah ke keranjang, lalu ketuk Buat Nota. Stok langsung berkurang dan nota tersimpan dengan nomor otomatis.</string>
+    <string name="faq_q_invoice_status">Apa arti status nota?</string>
     <string name="faq_a_invoice_status">Belum Bayar: belum ada pembayaran.\nSebagian: sudah ada pembayaran tapi belum lunas.\nLunas: seluruh tagihan sudah dilunasi.</string>
 
     <string name="faq_section_payment">Pembayaran</string>
     <string name="faq_q_record_payment">Cara mencatat pembayaran dari reseller?</string>
-    <string name="faq_a_record_payment">Buka menu Pembayaran, pilih reseller, masukkan jumlah dan metode pembayaran, lalu ketuk Pembayaran. Sistem menggunakan FIFO — invoice terlama dilunasi terlebih dahulu. Pratinjau alokasi ditampilkan sebelum konfirmasi.</string>
+    <string name="faq_a_record_payment">Buka menu Catat Pembayaran, pilih reseller, masukkan jumlah dan metode pembayaran, lalu ketuk Catat Pembayaran. Aplikasi otomatis melunasi nota yang paling lama terlebih dahulu. Rincian pembayaran ditampilkan sebelum dikonfirmasi.</string>
     <string name="faq_q_share_receipt">Cara berbagi invoice atau struk pembayaran?</string>
-    <string name="faq_a_share_receipt">Setelah membuat invoice atau mencatat pembayaran, pilih opsi Bagikan. Aplikasi membuat PDF yang bisa dikirim via WhatsApp, WhatsApp Business, Email (alamat email reseller terisi otomatis jika sudah disimpan), atau aplikasi lain. Invoice dan struk lama juga bisa dibagikan ulang langsung dari Buku Kas dengan mengetuk baris transaksinya.</string>
+    <string name="faq_a_share_receipt">Setelah membuat nota atau mencatat pembayaran, pilih opsi Bagikan. Aplikasi membuat PDF yang bisa dikirim via WhatsApp, WhatsApp Business, Email (alamat email reseller terisi otomatis jika sudah disimpan), atau aplikasi lain. Nota dan struk lama juga bisa dibagikan ulang langsung dari Buku Kas dengan mengetuk baris transaksinya.</string>
 
     <string name="faq_section_reseller">Reseller &amp; Retur</string>
     <string name="faq_q_add_reseller">Cara mendaftarkan atau mengedit reseller?</string>
-    <string name="faq_a_add_reseller">Buka menu Reseller, ketuk + untuk menambah baru atau ikon pensil pada kartu yang sudah ada untuk mengedit. Isi nama, nomor HP, alamat, dan email. Alamat email digunakan untuk mengisi otomatis penerima saat berbagi invoice via email. Nomor HP bisa diimpor dari kontak HP hanya dengan satu ketukan.</string>
+    <string name="faq_a_add_reseller">Buka menu Reseller, ketuk + untuk menambah baru atau ikon pensil pada kartu yang sudah ada untuk mengedit. Isi nama, nomor HP, alamat, dan email. Alamat email digunakan untuk mengisi otomatis penerima saat berbagi nota via email. Nomor HP bisa diimpor dari kontak HP hanya dengan satu ketukan.</string>
     <string name="faq_q_return">Cara memproses retur produk?</string>
     <string name="faq_a_return">Buka menu Retur dari halaman utama, pilih reseller, tambahkan item retur beserta jumlah dan alasan (Tidak Terjual, Cacat/Rusak, atau Lainnya), lalu kirim. Nilai retur otomatis dikurangi dari omzet di Buku Kas.</string>
 
