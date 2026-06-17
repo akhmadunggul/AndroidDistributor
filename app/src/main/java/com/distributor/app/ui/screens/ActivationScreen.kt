@@ -29,10 +29,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.distributor.app.R
@@ -42,7 +44,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun ActivationScreen(onActivated: () -> Unit) {
-    var keyInput   by remember { mutableStateOf("") }
+    var keyInput   by remember { mutableStateOf(TextFieldValue("")) }
     var emailInput by remember { mutableStateOf("") }
     var isLoading  by remember { mutableStateOf(false) }
     var errorMsg   by remember { mutableStateOf("") }
@@ -51,7 +53,7 @@ fun ActivationScreen(onActivated: () -> Unit) {
     val keyboard   = LocalSoftwareKeyboardController.current
 
     fun activate() {
-        val key   = keyInput.trim()
+        val key   = keyInput.text.trim()
         val email = emailInput.trim()
         if (key.isBlank()) { errorMsg = context.getString(R.string.activation_error_empty); return }
         if (!email.contains("@") || !email.contains(".")) {
@@ -114,7 +116,11 @@ fun ActivationScreen(onActivated: () -> Unit) {
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(
                 value         = keyInput,
-                onValueChange = { keyInput = formatLicenseKey(it); errorMsg = "" },
+                onValueChange = {
+                    val formatted = formatLicenseKey(it.text)
+                    keyInput = TextFieldValue(text = formatted, selection = TextRange(formatted.length))
+                    errorMsg = ""
+                },
                 label         = { Text(stringResource(R.string.activation_key_label)) },
                 placeholder   = { Text("DIST-XXXX-XXXX") },
                 singleLine    = true,
