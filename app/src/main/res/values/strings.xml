@@ -301,6 +301,9 @@
     <string name="activation_error_generic">Activation failed. Please try again.</string>
     <string name="activation_email_label">Email Address</string>
     <string name="activation_email_error_invalid">Please enter a valid email address.</string>
+    <string name="activation_trial_prompt">Don\'t have a licence key yet?</string>
+    <string name="activation_trial_link">Apply for a Trial Licence</string>
+    <string name="activation_trial_wa_message">Halo Admin Distro-Ku,\n\nSaya ingin mengajukan lisensi trial untuk aplikasi Distro-Ku.\n\nMohon informasi proses selanjutnya.\nTerima kasih.</string>
     <string name="license_expired_title">Trial Expired</string>
     <string name="license_expired_body">Your trial period has ended. Contact your distributor to renew your licence.</string>
     <string name="license_registered_expired_title">Licence Expired</string>

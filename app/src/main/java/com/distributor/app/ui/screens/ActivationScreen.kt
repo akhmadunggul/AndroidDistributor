@@ -1,6 +1,9 @@
 package com.distributor.app.ui.screens
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,6 +34,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -163,6 +167,28 @@ fun ActivationScreen(onActivated: () -> Unit) {
                     Text(stringResource(R.string.activation_button))
                 }
             }
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text      = stringResource(R.string.activation_trial_prompt),
+                style     = MaterialTheme.typography.bodySmall,
+                color     = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center
+            )
+            val trialMessage = stringResource(R.string.activation_trial_wa_message)
+            Text(
+                text           = stringResource(R.string.activation_trial_link),
+                style          = MaterialTheme.typography.bodyMedium,
+                color          = MaterialTheme.colorScheme.primary,
+                textDecoration = TextDecoration.Underline,
+                textAlign      = TextAlign.Center,
+                modifier       = Modifier.clickable {
+                    val number = "6285196197819"
+                    context.startActivity(
+                        Intent(Intent.ACTION_VIEW,
+                            Uri.parse("https://wa.me/$number?text=${Uri.encode(trialMessage)}"))
+                    )
+                }
+            )
         }
     }
 }
