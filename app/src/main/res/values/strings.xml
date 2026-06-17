@@ -304,6 +304,15 @@
     <string name="activation_trial_prompt">Don\'t have a licence key yet?</string>
     <string name="activation_trial_link">Apply for a Trial Licence</string>
     <string name="activation_trial_wa_message">Halo Admin Distro-Ku,\n\nSaya ingin mengajukan lisensi trial untuk aplikasi Distro-Ku.\n\nMohon informasi proses selanjutnya.\nTerima kasih.</string>
+    <string name="welcome_title">Selamat Datang di</string>
+    <string name="welcome_description">Aplikasi yang membebaskan Anda dari kerumitan pencatatan transaksi.</string>
+    <string name="welcome_dummy_heading">Data Latihan Tersedia</string>
+    <string name="welcome_dummy_body">Aplikasi ini sudah dilengkapi dengan data dummy untuk Anda berlatih menggunakan aplikasi, sebelum menggunakannya untuk kebutuhan usaha Anda secara riil.</string>
+    <string name="welcome_dummy_reset_hint">Siap memulai dengan data asli? Hapus data dummy melalui:</string>
+    <string name="welcome_path_settings">Pengaturan</string>
+    <string name="welcome_path_reset">Reset Semua Data</string>
+    <string name="welcome_path_confirm">Lanjutkan</string>
+    <string name="welcome_start_button">Mulai Sekarang</string>
     <string name="license_expired_title">Trial Expired</string>
     <string name="license_expired_body">Your trial period has ended. Contact your distributor to renew your licence.</string>
     <string name="license_registered_expired_title">Licence Expired</string>

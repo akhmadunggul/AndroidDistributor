@@ -39,6 +39,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.distributor.app.ui.screens.AboutScreen
+import com.distributor.app.ui.screens.WelcomeScreen
 import com.distributor.app.ui.screens.FaqScreen
 import com.distributor.app.ui.screens.LicensePaymentScreen
 import com.distributor.app.ui.screens.DashboardScreen
@@ -113,6 +114,7 @@ private object Routes {
     const val LICENSE_PAYMENT = "license_payment"
     const val SUPPLIERS       = "suppliers"
     const val PURCHASE        = "purchase"
+    const val WELCOME         = "welcome"
 }
 
 // ── Bottom-nav tab descriptors ──────────────────────────────────────────────
@@ -172,7 +174,8 @@ private fun DistributorNavHost() {
         currentRoute != Routes.FAQ &&
         currentRoute != Routes.LICENSE_PAYMENT &&
         currentRoute != Routes.SUPPLIERS &&
-        currentRoute != Routes.PURCHASE
+        currentRoute != Routes.PURCHASE &&
+        currentRoute != Routes.WELCOME
 
     // ── Version check ──────────────────────────────────────────────────────
     val context = LocalContext.current
@@ -458,6 +461,13 @@ private fun DistributorNavHost() {
             }
             composable(Routes.ACTIVATION) {
                 ActivationScreen(onActivated = {
+                    navController.navigate(Routes.WELCOME) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                })
+            }
+            composable(Routes.WELCOME) {
+                WelcomeScreen(onContinue = {
                     navController.navigate(Routes.HOME) {
                         popUpTo(0) { inclusive = true }
                     }
