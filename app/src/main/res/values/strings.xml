@@ -234,6 +234,11 @@
     <string name="ledger_gross_profit">Gross Profit</string>
     <string name="ledger_entries_title">Entries</string>
     <string name="ledger_empty">No entries for this period.</string>
+    <string name="ledger_action_nota">Invoice</string>
+    <string name="ledger_action_kuitansi">Receipt</string>
+    <string name="ledger_summary_omzet">Sales</string>
+    <string name="ledger_summary_terkumpul">Collected</string>
+    <string name="ledger_summary_piutang">Unpaid</string>
     <string name="stock_low_alert_title">Low Stock Alert (%d products)</string>
     <string name="stock_low_alert_stock_format">%1$s / %2$s (min %3$s)</string>
     <string name="ledger_top_buyers_title">Top Buyers</string>

@@ -232,6 +232,11 @@
     <string name="ledger_gross_profit">Laba Kotor</string>
     <string name="ledger_entries_title">Riwayat</string>
     <string name="ledger_empty">Tidak ada entri untuk periode ini.</string>
+    <string name="ledger_action_nota">Nota</string>
+    <string name="ledger_action_kuitansi">Kuitansi</string>
+    <string name="ledger_summary_omzet">Omzet</string>
+    <string name="ledger_summary_terkumpul">Terkumpul</string>
+    <string name="ledger_summary_piutang">Piutang</string>
     <string name="stock_low_alert_title">Peringatan Stok Menipis (%d produk)</string>
     <string name="stock_low_alert_stock_format">%1$s / %2$s (min %3$s)</string>
     <string name="ledger_top_buyers_title">Pembeli Terbanyak</string>

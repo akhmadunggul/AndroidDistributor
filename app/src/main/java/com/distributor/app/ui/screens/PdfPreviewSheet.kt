@@ -39,7 +39,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -47,7 +46,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
@@ -77,11 +78,8 @@ internal fun PdfPreviewSheet(
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
-    // Prevent sheet from being dismissed by swipe/overscroll — only buttons can close it
-    val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true,
-        confirmValueChange = { it != SheetValue.Hidden }
-    )
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scope = rememberCoroutineScope()
     var renderedPages by remember { mutableStateOf(emptyList<Bitmap>()) }
     var renderError by remember { mutableStateOf(false) }
     var scale by remember { mutableFloatStateOf(1f) }
@@ -125,7 +123,7 @@ internal fun PdfPreviewSheet(
     }
 
     ModalBottomSheet(
-        onDismissRequest = {},
+        onDismissRequest = { scope.launch { sheetState.hide() }.invokeOnCompletion { onDismiss() } },
         sheetState = sheetState,
         dragHandle = {},
         modifier = Modifier.fillMaxHeight(0.95f)
@@ -213,7 +211,7 @@ internal fun PdfPreviewSheet(
                 }
             }
             OutlinedButton(
-                onClick  = onDismiss,
+                onClick  = { scope.launch { sheetState.hide() }.invokeOnCompletion { onDismiss() } },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 16.dp, end = 16.dp, top = 2.dp, bottom = 8.dp)
