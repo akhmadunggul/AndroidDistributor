@@ -13,9 +13,12 @@ import com.distributor.app.data.entity.StockLedgerEntity
 import com.distributor.app.data.entity.TransactionEntity
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.distributor.app.utils.formatRupiah
@@ -48,19 +51,20 @@ data class ReturnUiState(
 
 class ReturnViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val database      = AppDatabase.getInstance(application)
-    private val resellerDao   = database.resellerDao()
-    private val productDao    = database.productDao()
-    private val returnDao     = database.returnDao()
+    private val database       = AppDatabase.getInstance(application)
+    private val resellerDao    = database.resellerDao()
+    private val returnDao      = database.returnDao()
     private val stockLedgerDao = database.stockLedgerDao()
     private val transactionDao = database.transactionDao()
+
+    private val _selectedResellerId = MutableStateFlow<Long?>(null)
 
     private val _uiState = MutableStateFlow(ReturnUiState())
     val uiState: StateFlow<ReturnUiState> = _uiState.asStateFlow()
 
     init {
         observeResellers()
-        observeProducts()
+        observeFilteredProducts()
     }
 
     private fun observeResellers() {
@@ -77,11 +81,21 @@ class ReturnViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    private fun observeProducts() {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun observeFilteredProducts() {
         viewModelScope.launch {
             try {
-                productDao.getAllProducts().collect { products ->
-                    _uiState.update { it.copy(products = products) }
+                _selectedResellerId.flatMapLatest { resellerId ->
+                    if (resellerId == null) flowOf(emptyList())
+                    else transactionDao.getProductsByResellerFlow(resellerId)
+                }.collect { products ->
+                    _uiState.update { state ->
+                        val stillValid = products.any { it.id == state.selectedProduct?.id }
+                        state.copy(
+                            products        = products,
+                            selectedProduct = if (stillValid) state.selectedProduct else null
+                        )
+                    }
                 }
             } catch (e: CancellationException) {
                 throw e
@@ -92,7 +106,13 @@ class ReturnViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun onResellerSelected(reseller: ResellerEntity) {
-        _uiState.update { it.copy(selectedReseller = reseller) }
+        _selectedResellerId.value = reseller.id
+        _uiState.update { it.copy(
+            selectedReseller = reseller,
+            selectedProduct  = null,
+            cartItems        = emptyList(),
+            cartTotal        = 0.0
+        )}
     }
 
     fun onProductSelected(product: ProductEntity) {

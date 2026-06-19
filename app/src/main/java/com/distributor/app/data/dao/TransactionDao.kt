@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import com.distributor.app.data.entity.ProductEntity
 import com.distributor.app.data.entity.TransactionDetailEntity
 import com.distributor.app.data.entity.TransactionEntity
 import kotlinx.coroutines.flow.Flow
@@ -34,4 +35,14 @@ interface TransactionDao {
 
     @Query("SELECT * FROM transaction_details WHERE transaction_id = :transactionId")
     fun getDetailsByTransactionFlow(transactionId: Long): Flow<List<TransactionDetailEntity>>
+
+    @Query("""
+        SELECT DISTINCT p.*
+        FROM products p
+        JOIN transaction_details td ON td.product_id = p.id
+        JOIN transactions t ON td.transaction_id = t.id
+        WHERE t.reseller_id = :resellerId
+        ORDER BY p.name ASC
+    """)
+    fun getProductsByResellerFlow(resellerId: Long): Flow<List<ProductEntity>>
 }

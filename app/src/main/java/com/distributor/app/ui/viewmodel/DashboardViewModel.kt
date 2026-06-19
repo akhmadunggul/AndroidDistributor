@@ -35,6 +35,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     private val db        = AppDatabase.getInstance(application)
     private val ledgerDao = db.ledgerDao()
     private val stockDao  = db.stockLedgerDao()
+    private val returnDao = db.returnDao()
 
     private val _uiState = MutableStateFlow(DashboardUiState())
     val uiState: StateFlow<DashboardUiState> = _uiState.asStateFlow()
@@ -43,6 +44,12 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         viewModelScope.launch {
             stockDao.getLowStockAlertsFlow().collect { alerts ->
                 _uiState.update { it.copy(lowStockAlerts = alerts) }
+            }
+        }
+        // Re-run metrics whenever a return is added so Dashboard stays in sync
+        viewModelScope.launch {
+            returnDao.getReturnEntriesFlow(0L, Long.MAX_VALUE / 2).collect {
+                loadMetrics(_uiState.value.period)
             }
         }
         loadMetrics(DashboardPeriod.TODAY)
